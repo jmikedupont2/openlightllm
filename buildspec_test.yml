@@ -1,0 +1,38 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Creating notification message file ...
+      - echo "CODEBUILD_INITIATOR:${CODEBUILD_INITIATOR}" | tee -a sns-message.txt
+      - echo "CODEBUILD_BUILD_ID:${CODEBUILD_BUILD_ID}" | tee -a sns-message.txt
+      - echo "CODEBUILD_SOURCE_REPO_URL:${CODEBUILD_SOURCE_REPO_URL}" | tee -a sns-message.txt
+      - echo "CODEBUILD_SOURCE_VERSION:${CODEBUILD_SOURCE_VERSION}" | tee -a sns-message.txt
+      - echo "CODEBUILD_RESOLVED_SOURCE_VERSION:${CODEBUILD_RESOLVED_SOURCE_VERSION}" | tee -a sns-message.txt
+      - echo "DOCKER_COMPOSE_VERSION:${DOCKER_COMPOSE_VERSION}" | tee -a sns-message.txt
+      - echo Logging in to Amazon ECR ... | tee -a log.txt
+      - aws --version
+      - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com | tee -a log.txt
+      # aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com
+      
+      # aws ecr get-login-password --region region | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
+      
+      #- echo Pulling Docker Images for cache ... | tee -a log.txt
+      #- docker-compose pull --ignore-pull-failures --parallel 2>&1 | tee -a log.txt
+  build:
+    commands:
+      - echo Building the Docker image ... | tee -a log.txt
+      #- docker compose build --no-cache=true --progress=plain 2>&1 | tee -a log.txt
+      - docker build -t bitensor-repo .
+      - docker tag bitensor-repo:latest 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:latest
+  post_build:
+    commands:
+      - echo Pushing the Docker image ... | tee -a log.txt
+      #- aws ecr get-login-password --region us-west-1 | docker login 723854145424.dkr.ecr.us-west-1.amazonaws.com --username AWS --password-stdin | tee -a log.txt
+      - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com
+      - docker push 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:latest
+      #- echo printenv | tee -a log.txt
+      #- printenv | tee -a log.txt
+     # - echo Sending build log ... | tee -a log.txt
+      - echo "CODEBUILD_BUILD_SUCCEEDING:${CODEBUILD_BUILD_SUCCEEDING}" | tee -a sns-message.txt
+      #- echo Sending notification ...
+
