@@ -5,7 +5,8 @@ services:
       context: .
       args:
         target: runtime
-    image: ghcr.io/berriai/litellm:main-stable
+    image: 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:latest
+    # ghcr.io/berriai/litellm:main-stable
     ports:
       - "4000:4000" # Map the container port to the host, change the host port if necessary
     environment:

@@ -569,7 +569,8 @@ azure_embedding_models = {
 }
 
 petals_models = [
-    "petals-team/StableBeluga2",
+#    "petals-team/StableBeluga2",
+    "VAGOsolutions/SauerkrautLM-Mixtral-8x7B-Instruct",
 ]
 
 ollama_models = ["llama2"]
