@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 from enum import Enum
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from openai._models import BaseModel as OpenAIObject
 from pydantic import ConfigDict

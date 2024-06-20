@@ -174,4 +174,3 @@ class LogfireLogger:
             verbose_logger.debug(
                 f"Logfire Layer Error - {str(e)}\n{traceback.format_exc()}"
             )
-            pass

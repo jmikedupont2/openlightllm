@@ -1,12 +1,12 @@
 # What is this?
 ## On Success events log cost to OpenMeter - https://github.com/BerriAI/litellm/issues/1268
 
-import dotenv, os, json
+import dotenv
+import os
+import json
 import litellm
-import traceback
 from litellm.integrations.custom_logger import CustomLogger
 from litellm.llms.custom_httpx.http_handler import AsyncHTTPHandler, HTTPHandler
-import uuid
 
 
 def get_utc_datetime():

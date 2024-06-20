@@ -173,10 +173,8 @@ except:
 
 #### What this does ####
 #    On success, logs events to Langfuse
-import os
 import requests
 import requests
-from datetime import datetime
 
 import traceback
 
@@ -218,4 +216,3 @@ class WeightsBiasesLogger:
             )
         except:
             print_verbose(f"W&B Logging Layer Error - {traceback.format_exc()}")
-            pass

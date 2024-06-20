@@ -2,9 +2,9 @@
 ## This tests the batch update spend logic on the proxy server
 
 
-import sys, os, asyncio, time, random
-from datetime import datetime
-import traceback
+import sys
+import os
+import time
 from dotenv import load_dotenv
 from fastapi import Request
 
@@ -22,8 +22,9 @@ from litellm.proxy._types import UserAPIKeyAuth
 from litellm.caching import DualCache
 from litellm.proxy.utils import PrismaClient, ProxyLogging, hash_token
 
-import pytest, logging, asyncio
-import litellm, asyncio
+import pytest
+import logging
+import litellm
 from litellm.proxy.proxy_server import (
     user_api_key_auth,
     block_user,

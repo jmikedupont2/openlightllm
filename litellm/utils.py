@@ -16,25 +16,18 @@ import datetime
 import inspect
 import itertools
 import json
-import logging
 import os
 import random  # type: ignore
 import re
 import struct
-import subprocess
 
 # What is this?
 ## Generic utils.py file. Problem-specific utils (e.g. 'cost calculation), should all be in `litellm_core_utils/`.
-import sys
-import textwrap
 import threading
 import time
 import traceback
 import uuid
-from dataclasses import dataclass, field
 from functools import lru_cache, wraps
-from inspect import iscoroutine
-from os.path import abspath, dirname, join
 
 import aiohttp
 import dotenv
@@ -95,11 +88,10 @@ os.environ["TIKTOKEN_CACHE_DIR"] = os.getenv(
 encoding = tiktoken.get_encoding("cl100k_base")
 from importlib import resources
 
-with resources.open_text("litellm.llms.tokenizers", "anthropic_tokenizer.json") as f:
-    json_data = json.load(f)
+#with resources.open_text("litellm.llms.tokenizers", "anthropic_tokenizer.json") as f:
+#    json_data = json.load(f)
 # Convert to str (if necessary)
-claude_json_str = json.dumps(json_data)
-import importlib.metadata
+#claude_json_str = json.dumps(json_data)
 
 from openai import OpenAIError as OriginalError
 
@@ -141,7 +133,6 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    cast,
 )
 
 from .caching import Cache
@@ -268,7 +259,6 @@ def exception_logging(
         print_verbose(
             f"LiteLLM.LoggingError: [Non-Blocking] Exception occurred while logging {traceback.format_exc()}"
         )
-        pass
 
 
 ####### RULES ###################
@@ -5472,7 +5462,6 @@ def get_all_keys(llm_provider=None):
         print_verbose(
             f"[Non-Blocking Error] get_all_keys error - {traceback.format_exc()}"
         )
-        pass
 
 
 def get_model_list():
@@ -7628,7 +7617,7 @@ class CustomStreamWrapper:
 
             if chunk.startswith(self.complete_response):
                 # Remove last_sent_chunk only if it appears at the start of the new chunk
-                chunk = chunk[len(self.complete_response) :]
+                chunk = chunk[len(self.complete_response):]
 
             self.complete_response += chunk
             return chunk
@@ -9544,14 +9533,14 @@ class TextCompletionStreamWrapper:
 
 def mock_completion_streaming_obj(model_response, mock_response, model):
     for i in range(0, len(mock_response), 3):
-        completion_obj = {"role": "assistant", "content": mock_response[i : i + 3]}
+        completion_obj = {"role": "assistant", "content": mock_response[i: i + 3]}
         model_response.choices[0].delta = completion_obj
         yield model_response
 
 
 async def async_mock_completion_streaming_obj(model_response, mock_response, model):
     for i in range(0, len(mock_response), 3):
-        completion_obj = Delta(role="assistant", content=mock_response[i : i + 3])
+        completion_obj = Delta(role="assistant", content=mock_response[i: i + 3])
         model_response.choices[0].delta = completion_obj
         model_response.choices[0].finish_reason = "stop"
         yield model_response
@@ -9633,7 +9622,6 @@ def completion_with_fallbacks(**kwargs):
                 model_expiration_times[model] = (
                     time.time() + 60
                 )  # cool down this selected model
-                pass
     return response
 
 

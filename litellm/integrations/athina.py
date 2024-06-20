@@ -92,4 +92,3 @@ class AthinaLogger:
             print_verbose(
                 f"Athina Logger Error - {e}, Stack trace: {traceback.format_exc()}"
             )
-            pass

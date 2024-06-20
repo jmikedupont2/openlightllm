@@ -1,6 +1,7 @@
 #### What this tests ####
 #    This tests if get_optional_params works as expected
-import sys, os, time, inspect, asyncio, traceback
+import sys
+import os
 import pytest
 
 sys.path.insert(0, os.path.abspath("../.."))

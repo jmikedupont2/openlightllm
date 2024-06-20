@@ -1,19 +1,18 @@
 import sys, os
-import traceback, uuid
 from dotenv import load_dotenv
 from fastapi import Request
 from fastapi.routing import APIRoute
 
 load_dotenv()
-import os, io, time
+import os
 
 # this file is to test litellm/proxy
 
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-import pytest, logging, asyncio
-import litellm, asyncio
+import pytest
+import litellm
 import json
 import datetime
 from litellm.proxy.utils import (

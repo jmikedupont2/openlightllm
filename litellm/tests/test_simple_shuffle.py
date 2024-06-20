@@ -1,9 +1,8 @@
 # What is this?
 ## unit tests for 'simple-shuffle'
 
-import sys, os, asyncio, time, random
-from datetime import datetime
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

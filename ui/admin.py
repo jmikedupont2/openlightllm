@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 import streamlit as st
-import base64, os, json, uuid, requests
+import base64
+import os
+import requests
 import pandas as pd
 import plotly.express as px
 import click
@@ -295,7 +297,8 @@ def spend_per_user():
 
 def create_key():
     import streamlit as st
-    import json, requests, uuid
+    import json
+    import requests
 
     if (
         st.session_state.get("api_url", None) is None

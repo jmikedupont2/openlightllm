@@ -1,25 +1,19 @@
 import ast
 import asyncio
 import copy
-import hashlib
-import importlib
 import inspect
 import os
-import platform
 import random
-import re
 import secrets
-import shutil
 import subprocess
 import sys
-import threading
 import time
 import traceback
 import uuid
 import warnings
 from fastapi.responses import HTMLResponse
-from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, get_args
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, List, Optional, get_args
 
 import requests
 
@@ -49,7 +43,7 @@ sys.path.insert(
 )  # Adds the parent directory to the system path - for litellm local dev
 
 try:
-    import logging
+    pass
 
     import backoff
     import fastapi
@@ -203,8 +197,6 @@ except:
     version = "0.0.0"
 litellm.suppress_debug_info = True
 import json
-import logging
-from typing import Union
 
 from fastapi import (
     Depends,
@@ -283,7 +275,7 @@ def custom_openapi():
     return app.openapi_schema
 
 
-if os.getenv("DOCS_FILTERED", "False") == "True" :
+if os.getenv("DOCS_FILTERED", "False") == "True":
     app.openapi = custom_openapi  # type: ignore
 
 
@@ -593,7 +585,6 @@ async def _PROXY_failure_handler(
             data=error_log_dict  # type: ignore
         )
 
-    pass
 
 
 async def _PROXY_track_cost_callback(
@@ -5132,7 +5123,6 @@ async def update_end_user(
             param=getattr(e, "param", "None"),
             code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    pass
 
 
 @router.post(
@@ -5221,7 +5211,6 @@ async def delete_end_user(
             param=getattr(e, "param", "None"),
             code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    pass
 
 
 async def create_audit_log_for_update(request_data: LiteLLM_AuditLogs):
@@ -5406,7 +5395,6 @@ async def new_organization(
 )
 async def update_organization():
     """[TODO] Not Implemented yet. Let us know if you need this - https://github.com/BerriAI/litellm/issues"""
-    pass
 
 
 @router.post(
@@ -5416,7 +5404,6 @@ async def update_organization():
 )
 async def delete_organization():
     """[TODO] Not Implemented yet. Let us know if you need this - https://github.com/BerriAI/litellm/issues"""
-    pass
 
 
 @router.post(
@@ -6882,11 +6869,9 @@ async def google_login(request: Request):
         or google_client_id is not None
         or generic_client_id is not None
     ):
-    ####### Detect DB + MASTER KEY in .env #######
-        if prisma_client is None or master_key is None:
-            
-
-        return HTMLResponse(content=missing_keys_html_form, status_code=200)
+        ####### Detect DB + MASTER KEY in .env #######
+        if prisma_client is None or master_key is None:            
+            return HTMLResponse(content=missing_keys_html_form, status_code=200)
 
     # get url from request
     redirect_url = os.getenv("PROXY_BASE_URL", str(request.base_url))
@@ -7885,7 +7870,7 @@ async def invitation_update(
 ):
     """
     Update when invitation is accepted
-    
+
     ```
     curl -X POST 'http://localhost:4000/invitation/update' \
         -H 'Content-Type: application/json' \
@@ -7946,7 +7931,7 @@ async def invitation_delete(
 ):
     """
     Delete invitation link
-    
+
     ```
     curl -X POST 'http://localhost:4000/invitation/delete' \
         -H 'Content-Type: application/json' \

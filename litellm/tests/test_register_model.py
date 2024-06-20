@@ -2,7 +2,6 @@
 #    This tests calling batch_completions by running 100 messages together
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(

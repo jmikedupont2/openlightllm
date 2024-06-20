@@ -65,4 +65,3 @@ class GreenscaleLogger:
             print_verbose(
                 f"Greenscale Logger Error - {e}, Stack trace: {traceback.format_exc()}"
             )
-            pass

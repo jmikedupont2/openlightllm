@@ -1,11 +1,10 @@
 # test time it takes to make 100 concurrent embedding requests to OpenaI
 
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -26,7 +25,6 @@ question = "embed this very long text" * 100
 # show me a summary of requests made, success full calls, failed calls. For failed calls show me the exceptions
 
 import concurrent.futures
-import random
 import time
 
 

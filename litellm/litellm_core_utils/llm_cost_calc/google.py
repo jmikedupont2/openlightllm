@@ -1,6 +1,6 @@
 # What is this?
 ## Cost calculation for Google AI Studio / Vertex AI models
-from typing import Literal, Tuple
+from typing import Tuple
 
 import litellm
 

@@ -12,7 +12,6 @@ import os
 import inspect
 import redis, litellm  # type: ignore
 import redis.asyncio as async_redis  # type: ignore
-from typing import List, Optional
 
 
 def _get_redis_kwargs():

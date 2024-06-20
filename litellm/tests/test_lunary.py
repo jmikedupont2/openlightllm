@@ -1,6 +1,5 @@
 import sys
 import os
-import io
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -90,7 +89,7 @@ def test_lunary_with_tools():
         tools=tools,
         tool_choice="auto",  # auto is default, but we'll be explicit
     )
-    
+
     response_message = response.choices[0].message
     print("\nLLM Response:\n", response.choices[0].message)
 

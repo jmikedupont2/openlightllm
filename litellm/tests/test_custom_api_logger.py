@@ -1,6 +1,5 @@
 import sys
 import os
-import io, asyncio
 
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
@@ -13,7 +12,6 @@ import litellm
 
 litellm.num_retries = 3
 
-import time, random
 import pytest
 
 

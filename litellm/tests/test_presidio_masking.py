@@ -1,8 +1,7 @@
 # What is this?
 ## Unit test for presidio pii masking
-import sys, os, asyncio, time, random
-from datetime import datetime
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

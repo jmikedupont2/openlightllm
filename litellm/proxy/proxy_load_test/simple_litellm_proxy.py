@@ -6,7 +6,6 @@ from fastapi import FastAPI, Request, status, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-import uuid
 import litellm
 import openai
 from openai import AsyncOpenAI

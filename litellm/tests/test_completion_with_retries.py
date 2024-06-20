@@ -1,5 +1,4 @@
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -60,4 +59,3 @@ def test_completion_with_0_num_retries():
         # print(response)
     except Exception as e:
         print("exception", e)
-        pass

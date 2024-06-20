@@ -27,7 +27,8 @@ from fastapi.routing import APIRoute
 from datetime import datetime
 
 load_dotenv()
-import os, io, time
+import os
+import time
 
 # this file is to test litellm/proxy
 
@@ -280,7 +281,6 @@ def test_call_with_invalid_key(prisma_client):
         print("Got Exception", e)
         print(e.message)
         assert "Authentication Error, Invalid proxy server token passed" in e.message
-        pass
 
 
 def test_call_with_invalid_model(prisma_client):
@@ -316,7 +316,6 @@ def test_call_with_invalid_model(prisma_client):
             e.message
             == "Authentication Error, API Key not allowed to access model. This token can only access models=['mistral']. Tried to access gemini-pro-vision"
         )
-        pass
 
 
 def test_call_with_valid_model(prisma_client):
@@ -487,7 +486,6 @@ def test_end_user_cache_write_unit_test():
     """
     assert end user object is being written to cache as expected
     """
-    pass
 
 
 def test_call_with_end_user_over_budget(prisma_client):
@@ -900,7 +898,6 @@ def test_generate_and_call_with_expired_key(prisma_client):
         print("Got Exception", e)
         print(e.message)
         assert "Authentication Error" in e.message
-        pass
 
 
 def test_delete_key(prisma_client):
@@ -1013,7 +1010,6 @@ def test_delete_key_auth(prisma_client):
         print("Got Exception", e)
         print(e.message)
         assert "Authentication Error" in e.message
-        pass
 
 
 def test_generate_and_call_key_info(prisma_client):
@@ -1303,7 +1299,7 @@ def test_call_with_key_over_budget(prisma_client):
             from litellm.caching import Cache
 
             litellm.cache = Cache()
-            import time, uuid
+            import uuid
 
             request_id = f"chatcmpl-e41836bb-bb8b-4df2-8e70-8f3e160155ac{uuid.uuid4()}"
 
@@ -1420,7 +1416,7 @@ def test_call_with_key_over_model_budget(prisma_client):
             from litellm.caching import Cache
 
             litellm.cache = Cache()
-            import time, uuid
+            import uuid
 
             request_id = f"chatcmpl-{uuid.uuid4()}"
 
@@ -1517,7 +1513,7 @@ async def test_call_with_key_never_over_budget(prisma_client):
             _PROXY_track_cost_callback as track_cost_callback,
         )
         from litellm import ModelResponse, Choices, Message, Usage
-        import time, uuid
+        import uuid
 
         request_id = f"chatcmpl-{uuid.uuid4()}"
 
@@ -1598,7 +1594,7 @@ async def test_call_with_key_over_budget_stream(prisma_client):
             _PROXY_track_cost_callback as track_cost_callback,
         )
         from litellm import ModelResponse, Choices, Message, Usage
-        import time, uuid
+        import uuid
 
         request_id = f"chatcmpl-e41836bb-bb8b-4df2-8e70-8f3e160155ac{uuid.uuid4()}"
         resp = ModelResponse(

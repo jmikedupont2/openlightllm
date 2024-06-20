@@ -263,7 +263,6 @@ class LowestTPMLoggingHandler_v2(CustomLogger):
                 )
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
         try:
@@ -314,7 +313,6 @@ class LowestTPMLoggingHandler_v2(CustomLogger):
                 )
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     def _common_checks_available_deployment(
         self,
@@ -456,7 +454,7 @@ class LowestTPMLoggingHandler_v2(CustomLogger):
         )  # [1, 2, None, ..]
 
         tpm_values = combined_tpm_rpm_values[: len(tpm_keys)]
-        rpm_values = combined_tpm_rpm_values[len(tpm_keys) :]
+        rpm_values = combined_tpm_rpm_values[len(tpm_keys):]
 
         deployment = self._common_checks_available_deployment(
             model_group=model_group,

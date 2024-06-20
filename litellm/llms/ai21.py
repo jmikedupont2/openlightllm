@@ -1,6 +1,6 @@
-import os, types, traceback
+import types
+import traceback
 import json
-from enum import Enum
 import requests  # type: ignore
 import time, httpx  # type: ignore
 from typing import Callable, Optional

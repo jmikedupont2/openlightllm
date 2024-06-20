@@ -130,7 +130,6 @@ async def test_acompletion_caching_on_router():
     except litellm.Timeout as e:
         end_time = time.time()
         print(f"timeout error occurred: {end_time - start_time}")
-        pass
     except Exception as e:
         traceback.print_exc()
         pytest.fail(f"Error occurred: {e}")
@@ -245,7 +244,6 @@ async def test_acompletion_caching_with_ttl_on_router():
     except litellm.Timeout as e:
         end_time = time.time()
         print(f"timeout error occurred: {end_time - start_time}")
-        pass
     except Exception as e:
         traceback.print_exc()
         pytest.fail(f"Error occurred: {e}")
@@ -311,7 +309,6 @@ async def test_acompletion_caching_on_router_caching_groups():
     except litellm.Timeout as e:
         end_time = time.time()
         print(f"timeout error occurred: {end_time - start_time}")
-        pass
     except Exception as e:
         traceback.print_exc()
         pytest.fail(f"Error occurred: {e}")

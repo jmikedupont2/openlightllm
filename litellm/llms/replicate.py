@@ -1,4 +1,4 @@
-import os, types
+import types
 import json
 import requests  # type: ignore
 import time
@@ -291,7 +291,7 @@ def handle_prediction_response_streaming(prediction_url, api_token, print_verbos
             status = response_data["status"]
             if "output" in response_data:
                 output_string = "".join(response_data["output"])
-                new_output = output_string[len(previous_output) :]
+                new_output = output_string[len(previous_output):]
                 print_verbose(f"New chunk: {new_output}")
                 yield {"output": new_output, "status": status}
                 previous_output = output_string
@@ -330,7 +330,7 @@ async def async_handle_prediction_response_streaming(
             status = response_data["status"]
             if "output" in response_data:
                 output_string = "".join(response_data["output"])
-                new_output = output_string[len(previous_output) :]
+                new_output = output_string[len(previous_output):]
                 print_verbose(f"New chunk: {new_output}")
                 yield {"output": new_output, "status": status}
                 previous_output = output_string

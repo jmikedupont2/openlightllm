@@ -1,6 +1,5 @@
-import os, types
+import types
 import json
-from enum import Enum
 import requests  # type: ignore
 import time
 from typing import Callable, Optional

@@ -1,10 +1,9 @@
 # What is this?
 ## Unit Tests for prometheus service monitoring
 
-import json
 import sys
 import os
-import io, asyncio
+import asyncio
 
 sys.path.insert(0, os.path.abspath("../.."))
 import pytest

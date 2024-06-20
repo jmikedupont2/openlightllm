@@ -2,13 +2,11 @@
 ## Controller file for TextCompletionCodestral Integration - https://codestral.com/
 
 from functools import partial
-import os, types
+import types
 import traceback
 import json
-from enum import Enum
 import requests, copy  # type: ignore
-import time
-from typing import Callable, Optional, List, Literal, Union
+from typing import Callable, Optional, List, Union
 from litellm.utils import (
     TextCompletionResponse,
     Usage,

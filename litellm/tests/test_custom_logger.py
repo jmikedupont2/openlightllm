@@ -1,5 +1,9 @@
 ### What this tests ####
-import sys, os, time, inspect, asyncio, traceback
+import sys
+import os
+import time
+import asyncio
+import traceback
 import pytest
 
 sys.path.insert(0, os.path.abspath("../.."))

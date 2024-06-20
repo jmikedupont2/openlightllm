@@ -3,21 +3,20 @@
 
 
 import sys, os
-import traceback
 from dotenv import load_dotenv
 from fastapi import Request
-from datetime import datetime
 
 load_dotenv()
-import os, io, time
+import os
 
 # this file is to test litellm/proxy
 
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-import pytest, logging, asyncio
-import litellm, asyncio
+import pytest
+import logging
+import litellm
 from litellm.proxy.proxy_server import token_counter
 from litellm.proxy.utils import PrismaClient, ProxyLogging, hash_token, update_spend
 from litellm._logging import verbose_proxy_logger

@@ -6,7 +6,7 @@ import pytest, uuid
 from pydantic import BaseModel
 
 sys.path.insert(0, os.path.abspath("../.."))
-from typing import Optional, Literal, List, Union
+from typing import Literal, List
 from litellm import completion, embedding, Cache
 import litellm
 from litellm.integrations.custom_logger import CustomLogger
@@ -938,7 +938,7 @@ async def test_async_completion_azure_caching():
 
 @pytest.mark.asyncio
 async def test_async_completion_azure_caching_streaming():
-    import copy
+    pass
 
     litellm.set_verbose = True
     customHandler_caching = CompletionCustomHandler()

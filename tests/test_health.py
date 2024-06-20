@@ -2,7 +2,6 @@
 ## Tests /health + /routes endpoints.
 
 import pytest
-import asyncio
 import aiohttp
 
 

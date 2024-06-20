@@ -16,7 +16,7 @@ from litellm._logging import verbose_proxy_logger
 from litellm.utils import get_formatted_prompt
 from litellm.llms.prompt_templates.factory import prompt_injection_detection_default_pt
 from fastapi import HTTPException
-import json, traceback, re
+import traceback
 from difflib import SequenceMatcher
 from typing import List
 
@@ -118,7 +118,7 @@ class _OPTIONAL_PromptInjectionDetection(CustomLogger):
 
             for i in range(len(user_input_lower) - keyword_length + 1):
                 # Extract a substring of the same length as the keyword
-                substring = user_input_lower[i : i + keyword_length]
+                substring = user_input_lower[i: i + keyword_length]
 
                 # Calculate similarity
                 match_ratio = SequenceMatcher(None, substring, keyword).ratio()

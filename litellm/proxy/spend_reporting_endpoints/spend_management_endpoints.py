@@ -2,7 +2,7 @@
 from typing import Optional, List
 import litellm
 from litellm._logging import verbose_proxy_logger
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
 import fastapi
 from fastapi import Depends, Request, APIRouter, Header, status
@@ -216,7 +216,6 @@ async def get_global_activity(
         "sum_total_tokens": 2012
     }
     """
-    from collections import defaultdict
 
     if start_date is None or end_date is None:
         raise HTTPException(
@@ -344,7 +343,6 @@ async def get_global_activity_model(
         },
     ]
     """
-    from collections import defaultdict
 
     if start_date is None or end_date is None:
         raise HTTPException(
@@ -489,7 +487,6 @@ async def get_global_activity_exceptions_per_deployment(
         },
     ]
     """
-    from collections import defaultdict
 
     if start_date is None or end_date is None:
         raise HTTPException(
@@ -623,7 +620,6 @@ async def get_global_activity_exceptions(
         "sum_api_exceptions": 20,
     }
     """
-    from collections import defaultdict
 
     if start_date is None or end_date is None:
         raise HTTPException(
@@ -1091,7 +1087,7 @@ async def global_view_spend_tags(
     """
 
 
-    
+
 
     try:
         if prisma_client is None:

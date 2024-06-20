@@ -1,6 +1,6 @@
 #### What this does ####
 #    On success, logs events to Promptlayer
-import dotenv, os
+import dotenv
 
 from litellm.proxy._types import UserAPIKeyAuth
 from litellm.caching import DualCache
@@ -145,7 +145,6 @@ class CustomLogger:  # https://docs.litellm.ai/docs/observability/custom_callbac
             )
         except:
             print_verbose(f"Custom Logger Error - {traceback.format_exc()}")
-            pass
 
     async def async_log_event(
         self, kwargs, response_obj, start_time, end_time, print_verbose, callback_func
@@ -161,4 +160,3 @@ class CustomLogger:  # https://docs.litellm.ai/docs/observability/custom_callbac
             )
         except:
             print_verbose(f"Custom Logger Error - {traceback.format_exc()}")
-            pass

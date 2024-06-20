@@ -1,9 +1,11 @@
 # What is this?
 ## Tests slack alerting on proxy logging object
 
-import sys, json, uuid, random, httpx
+import sys
+import json
+import httpx
 import os
-import io, asyncio
+import asyncio
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -19,7 +21,6 @@ from unittest.mock import patch, MagicMock
 from litellm.utils import get_api_base
 from litellm.caching import DualCache
 from litellm.integrations.slack_alerting import SlackAlerting, DeploymentMetrics
-import unittest.mock
 from unittest.mock import AsyncMock
 import pytest
 from litellm.router import AlertingConfig, Router

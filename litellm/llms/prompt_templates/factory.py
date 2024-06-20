@@ -1,6 +1,5 @@
 import json
 import re
-import traceback
 import uuid
 import xml.etree.ElementTree as ET
 from enum import Enum
@@ -1666,7 +1665,6 @@ def get_image_details(image_url) -> Tuple[str, str]:
 def _process_bedrock_converse_image_block(image_url: str) -> BedrockImageBlock:
     if "base64" in image_url:
         # Case 1: Images with base64 encoding
-        import base64
         import re
 
         # base 64 is passed as data:image/jpeg;base64,<base-64-encoded-image>

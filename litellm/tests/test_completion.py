@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import traceback
@@ -6,7 +5,6 @@ import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import io
 import os
 
 sys.path.insert(
@@ -468,7 +466,6 @@ async def test_anthropic_no_content_error():
             frequency_penalty=0.8,
         )
 
-        pass
     except litellm.APIError as e:
         assert e.status_code == 500
     except Exception as e:
@@ -1076,7 +1073,6 @@ def test_completion_gpt4_turbo():
         print(response)
     except openai.RateLimitError:
         print("got a rate liimt error")
-        pass
     except Exception as e:
         pytest.fail(f"Error occurred: {e}")
 
@@ -1094,7 +1090,6 @@ def test_completion_gpt4_turbo_0125():
         print(response)
     except openai.RateLimitError:
         print("got a rate liimt error")
-        pass
     except Exception as e:
         pytest.fail(f"Error occurred: {e}")
 
@@ -1123,7 +1118,6 @@ def test_completion_gpt4_vision():
         print(response)
     except openai.RateLimitError:
         print("got a rate liimt error")
-        pass
     except Exception as e:
         pytest.fail(f"Error occurred: {e}")
 
@@ -1170,13 +1164,10 @@ def test_completion_azure_gpt4_vision():
         pass
     except openai.APITimeoutError:
         print("got a timeout error")
-        pass
     except openai.RateLimitError as e:
         print("got a rate liimt error", e)
-        pass
     except openai.APIStatusError as e:
         print("got an api status error", e)
-        pass
     except Exception as e:
         pytest.fail(f"Error occurred: {e}")
 
@@ -1940,7 +1931,6 @@ def test_completion_ollama_hosted():
     except openai.APITimeoutError as e:
         print("got a timeout error. Passed ! ")
         litellm.request_timeout = None
-        pass
     except Exception as e:
         if "try pulling it first" in str(e):
             return
@@ -2519,7 +2509,6 @@ def test_completion_azure_deployment_id():
 
 # test_completion_azure_deployment_id()
 
-import asyncio
 
 
 @pytest.mark.parametrize("sync_mode", [False, True])
@@ -2737,7 +2726,6 @@ def test_customprompt_together_ai():
         print(response)
     except litellm.exceptions.Timeout as e:
         print(f"Timeout Error")
-        pass
     except Exception as e:
         print(f"ERROR TYPE {type(e)}")
         pytest.fail(f"Error occurred: {e}")
@@ -3213,7 +3201,6 @@ def test_azure_cloudflare_api():
     except Exception as e:
         pytest.fail(f"Error occurred: {e}")
         traceback.print_exc()
-        pass
 
 
 # test_azure_cloudflare_api()

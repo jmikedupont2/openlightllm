@@ -821,7 +821,7 @@ async def test_redis_cache_atext_completion():
 
 @pytest.mark.asyncio
 async def test_redis_cache_acompletion_stream_bedrock():
-    import asyncio
+    pass
 
     try:
         litellm.set_verbose = True
@@ -955,7 +955,7 @@ def test_disk_cache_completion():
 @pytest.mark.skip(reason="AWS Suspended Account")
 @pytest.mark.asyncio
 async def test_s3_cache_acompletion_stream_azure():
-    import asyncio
+    pass
 
     try:
         litellm.set_verbose = True
@@ -1034,7 +1034,6 @@ async def test_s3_cache_acompletion_stream_azure():
 @pytest.mark.skip(reason="AWS Suspended Account")
 @pytest.mark.asyncio
 async def test_s3_cache_acompletion_azure():
-    import asyncio
     import logging
     import tracemalloc
 

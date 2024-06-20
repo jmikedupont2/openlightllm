@@ -8,9 +8,10 @@
 #  Thank you users! We ❤️ you! - Krrish & Ishaan
 
 import litellm
-import time, logging, asyncio
+import time
+import asyncio
 import json, traceback, ast, hashlib
-from typing import Optional, Literal, List, Union, Any, BinaryIO
+from typing import Optional, Literal, List, Union, Any
 from openai._models import BaseModel as OpenAIObject
 from litellm._logging import verbose_logger
 from litellm.types.services import ServiceLoggerPayload, ServiceTypes
@@ -939,7 +940,6 @@ class RedisSemanticCache(BaseCache):
             # cache miss !
             return None
 
-        pass
 
     async def async_set_cache(self, key, value, **kwargs):
         import numpy as np
@@ -1073,7 +1073,6 @@ class RedisSemanticCache(BaseCache):
         else:
             # cache miss !
             return None
-        pass
 
     async def _index_info(self):
         return await self.index.ainfo()
@@ -1161,7 +1160,8 @@ class S3Cache(BaseCache):
         self.set_cache(key=key, value=value, **kwargs)
 
     def get_cache(self, key, **kwargs):
-        import boto3, botocore
+        import boto3
+        import botocore
 
         try:
             key = self.key_prefix + key
@@ -1742,7 +1742,7 @@ class Cache:
                     {
                         "delta": {
                             "role": "assistant",
-                            "content": content[i : i + chunk_size],
+                            "content": content[i: i + chunk_size],
                         }
                     }
                 ]
@@ -1895,7 +1895,6 @@ class Cache:
         except Exception as e:
             verbose_logger.error(f"LiteLLM Cache: Excepton add_cache: {str(e)}")
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     async def async_add_cache(self, result, *args, **kwargs):
         """

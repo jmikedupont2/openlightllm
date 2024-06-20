@@ -2,7 +2,6 @@
 #    This tests context fallback dict
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(

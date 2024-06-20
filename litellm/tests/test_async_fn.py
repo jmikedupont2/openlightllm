@@ -3,8 +3,7 @@
 
 import sys, os
 import pytest
-import traceback
-import asyncio, logging
+import asyncio
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -194,14 +193,11 @@ async def test_hf_completion_tgi():
         print(response)
     except litellm.APIError as e:
         print("got an api error")
-        pass
     except litellm.Timeout as e:
         print("got a timeout error")
-        pass
     except litellm.RateLimitError as e:
         # this will catch the model is overloaded error
         print("got a rate limit error")
-        pass
     except Exception as e:
         if "Model is overloaded" in str(e):
             pass

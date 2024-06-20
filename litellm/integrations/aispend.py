@@ -1,6 +1,7 @@
 #### What this does ####
 #    On success + failure, log events to aispend.io
-import dotenv, os
+import dotenv
+import os
 import traceback
 import datetime
 
@@ -170,4 +171,3 @@ class AISpendLogger:
             print_verbose(f"AISpend Logging - final data object: {data}")
         except:
             print_verbose(f"AISpend Logging Error - {traceback.format_exc()}")
-            pass

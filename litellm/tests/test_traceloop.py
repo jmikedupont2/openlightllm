@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 import pytest
 import litellm
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter

@@ -1,12 +1,10 @@
 import asyncio
 import os
 import sys
-import traceback
 
 from dotenv import load_dotenv
 
 load_dotenv()
-import io
 import os
 
 sys.path.insert(
@@ -4121,7 +4119,7 @@ async def test_completion_codestral_fim_api():
 @pytest.mark.asyncio
 async def test_completion_codestral_fim_api_stream():
     try:
-        import logging
+        pass
 
         from litellm._logging import verbose_logger
 

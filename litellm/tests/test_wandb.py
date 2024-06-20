@@ -1,6 +1,6 @@
 import sys
 import os
-import io, asyncio
+import asyncio
 
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
@@ -11,7 +11,6 @@ import litellm
 
 litellm.num_retries = 3
 litellm.success_callback = ["wandb"]
-import time
 import pytest
 
 

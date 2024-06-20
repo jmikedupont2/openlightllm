@@ -7,18 +7,17 @@ import dotenv, os
 from litellm.proxy._types import UserAPIKeyAuth
 from litellm.caching import DualCache
 
-from typing import Literal, Union
 import traceback
 
 
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import dotenv, os
+import dotenv
+import os
 import requests
 import traceback
-import datetime, subprocess, sys
-import litellm, uuid
+import litellm
 from litellm._logging import print_verbose, verbose_logger
 
 
@@ -290,4 +289,3 @@ class ClickhouseLogger:
             verbose_logger.debug(f"Clickhouse Logger - final response = {response}")
         except Exception as e:
             verbose_logger.debug(f"Clickhouse - {str(e)}\n{traceback.format_exc()}")
-            pass

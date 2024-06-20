@@ -1,9 +1,11 @@
 #### What this tests ####
 #    This tests the router's ability to pick deployment with lowest latency
 
-import sys, os, asyncio, time, random
+import sys
+import os
+import asyncio
+import time
 from datetime import datetime, timedelta
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()

@@ -1,11 +1,12 @@
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import dotenv, os
+import dotenv
+import os
 import requests  # type: ignore
 import traceback
-import datetime, subprocess, sys
-import litellm, uuid
+import litellm
+import uuid
 from litellm._logging import print_verbose, verbose_logger
 
 
@@ -26,7 +27,6 @@ class DataDogLogger:
 
         try:
             verbose_logger.debug(f"in init datadog logger")
-            pass
 
         except Exception as e:
             print_verbose(f"Got exception on init s3 client {str(e)}")
@@ -137,4 +137,3 @@ class DataDogLogger:
             verbose_logger.debug(
                 f"Datadog Layer Error - {str(e)}\n{traceback.format_exc()}"
             )
-            pass

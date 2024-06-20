@@ -1,8 +1,7 @@
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from functools import wraps
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 import litellm
 from litellm._logging import verbose_logger
@@ -108,7 +107,7 @@ class OpenTelemetry(CustomLogger):
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
     ):
-        from datetime import datetime
+        pass
 
         from opentelemetry import trace
         from opentelemetry.trace import Status, StatusCode
@@ -147,7 +146,7 @@ class OpenTelemetry(CustomLogger):
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
     ):
-        from datetime import datetime
+        pass
 
         from opentelemetry import trace
         from opentelemetry.trace import Status, StatusCode
@@ -279,7 +278,6 @@ class OpenTelemetry(CustomLogger):
             verbose_logger.error(
                 "OpenTelemetry: Error setting tools attributes: %s", str(e)
             )
-            pass
 
     def set_attributes(self, span: Span, kwargs, response_obj):
         from litellm.proxy._types import SpanAttributes
@@ -456,7 +454,6 @@ class OpenTelemetry(CustomLogger):
                     val,
                 )
 
-        pass
 
     def _to_ns(self, dt):
         return int(dt.timestamp() * 1e9)
@@ -578,7 +575,7 @@ class OpenTelemetry(CustomLogger):
         logging_payload: ManagementEndpointLoggingPayload,
         parent_otel_span: Optional[Span] = None,
     ):
-        from datetime import datetime
+        pass
 
         from opentelemetry import trace
         from opentelemetry.trace import Status, StatusCode
@@ -624,7 +621,7 @@ class OpenTelemetry(CustomLogger):
         logging_payload: ManagementEndpointLoggingPayload,
         parent_otel_span: Optional[Span] = None,
     ):
-        from datetime import datetime
+        pass
 
         from opentelemetry import trace
         from opentelemetry.trace import Status, StatusCode

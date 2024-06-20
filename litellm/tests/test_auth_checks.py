@@ -1,8 +1,8 @@
 # What is this?
 ## Tests if 'get_end_user_object' works as expected
 
-import sys, os, asyncio, time, random, uuid
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

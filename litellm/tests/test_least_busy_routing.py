@@ -1,8 +1,10 @@
 #### What this tests ####
 #    This tests the router's ability to identify the least busy deployment
 
-import sys, os, asyncio, time, random
-import traceback
+import sys
+import os
+import asyncio
+import random
 from dotenv import load_dotenv
 
 load_dotenv()

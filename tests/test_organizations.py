@@ -3,7 +3,7 @@
 import pytest
 import asyncio
 import aiohttp
-import time, uuid
+import uuid
 from openai import AsyncOpenAI
 
 

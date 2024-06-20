@@ -3,9 +3,8 @@ Deprecated. We now do together ai calls via the openai client.
 Reference: https://docs.together.ai/docs/openai-api-compatibility
 """
 
-import os, types
+import types
 import json
-from enum import Enum
 import requests  # type: ignore
 import time
 from typing import Callable, Optional

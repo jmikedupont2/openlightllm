@@ -13,7 +13,6 @@ import secrets
 import traceback
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from uuid import uuid4
 
 import fastapi
 from fastapi import (
@@ -378,7 +377,6 @@ async def user_api_key_auth(
                 verbose_proxy_logger.debug(
                     "Unable to find user in db. Error - {}".format(str(e))
                 )
-                pass
 
         ### CHECK IF ADMIN ###
         # note: never string compare api keys, this is vulenerable to a time attack. Use secrets.compare_digest instead

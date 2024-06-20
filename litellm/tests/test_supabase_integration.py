@@ -65,7 +65,6 @@ def test_acompletion_sync():
             pass
         except:
             print(f"error occurred: {traceback.format_exc()}")
-            pass
 
     asyncio.run(completion_call())
 

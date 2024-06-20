@@ -5,7 +5,6 @@ Functions for sending Email Alerts
 import os
 from typing import Optional, List
 from litellm.proxy._types import WebhookEvent
-import asyncio
 from litellm._logging import verbose_logger, verbose_proxy_logger
 
 # we use this for the email header, please send a test email if you change this. verify it looks good on email

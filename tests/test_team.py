@@ -174,7 +174,7 @@ async def chat_completion(session, key, model="gpt-4"):
 
 
 async def new_team(session, i, user_id=None, member_list=None, model_aliases=None):
-    import json
+    pass
 
     url = "http://0.0.0.0:4000/team/new"
     headers = {"Authorization": "Bearer sk-1234", "Content-Type": "application/json"}

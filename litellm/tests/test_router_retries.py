@@ -1,8 +1,9 @@
 #### What this tests ####
 #    This tests calling router with fallback models
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import asyncio
 import pytest
 
 sys.path.insert(
@@ -180,7 +181,6 @@ async def test_router_retry_policy(error_type):
         )
     except Exception as e:
         print("got an exception", e)
-        pass
     asyncio.sleep(0.05)
 
     print("customHandler.previous_models: ", customHandler.previous_models)
@@ -231,7 +231,6 @@ async def test_router_retry_policy_on_429_errprs():
         print("responses: ", responses)
     except Exception as e:
         print("got an exception", e)
-        pass
     asyncio.sleep(0.05)
     print("customHandler.previous_models: ", customHandler.previous_models)
 
@@ -312,7 +311,6 @@ async def test_dynamic_router_retry_policy(model_group):
         response = await router.acompletion(model=model, messages=messages)
     except Exception as e:
         print("got an exception", e)
-        pass
     asyncio.sleep(0.05)
 
     print("customHandler.previous_models: ", customHandler.previous_models)

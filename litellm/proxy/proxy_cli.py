@@ -1,8 +1,8 @@
 import click
-import subprocess, traceback, json
+import subprocess
+import json
 import os, sys
 import random
-from datetime import datetime
 import importlib
 from dotenv import load_dotenv
 import urllib.parse as urlparse
@@ -14,8 +14,6 @@ config_filename = "litellm.secrets"
 litellm_mode = os.getenv("LITELLM_MODE", "DEV")  # "PRODUCTION", "DEV"
 if litellm_mode == "DEV":
     load_dotenv()
-from importlib import resources
-import shutil
 
 
 telemetry = None

@@ -3,7 +3,6 @@
 #    Expect to add more edge cases to this over time.
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(
@@ -32,7 +31,6 @@ def test_completion_with_empty_model():
         response = completion(model=model_val, messages=messages)
     except Exception as e:
         print(f"error occurred: {e}")
-        pass
 
 
 # def test_completion_catch_nlp_exception():
@@ -88,7 +86,6 @@ def test_completion_function_call_cohere():
         pytest.fail(f"An error occurred {e}")
     except Exception as e:
         print(e)
-        pass
 
 
 # test_completion_function_call_cohere()
@@ -136,7 +133,6 @@ def test_completion_with_no_provider():
         response = completion(model=model, messages=messages)
     except Exception as e:
         print(f"error occurred: {e}")
-        pass
 
 
 # test_completion_with_no_provider()

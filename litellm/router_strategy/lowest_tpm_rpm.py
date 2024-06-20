@@ -1,7 +1,8 @@
 #### What this does ####
 #   identifies lowest tpm deployment
 from pydantic import BaseModel
-import dotenv, os, requests, random
+import dotenv
+import requests
 from typing import Optional, Union, List, Dict
 from datetime import datetime
 import traceback
@@ -99,7 +100,6 @@ class LowestTPMLoggingHandler(CustomLogger):
                 )
             )
             verbose_router_logger.debug(traceback.format_exc())
-            pass
 
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
         try:
@@ -159,7 +159,6 @@ class LowestTPMLoggingHandler(CustomLogger):
                 )
             )
             verbose_router_logger.debug(traceback.format_exc())
-            pass
 
     def get_available_deployments(
         self,

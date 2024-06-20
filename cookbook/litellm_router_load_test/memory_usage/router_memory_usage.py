@@ -2,7 +2,7 @@
 
 from memory_profiler import profile, memory_usage
 import sys, os, time
-import traceback, asyncio
+import asyncio
 import pytest
 
 sys.path.insert(
@@ -10,8 +10,6 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 import litellm
 from litellm import Router
-from concurrent.futures import ThreadPoolExecutor
-from collections import defaultdict
 from dotenv import load_dotenv
 import uuid
 

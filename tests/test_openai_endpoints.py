@@ -2,9 +2,10 @@
 ## Tests /chat/completions by generating a key and then making a chat completions request
 import pytest
 import asyncio
-import aiohttp, openai
+import aiohttp
+import openai
 from openai import OpenAI, AsyncOpenAI
-from typing import Optional, List, Union
+from typing import List, Union
 
 
 def response_header_check(response):

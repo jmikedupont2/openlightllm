@@ -1,7 +1,7 @@
 # What is this?
 ## Unit Tests for OpenAI Batches API
-import sys, os, json
-import traceback
+import sys
+import os
 import asyncio
 from dotenv import load_dotenv
 
@@ -9,13 +9,13 @@ load_dotenv()
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-import pytest, logging, asyncio
+import pytest
+import asyncio
 import litellm
 from litellm import (
     create_batch,
     create_file,
 )
-import time
 
 
 def test_create_batch():
@@ -79,7 +79,6 @@ def test_create_batch():
     with open(result_file_name, "wb") as file:
         file.write(result)
 
-    pass
 
 
 @pytest.mark.asyncio()

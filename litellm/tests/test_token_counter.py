@@ -2,7 +2,6 @@
 #    This tests litellm.token_counter() function
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(

@@ -135,7 +135,6 @@ def management_endpoint_wrapper(func):
             except Exception as e:
                 # Non-Blocking Exception
                 verbose_logger.debug("Error in management endpoint wrapper: %s", str(e))
-                pass
 
             return result
         except Exception as e:

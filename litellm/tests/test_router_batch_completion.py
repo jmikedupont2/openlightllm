@@ -1,8 +1,9 @@
 #### What this tests ####
 # This tests litellm router with batch completion
 
-import sys, os, time, openai
-import traceback, asyncio
+import sys
+import os
+import openai
 import pytest
 
 sys.path.insert(
@@ -11,10 +12,9 @@ sys.path.insert(
 import litellm
 from litellm import Router
 from litellm.router import Deployment, LiteLLM_Params, ModelInfo
-from concurrent.futures import ThreadPoolExecutor
-from collections import defaultdict
 from dotenv import load_dotenv
-import os, httpx
+import os
+import httpx
 
 load_dotenv()
 

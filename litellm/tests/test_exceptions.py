@@ -1,6 +1,5 @@
 import asyncio
 import os
-import subprocess
 import sys
 import traceback
 from typing import Any
@@ -10,8 +9,6 @@ from openai import AuthenticationError, BadRequestError, OpenAIError, RateLimitE
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -58,7 +55,6 @@ async def test_content_policy_exception_azure():
         assert e.litellm_debug_info is not None
         assert isinstance(e.litellm_debug_info, str)
         assert len(e.litellm_debug_info) > 0
-        pass
     except Exception as e:
         print()
         pytest.fail(f"An exception occurred - {str(e)}")
@@ -406,7 +402,6 @@ def test_content_policy_exceptionimage_generation_openai():
         assert len(response.data) > 0
     except litellm.ContentPolicyViolationError as e:
         print("caught a content policy violation error! Passed")
-        pass
     except Exception as e:
         pytest.fail(f"An exception occurred - {str(e)}")
 
@@ -711,4 +706,3 @@ def test_exception_mapping(provider):
             )
         )
 
-    pass

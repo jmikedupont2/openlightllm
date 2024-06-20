@@ -1,9 +1,7 @@
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import os
 import traceback
-import datetime, subprocess, sys
 import litellm, uuid
 from litellm._logging import print_verbose, verbose_logger
 
@@ -181,4 +179,3 @@ class S3Logger:
             return response
         except Exception as e:
             verbose_logger.debug(f"s3 Layer Error - {str(e)}\n{traceback.format_exc()}")
-            pass

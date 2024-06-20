@@ -1,6 +1,5 @@
 import sys
 import os
-import io
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -9,7 +8,6 @@ import litellm
 
 litellm.success_callback = ["langsmith"]
 litellm.set_verbose = True
-import time
 
 
 def test_langsmith_logging():
