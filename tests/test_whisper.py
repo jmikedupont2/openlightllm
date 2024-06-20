@@ -2,11 +2,12 @@
 ## Tests `litellm.transcription` endpoint. Outside litellm module b/c of audio file used in testing (it's ~700kb).
 
 import pytest
-import asyncio, time
-import aiohttp, traceback
+import aiohttp
+import traceback
 from openai import AsyncOpenAI
-import sys, os, dotenv
-from typing import Optional
+import sys
+import os
+import dotenv
 from dotenv import load_dotenv
 
 # Get the current directory of the file being run

@@ -1,8 +1,9 @@
 #### What this tests ####
 # This tests utils used by llm router -> like llmrouter.get_settings()
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import traceback
 import pytest
 
 sys.path.insert(
@@ -11,8 +12,6 @@ sys.path.insert(
 import litellm
 from litellm import Router
 from litellm.router import Deployment, LiteLLM_Params, ModelInfo
-from concurrent.futures import ThreadPoolExecutor
-from collections import defaultdict
 from dotenv import load_dotenv
 
 load_dotenv()

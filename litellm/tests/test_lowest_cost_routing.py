@@ -1,13 +1,14 @@
 #### What this tests ####
 #    This tests the router's ability to pick deployment with lowest cost
 
-import sys, os, asyncio, time, random
-from datetime import datetime
-import traceback
+import sys
+import os
+import asyncio
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, copy
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")

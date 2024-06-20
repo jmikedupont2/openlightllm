@@ -1,6 +1,7 @@
 # What is this?
 ## Unit testing for the 'get_model_info()' function
-import os, sys, traceback
+import os
+import sys
 
 sys.path.insert(
     0, os.path.abspath("../..")

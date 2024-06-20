@@ -102,7 +102,6 @@ async def test_user_update():
     Update user access to new model
     Make chat completion call
     """
-    pass
 
 
 @pytest.mark.skip(reason="Frequent check on ci/cd leads to read timeout issue.")

@@ -10,7 +10,7 @@ import sys
 import time
 import traceback
 import uuid
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, List, Optional
 
 import litellm
 from litellm import (
@@ -935,7 +935,6 @@ class Logging:
                                 print_verbose(
                                     f"success_callback: reaches cache for logging, there is no complete_streaming_response. Kwargs={kwargs}\n\n"
                                 )
-                                pass
                             else:
                                 print_verbose(
                                     "success_callback: reaches cache for logging, there is a complete_streaming_response. Adding to cache"
@@ -1233,7 +1232,6 @@ class Logging:
                             print_verbose(
                                 f"async success_callback: reaches cache for logging, there is no async_complete_streaming_response. Kwargs={kwargs}\n\n"
                             )
-                            pass
                         else:
                             print_verbose(
                                 "async success_callback: reaches cache for logging, there is a async_complete_streaming_response. Adding to cache"
@@ -1365,7 +1363,6 @@ class Logging:
                 verbose_logger.error(
                     f"LiteLLM.LoggingError: [Non-Blocking] Exception occurred while success logging {traceback.format_exc()}"
                 )
-                pass
 
     def _failure_handler_helper_fn(
         self, exception, traceback_exception, start_time=None, end_time=None

@@ -2,14 +2,12 @@
 ## This tests the litellm support for the openai /generations endpoint
 
 import sys, os
-import traceback
 from dotenv import load_dotenv
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 import os
-import asyncio
 
 sys.path.insert(
     0, os.path.abspath("../..")

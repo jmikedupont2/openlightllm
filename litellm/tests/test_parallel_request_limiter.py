@@ -1,9 +1,10 @@
 # What this tests?
 ## Unit Tests for the max parallel request limiter for the proxy
 
-import sys, os, asyncio, time, random
+import sys
+import os
+import asyncio
 from datetime import datetime
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()

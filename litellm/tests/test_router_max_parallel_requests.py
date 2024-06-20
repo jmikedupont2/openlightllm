@@ -1,7 +1,8 @@
 # What is this?
 ## Unit tests for the max_parallel_requests feature on Router
-import sys, os, time, inspect, asyncio, traceback
-from datetime import datetime
+import sys
+import os
+import asyncio
 import pytest
 
 sys.path.insert(0, os.path.abspath("../.."))

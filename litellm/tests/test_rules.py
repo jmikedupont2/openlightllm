@@ -1,7 +1,8 @@
 #### What this tests ####
 #    This tests setting rules before / after making llm api calls
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import asyncio
 import pytest
 
 sys.path.insert(
@@ -89,7 +90,6 @@ def test_post_call_rule():
         print(type(e))
         print(vars(e))
         assert e.message == "This violates LiteLLM Proxy Rules. Response too short"
-        pass
     # print(f"MAKING ACOMPLETION CALL")
     # litellm.set_verbose = True
     ### async completion

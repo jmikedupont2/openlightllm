@@ -1,7 +1,6 @@
 ## Uses the huggingface text generation inference API
 import os, copy, types
 import json
-from enum import Enum
 import httpx, requests
 from .base import BaseLLM
 import time
@@ -11,7 +10,6 @@ from litellm.utils import ModelResponse, Choices, Message, CustomStreamWrapper, 
 from typing import Optional
 from .prompt_templates.factory import prompt_factory, custom_prompt
 from litellm.types.completion import ChatCompletionMessageToolCallParam
-import enum
 
 
 class HuggingfaceError(Exception):

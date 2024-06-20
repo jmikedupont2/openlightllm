@@ -1,6 +1,7 @@
 #### What this does ####
 #    On success, logs events to Promptlayer
-import dotenv, os
+import dotenv
+import os
 import requests  # type: ignore
 from pydantic import BaseModel
 import traceback
@@ -86,4 +87,3 @@ class PromptLayerLogger:
 
         except:
             print_verbose(f"error: Prompt Layer Error - {traceback.format_exc()}")
-            pass

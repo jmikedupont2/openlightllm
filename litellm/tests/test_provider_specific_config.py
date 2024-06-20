@@ -3,7 +3,6 @@
 # There are 2 types of tests - changing config dynamically or by setting class variables
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(

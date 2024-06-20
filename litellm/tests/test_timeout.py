@@ -2,12 +2,10 @@
 #    This tests the timeout decorator
 
 import sys, os
-import traceback
 
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-import time
 import litellm
 import openai
 import pytest, uuid, httpx
@@ -57,7 +55,6 @@ def test_timeout():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -82,7 +79,6 @@ def test_bedrock_timeout():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -135,7 +131,6 @@ def test_hanging_request_azure():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -182,7 +177,6 @@ def test_hanging_request_openai():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -211,7 +205,6 @@ def test_timeout_streaming():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -241,7 +234,6 @@ def test_timeout_ollama():
         print(response)
     except openai.APITimeoutError as e:
         print("got a timeout error! Passed ! ")
-        pass
 
 
 # test_timeout_ollama()

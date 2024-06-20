@@ -1,8 +1,6 @@
 from typing import (
     Optional,
     Union,
-    Any,
-    BinaryIO,
     Literal,
     Iterable,
 )

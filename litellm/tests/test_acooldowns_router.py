@@ -2,7 +2,7 @@
 #    This tests calling batch_completions by running 100 messages together
 
 import sys, os, time
-import traceback, asyncio
+import traceback
 import pytest
 
 sys.path.insert(
@@ -45,7 +45,7 @@ kwargs = {
 
 
 def test_multiple_deployments_sync():
-    import concurrent, time
+    pass
 
     litellm.set_verbose = False
     results = []

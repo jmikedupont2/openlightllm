@@ -2,13 +2,12 @@
 #### What this does ####
 #    On success, log events to Prometheus
 
-import dotenv, os
+import dotenv
 import requests  # type: ignore
 import traceback
-import datetime, subprocess, sys
-import litellm, uuid
+import litellm
 from litellm._logging import print_verbose, verbose_logger
-from typing import Optional, Union
+from typing import Optional
 
 
 class PrometheusLogger:
@@ -214,7 +213,6 @@ class PrometheusLogger:
                 "prometheus Layer Error(): Exception occured - {}".format(str(e))
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
 
 def safe_get_remaining_budget(

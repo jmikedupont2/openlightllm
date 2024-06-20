@@ -1,7 +1,7 @@
 from litellm.integrations.custom_logger import CustomLogger
 import litellm
 from litellm.proxy.proxy_server import UserAPIKeyAuth, DualCache
-from typing import Optional, Literal
+from typing import Literal
 
 
 # This file includes the custom callbacks for LiteLLM Proxy

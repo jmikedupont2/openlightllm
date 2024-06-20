@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import Depends, Request, APIRouter
 from fastapi import HTTPException
 import copy

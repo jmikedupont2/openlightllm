@@ -1,9 +1,9 @@
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io, asyncio
+import os
+import asyncio
 
 # this file is to test litellm/proxy
 
@@ -14,7 +14,6 @@ import pytest, time
 import litellm
 from litellm import embedding, completion, completion_cost, Timeout
 from litellm import RateLimitError
-import importlib, inspect
 
 # test /chat/completion request to the proxy
 from fastapi.testclient import TestClient

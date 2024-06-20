@@ -1,5 +1,4 @@
-from typing import TypedDict, Any, Union, Optional
-import json
+from typing import TypedDict, Optional
 from typing_extensions import (
     Self,
     Protocol,

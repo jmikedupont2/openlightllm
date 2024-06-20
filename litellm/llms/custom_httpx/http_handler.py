@@ -1,6 +1,8 @@
 import litellm
-import httpx, asyncio, traceback, os
-from typing import Optional, Union, Mapping, Any
+import httpx
+import asyncio
+import os
+from typing import Optional, Union
 
 # https://www.python-httpx.org/advanced/timeouts
 _DEFAULT_TIMEOUT = httpx.Timeout(timeout=5.0, connect=5.0)

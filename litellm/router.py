@@ -8,20 +8,16 @@
 #  Thank you ! We ❤️ you! - Krrish & Ishaan
 
 import asyncio
-import concurrent
 import copy
-import datetime as datetime_og
 import hashlib
 import inspect
 import json
 import logging
 import random
-import threading
 import time
 import traceback
 import uuid
 from collections import defaultdict
-from datetime import datetime
 from typing import (
     Any,
     BinaryIO,
@@ -31,7 +27,6 @@ from typing import (
     Literal,
     Optional,
     Tuple,
-    TypedDict,
     Union,
 )
 
@@ -973,7 +968,7 @@ class Router:
         self, model: str, messages: List[Dict[str, str]], priority: int, stream: Literal[False] = False, **kwargs
     ) -> ModelResponse: 
         ...
-    
+
     @overload
     async def schedule_acompletion(
         self, model: str, messages: List[Dict[str, str]], priority: int, stream: Literal[True], **kwargs
@@ -3563,7 +3558,6 @@ class Router:
         original_model_list = copy.deepcopy(model_list)
         self.model_list = []
         # we add api_base/api_key each model so load balancing between azure/gpt on api_base1 and api_base2 works
-        import os
 
         for model in original_model_list:
             _model_name = model.pop("model_name")

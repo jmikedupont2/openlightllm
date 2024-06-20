@@ -1,8 +1,10 @@
 #### What this tests ####
 #    This tests the router's ability to pick deployment with lowest tpm using 'usage-based-routing-v2-v2'
 
-import sys, os, asyncio, time, random
-from datetime import datetime
+import sys
+import os
+import asyncio
+import time
 import traceback
 from dotenv import load_dotenv
 
@@ -343,7 +345,6 @@ async def test_multiple_potential_deployments(sync_mode):
 def test_single_deployment_tpm_zero():
     import litellm
     import os
-    from datetime import datetime
 
     model_list = [
         {

@@ -1,8 +1,9 @@
 #### What this tests ####
 #    This tests calling router with fallback models
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import asyncio
 import pytest
 
 sys.path.insert(
@@ -12,7 +13,8 @@ sys.path.insert(
 import litellm
 from litellm import Router
 from litellm.integrations.custom_logger import CustomLogger
-import openai, httpx
+import openai
+import httpx
 
 
 @pytest.mark.asyncio

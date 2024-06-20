@@ -1,6 +1,5 @@
 import os
 import sys
-import traceback
 
 import litellm.cost_calculator
 

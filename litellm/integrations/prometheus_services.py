@@ -3,11 +3,9 @@
 #    On success + failure, log events to Prometheus for litellm / adjacent services (litellm, redis, postgres, llm api providers)
 
 
-import dotenv, os
+import dotenv
 import requests  # type: ignore
-import traceback
-import datetime, subprocess, sys
-import litellm, uuid
+import litellm
 from litellm._logging import print_verbose, verbose_logger
 from litellm.types.services import ServiceLoggerPayload, ServiceTypes
 

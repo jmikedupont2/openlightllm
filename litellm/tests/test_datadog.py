@@ -1,6 +1,5 @@
 import sys
 import os
-import io
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -8,7 +7,6 @@ from litellm import completion
 import litellm
 import pytest
 
-import time
 
 
 @pytest.mark.skip(reason="beta test - this is a new feature")

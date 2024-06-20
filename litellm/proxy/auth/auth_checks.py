@@ -10,9 +10,9 @@ Run checks for:
 """
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, Optional
-
 import litellm
 from litellm.caching import DualCache
+
 from litellm.proxy._types import (
     LiteLLM_EndUserTable,
     LiteLLM_JWTAuth,
@@ -140,7 +140,6 @@ def common_checks(
                             f"BadRequest please pass param=[{_enforced_params[0]}][{_enforced_params[1]}] in request body. This is a required param"
                         )
 
-        pass
     # 7. [OPTIONAL] If 'litellm.max_budget' is set (>0), is proxy under budget
     if (
         litellm.max_budget > 0

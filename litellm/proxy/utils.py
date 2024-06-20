@@ -2628,7 +2628,7 @@ async def update_spend(
                     ]
                     for i in range(0, len(logs_to_process), BATCH_SIZE):
                         # Create sublist for current batch, ensuring it doesn't exceed the BATCH_SIZE
-                        batch = logs_to_process[i : i + BATCH_SIZE]
+                        batch = logs_to_process[i: i + BATCH_SIZE]
 
                         # Convert datetime strings to Date objects
                         batch_with_dates = [
@@ -2649,7 +2649,7 @@ async def update_spend(
                         )
                     # Remove the processed logs from spend_logs
                     prisma_client.spend_log_transactions = (
-                        prisma_client.spend_log_transactions[len(logs_to_process) :]
+                        prisma_client.spend_log_transactions[len(logs_to_process):]
                     )
 
                     verbose_proxy_logger.debug(

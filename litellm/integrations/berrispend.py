@@ -1,10 +1,10 @@
 #### What this does ####
 #    On success + failure, log events to aispend.io
-import dotenv, os
+import dotenv
+import os
 import requests  # type: ignore
 
 import traceback
-import datetime
 
 model_cost = {
     "gpt-3.5-turbo": {
@@ -179,4 +179,3 @@ class BerriSpendLogger:
             response = requests.post(url, headers=headers, json=data)
         except:
             print_verbose(f"BerriSpend Logging Error - {traceback.format_exc()}")
-            pass

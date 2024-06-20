@@ -171,7 +171,6 @@ class LowestLatencyLoggingHandler(CustomLogger):
                 )
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
         """
@@ -240,7 +239,6 @@ class LowestLatencyLoggingHandler(CustomLogger):
                 )
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
         try:
@@ -368,7 +366,6 @@ class LowestLatencyLoggingHandler(CustomLogger):
                 )
             )
             verbose_logger.debug(traceback.format_exc())
-            pass
 
     def get_available_deployments(
         self,

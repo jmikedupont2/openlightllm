@@ -9,23 +9,16 @@
 
 import asyncio
 import contextvars
-import datetime
 import inspect
-import json
 import os
-import random
-import sys
-import threading
 import time
 import traceback
-import uuid
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from functools import partial
 from typing import (
     Any,
     BinaryIO,
-    Callable,
     Dict,
     List,
     Literal,
@@ -2724,7 +2717,7 @@ def batch_completion(
         def chunks(lst, n):
             """Yield successive n-sized chunks from lst."""
             for i in range(0, len(lst), n):
-                yield lst[i : i + n]
+                yield lst[i: i + n]
 
         with ThreadPoolExecutor(max_workers=100) as executor:
             for sub_batch in chunks(batch_messages, 100):
@@ -3622,7 +3615,6 @@ def text_completion(
     **kwargs,
 ):
     global print_verbose
-    import copy
 
     """
     Generate text completions using the OpenAI API.

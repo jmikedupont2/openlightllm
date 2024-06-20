@@ -1,13 +1,9 @@
 # What is this?
 ## httpx client for vertex ai calls
 ## Initial implementation - covers gemini + image gen calls
-import inspect
 import json
-import os
-import time
 import types
 import uuid
-from enum import Enum
 from functools import partial
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
 

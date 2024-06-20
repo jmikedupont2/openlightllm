@@ -1,6 +1,4 @@
 from locust import HttpUser, task, between, events
-import json
-import time
 import uuid
 
 

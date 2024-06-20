@@ -1,10 +1,10 @@
 # What is this?
 ## Unit tests for the Scheduler.py (workload prioritization scheduler)
 
-import sys, os, time, openai, uuid
-import traceback, asyncio
+import sys
+import os
+import openai
 import pytest
-from typing import List
 
 sys.path.insert(
     0, os.path.abspath("../..")

@@ -11,7 +11,7 @@ import os, json, time
 import litellm
 from litellm.utils import ModelResponse
 import requests, threading  # type: ignore
-from typing import Optional, Union, Literal
+from typing import Optional, Literal
 
 
 class BudgetManager:

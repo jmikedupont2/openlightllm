@@ -2,7 +2,6 @@ from typing import Optional, List
 import fastapi
 from fastapi import Depends, Request, APIRouter, Header, status
 from fastapi import HTTPException
-import copy
 import json
 import uuid
 import litellm

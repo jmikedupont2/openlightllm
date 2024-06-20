@@ -104,7 +104,8 @@ def list_models():
 
 def create_key():
     import streamlit as st
-    import json, requests, uuid
+    import json
+    import requests
 
     if (
         st.session_state.get("api_url", None) is not None

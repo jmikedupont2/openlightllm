@@ -1,4 +1,5 @@
-import sys, os, traceback
+import sys
+import os
 
 # this file is to test litellm/proxy
 

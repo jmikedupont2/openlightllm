@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 import requests, base64, binascii
 
 load_dotenv()
-import os
 
 
 def is_base64(sb):

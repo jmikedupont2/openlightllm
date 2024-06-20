@@ -1,14 +1,15 @@
 # What is this?
 ## Unit Tests for OpenAI Assistants API
-import sys, os, json
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
-import pytest, logging, asyncio
+import pytest
+import asyncio
 import litellm
 from litellm import create_thread, get_thread
 from litellm.llms.openai import (

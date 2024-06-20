@@ -1,8 +1,9 @@
 # Tests for router.get_available_deployment
 # specifically test if it can pick the correct LLM when rpm/tpm set
 # These are fast Tests, and make no API calls
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import traceback
 import pytest
 
 sys.path.insert(
@@ -10,7 +11,6 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 import litellm
 from litellm import Router
-from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
 from dotenv import load_dotenv
 

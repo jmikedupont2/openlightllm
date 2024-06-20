@@ -1,9 +1,8 @@
 # What is this
 ## Unit tests for the Prompt Injection Detection logic
 
-import sys, os, asyncio, time, random
-from datetime import datetime
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

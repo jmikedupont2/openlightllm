@@ -5,7 +5,6 @@ from litellm.integrations.opentelemetry import OpenTelemetry, OpenTelemetryConfi
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from litellm._logging import verbose_logger
 import logging
-import time
 import pytest
 
 verbose_logger.setLevel(logging.DEBUG)

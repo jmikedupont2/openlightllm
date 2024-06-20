@@ -1,8 +1,7 @@
 # What is this?
 ## Handler file for calling claude-3 on vertex ai
-import os, types
+import types
 import json
-from enum import Enum
 import requests, copy  # type: ignore
 import time, uuid
 from typing import Callable, Optional, List

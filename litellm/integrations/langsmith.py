@@ -2,9 +2,7 @@
 #    On success, logs events to Langsmith
 import dotenv, os  # type: ignore
 import requests  # type: ignore
-from datetime import datetime
 import traceback
-import asyncio
 import types
 from pydantic import BaseModel  # type: ignore
 
@@ -107,4 +105,3 @@ class LangsmithLogger:
             )
         except:
             print_verbose(f"Langsmith Layer Error - {traceback.format_exc()}")
-            pass

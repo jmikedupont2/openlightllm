@@ -1,8 +1,8 @@
 #### What this tests ####
 # This tests if the router timeout error handling during fallbacks
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
 import pytest
 
 sys.path.insert(
@@ -126,7 +126,6 @@ async def test_router_timeouts_bedrock():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"

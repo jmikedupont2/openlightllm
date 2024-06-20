@@ -2,7 +2,6 @@
 #    This tests the model alias mapping - if user passes in an alias, and has set an alias, set it to the actual value
 
 import sys, os
-import traceback
 
 sys.path.insert(
     0, os.path.abspath("../..")

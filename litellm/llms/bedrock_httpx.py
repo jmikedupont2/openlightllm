@@ -2,19 +2,15 @@
 ## Initial implementation of calling bedrock via httpx client (allows for async calls).
 ## V1 - covers cohere + anthropic claude-3 support
 from functools import partial
-import os, types
+import types
 import json
-from enum import Enum
 import requests, copy  # type: ignore
 import time
 from typing import (
     Callable,
     Optional,
     List,
-    Literal,
     Union,
-    Any,
-    TypedDict,
     Tuple,
     Iterator,
     AsyncIterator,

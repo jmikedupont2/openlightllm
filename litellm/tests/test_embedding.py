@@ -1,5 +1,4 @@
 import sys, os
-import traceback
 import pytest
 from dotenv import load_dotenv
 import openai
@@ -136,7 +135,6 @@ def test_openai_azure_embedding_timeouts():
         print(response)
     except openai.APITimeoutError:
         print("Good job got timeout error!")
-        pass
     except Exception as e:
         pytest.fail(
             f"Expected timeout error, did not get the correct error. Instead got {e}"
@@ -156,7 +154,6 @@ def test_openai_embedding_timeouts():
         print(response)
     except openai.APITimeoutError:
         print("Good job got OpenAI timeout error!")
-        pass
     except Exception as e:
         pytest.fail(
             f"Expected timeout error, did not get the correct error. Instead got {e}"

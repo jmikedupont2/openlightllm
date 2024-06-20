@@ -1,8 +1,8 @@
 # What is this?
 ## unit tests for openai tts endpoint
 
-import sys, os, asyncio, time, random, uuid
-import traceback
+import sys
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +12,8 @@ sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
 import pytest
-import litellm, openai
+import litellm
+import openai
 from pathlib import Path
 
 

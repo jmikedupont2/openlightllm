@@ -9,19 +9,15 @@ These are members of a Team on LiteLLM
 /user/delete
 """
 
-import copy
-import json
 import uuid
-import re
 import traceback
 import asyncio
-import secrets
-from typing import Optional, List
+from typing import Optional
 import fastapi
 from fastapi import Depends, Request, APIRouter, Header, status
 from fastapi import HTTPException
 import litellm
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from litellm._logging import verbose_proxy_logger
 from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
 from litellm.proxy.management_endpoints.key_management_endpoints import (

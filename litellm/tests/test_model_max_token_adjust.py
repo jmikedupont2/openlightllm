@@ -1,8 +1,8 @@
 # What this tests?
 ## Tests if max tokens get adjusted, if over limit
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
 import pytest
 
 sys.path.insert(

@@ -1,9 +1,7 @@
 import time
 import asyncio
-import os
 from openai import AsyncOpenAI, AsyncAzureOpenAI
 import uuid
-import traceback
 from large_text import text
 from dotenv import load_dotenv
 from statistics import mean, median

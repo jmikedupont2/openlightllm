@@ -1,10 +1,8 @@
-import inspect
 import json
 import os
 import time
 import types
 import uuid
-from enum import Enum
 from typing import Any, Callable, List, Literal, Optional, Union
 
 import httpx  # type: ignore
@@ -235,7 +233,6 @@ class VertexAIConfig:
         ]
 
 
-import asyncio
 
 
 class TextStreamer:

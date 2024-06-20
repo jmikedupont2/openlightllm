@@ -1,10 +1,9 @@
 # @pytest.mark.skip(reason="AWS Suspended Account")
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -532,7 +531,6 @@ def test_provisioned_throughput():
 
 def test_completion_bedrock_mistral_completion_auth():
     print("calling bedrock mistral completion params auth")
-    import os
 
     # aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     # aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]

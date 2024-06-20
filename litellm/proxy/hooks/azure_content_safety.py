@@ -1,7 +1,8 @@
 from litellm.integrations.custom_logger import CustomLogger
 from litellm.caching import DualCache
 from litellm.proxy._types import UserAPIKeyAuth
-import litellm, traceback, sys, uuid
+import litellm
+import traceback
 from fastapi import HTTPException
 from litellm._logging import verbose_proxy_logger
 from typing import Optional

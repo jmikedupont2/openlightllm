@@ -10,14 +10,13 @@ from litellm.utils import (
     TranscriptionResponse,
     TextCompletionResponse,
 )
-from typing import Callable, Optional, BinaryIO
+from typing import Callable, Optional
 from litellm import OpenAIConfig
-import litellm, json
+import litellm
 import httpx
 from .custom_httpx.azure_dall_e_2 import CustomHTTPTransport, AsyncCustomHTTPTransport
 from openai import AzureOpenAI, AsyncAzureOpenAI
 from ..llms.openai import OpenAITextCompletion, OpenAITextCompletionConfig
-import uuid
 from .prompt_templates.factory import prompt_factory, custom_prompt
 
 openai_text_completion_config = OpenAITextCompletionConfig()

@@ -2,7 +2,7 @@
 #    This tests calling router with fallback models
 
 import sys, os, time
-import traceback, asyncio
+import asyncio
 import pytest
 
 sys.path.insert(

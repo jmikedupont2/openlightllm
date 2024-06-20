@@ -4,7 +4,7 @@ from unittest import mock
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 # this file is to test litellm/proxy
 
@@ -422,7 +422,6 @@ def test_add_new_model(client_no_auth):
 
 def test_health(client_no_auth):
     global headers
-    import time
     from litellm._logging import verbose_logger, verbose_proxy_logger
     import logging
 

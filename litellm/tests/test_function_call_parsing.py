@@ -1,11 +1,10 @@
 # What is this?
 ## Test to make sure function call response always works with json.loads() -> no extra parsing required. Relevant issue - https://github.com/BerriAI/litellm/issues/2654
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -13,7 +12,6 @@ sys.path.insert(
 import pytest
 import litellm
 import json
-import warnings
 
 from litellm import completion
 from typing import List

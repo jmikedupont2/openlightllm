@@ -6,7 +6,6 @@ import os
 import sys
 import time
 import traceback
-import uuid
 from typing import Tuple
 
 import pytest
@@ -1047,7 +1046,6 @@ def test_vertex_ai_stream(provider):
     load_vertex_ai_credentials()
     litellm.set_verbose = True
     litellm.vertex_project = "adroit-crow-413218"
-    import random
 
     test_models = ["gemini-1.0-pro"]
     for model in test_models:
@@ -1988,7 +1986,6 @@ def test_openai_chat_completion_call():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # test_openai_chat_completion_call()
@@ -2005,7 +2002,6 @@ def test_openai_chat_completion_complete_response_call():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # test_openai_chat_completion_complete_response_call()
@@ -2141,7 +2137,6 @@ def test_openai_text_completion_call():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # test_openai_text_completion_call()
@@ -2174,7 +2169,6 @@ def test_together_ai_completion_call_mistral():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 def test_together_ai_completion_call_starcoder_bad_key():
@@ -2204,7 +2198,6 @@ def test_together_ai_completion_call_starcoder_bad_key():
         pass
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # test_together_ai_completion_call_starcoder_bad_key()
@@ -2275,7 +2268,6 @@ async def ai21_async_completion_call():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # asyncio.run(ai21_async_completion_call())
@@ -2306,7 +2298,6 @@ async def completion_call():
         print(f"complete response: {complete_response}")
     except:
         print(f"error occurred: {traceback.format_exc()}")
-        pass
 
 
 # asyncio.run(completion_call())

@@ -14,8 +14,6 @@ sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path
 import os
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
 
 import httpx
 from dotenv import load_dotenv
@@ -1597,7 +1595,6 @@ def test_router_timeout():
         print("got timeout exception")
         print(e)
         print(vars(e))
-        pass
 
 
 @pytest.mark.asyncio

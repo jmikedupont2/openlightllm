@@ -10,7 +10,7 @@ from litellm.proxy._types import UserAPIKeyAuth
 from litellm.integrations.custom_logger import CustomLogger
 from litellm._logging import verbose_proxy_logger
 from fastapi import HTTPException
-import json, traceback
+import traceback
 
 
 class _PROXY_BatchRedisRequests(CustomLogger):

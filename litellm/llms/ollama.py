@@ -126,7 +126,7 @@ class OllamaConfig:
             )
             and v is not None
         }
-    
+
     def get_required_params(self) -> List[ProviderField]:
         """For a given provider, return it's required fields with a description"""
         return [

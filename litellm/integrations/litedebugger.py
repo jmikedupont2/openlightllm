@@ -9,7 +9,6 @@ class LiteDebugger:
     def __init__(self, email=None):
         self.api_url = "https://api.litellm.ai/debugger"
         self.validate_environment(email)
-        pass
 
     def validate_environment(self, email):
         try:
@@ -117,7 +116,6 @@ class LiteDebugger:
             print_verbose(
                 f"[Non-Blocking Error] LiteDebugger: Logging Error - {traceback.format_exc()}"
             )
-            pass
 
     def post_call_log_event(
         self, original_response, litellm_call_id, print_verbose, call_type, stream
@@ -259,4 +257,3 @@ class LiteDebugger:
             print_verbose(
                 f"[Non-Blocking Error] LiteDebugger: Logging Error - {traceback.format_exc()}"
             )
-            pass

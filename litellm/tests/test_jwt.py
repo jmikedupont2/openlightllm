@@ -3,11 +3,7 @@
 
 import asyncio
 import os
-import random
 import sys
-import time
-import traceback
-import uuid
 
 from dotenv import load_dotenv
 
@@ -19,6 +15,8 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
+
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import Request
@@ -700,7 +698,6 @@ async def test_allowed_routes_admin(prisma_client, audience):
     - check if admin passes user_api_key_auth for them
     """
     import json
-    import uuid
 
     import jwt
     from cryptography.hazmat.backends import default_backend

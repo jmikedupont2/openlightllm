@@ -248,7 +248,6 @@ class CompletionCustomHandler(
             No-op.
             Not implemented yet.
             """
-            pass
         except Exception as e:
             print(f"Assertion Error: {traceback.format_exc()}")
             self.errors.append(traceback.format_exc())

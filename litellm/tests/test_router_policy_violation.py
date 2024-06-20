@@ -1,8 +1,9 @@
 #### What this tests ####
 # This tests if the router sends back a policy violation, without retries
 
-import sys, os, time
-import traceback, asyncio
+import sys
+import os
+import asyncio
 import pytest
 
 sys.path.insert(

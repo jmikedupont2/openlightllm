@@ -1,10 +1,8 @@
 import sys, os
-import traceback
 from dotenv import load_dotenv
-import asyncio, logging
 
 load_dotenv()
-import os, io
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")

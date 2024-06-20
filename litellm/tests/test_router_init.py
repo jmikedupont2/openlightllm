@@ -1,5 +1,6 @@
 # this tests if the router is initialized correctly
-import sys, os, time
+import sys
+import os
 import traceback, asyncio
 import pytest
 
@@ -8,8 +9,6 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 import litellm
 from litellm import Router
-from concurrent.futures import ThreadPoolExecutor
-from collections import defaultdict
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -224,7 +223,6 @@ def test_timeouts_router():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"
@@ -282,7 +280,6 @@ def test_stream_timeouts_router():
             "Passed: Raised correct exception. Got openai.APITimeoutError\nGood Job", e
         )
         print(type(e))
-        pass
     except Exception as e:
         pytest.fail(
             f"Did not raise error `openai.APITimeoutError`. Instead raised error type: {type(e)}, Error: {e}"

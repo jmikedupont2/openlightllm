@@ -1,5 +1,5 @@
-from typing import Optional
-import litellm, traceback, sys
+import litellm
+import sys
 from litellm.caching import DualCache
 from litellm.proxy._types import UserAPIKeyAuth
 from litellm.integrations.custom_logger import CustomLogger

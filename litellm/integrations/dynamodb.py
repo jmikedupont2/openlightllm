@@ -1,10 +1,10 @@
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import dotenv, os
+import dotenv
+import os
 import requests  # type: ignore
 import traceback
-import datetime, subprocess, sys
 import litellm, uuid
 from litellm._logging import print_verbose
 
@@ -86,4 +86,3 @@ class DyanmoDBLogger:
             return response
         except:
             print_verbose(f"DynamoDB Layer Error - {traceback.format_exc()}")
-            pass

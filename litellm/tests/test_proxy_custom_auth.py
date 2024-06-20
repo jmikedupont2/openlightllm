@@ -1,9 +1,8 @@
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 # this file is to test litellm/proxy
 
@@ -64,7 +63,6 @@ def test_custom_auth(client):
         print("got an exception")
         assert e.code == 401
         assert e.message == "Authentication Error, Failed custom auth"
-        pass
 
 
 def test_custom_auth_bearer(client):
@@ -91,4 +89,3 @@ def test_custom_auth_bearer(client):
             e.message
             == "Authentication Error, CustomAuth - Malformed API Key passed in. Ensure Key has `Bearer` prefix"
         )
-        pass

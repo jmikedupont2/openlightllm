@@ -1,10 +1,11 @@
 #### What this does ####
 #    Class for sending Slack Alerts #
-import dotenv, os, traceback
+import dotenv
+import os
 from litellm.proxy._types import UserAPIKeyAuth, CallInfo, AlertType
 from litellm._logging import verbose_logger, verbose_proxy_logger
-import litellm, threading
-from typing import List, Literal, Any, Union, Optional, Dict, Set
+import litellm
+from typing import List, Literal, Any, Optional, Dict, Set
 from litellm.caching import DualCache
 import asyncio, time
 import aiohttp
@@ -12,7 +13,7 @@ from litellm.llms.custom_httpx.http_handler import AsyncHTTPHandler
 import datetime
 from pydantic import BaseModel, Field
 from enum import Enum
-from datetime import datetime as dt, timedelta, timezone
+from datetime import datetime as dt, timedelta
 from litellm.integrations.custom_logger import CustomLogger
 from litellm.proxy._types import WebhookEvent
 import random
@@ -452,7 +453,7 @@ class SlackAlerting(CustomLogger):
         failed_request_values = combined_metrics_values[
             : len(failed_request_keys)
         ]  # # [1, 2, None, ..]
-        latency_values = combined_metrics_values[len(failed_request_keys) :]
+        latency_values = combined_metrics_values[len(failed_request_keys):]
 
         # find top 5 failed
         ## Replace None values with a placeholder value (-1 in this case)
@@ -1546,7 +1547,6 @@ Model Info:
                 "[Non-Blocking Error] Slack Alerting: Got error in logging LLM deployment latency: ",
                 e,
             )
-            pass
 
     async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
         """Log failure + deployment latency"""

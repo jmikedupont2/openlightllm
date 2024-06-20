@@ -1,10 +1,9 @@
 import asyncio
 import sys, os
-import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-import os, io
+import os
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -49,7 +48,7 @@ def test_get_ollama_model():
         pytest.fail(f"Error occurred: {e}")
 
 # test_get_ollama_model()
-        
+
 def test_ollama_json_mode():
     # assert that format: json gets passed as is to ollama 
     try:

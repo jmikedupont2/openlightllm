@@ -1,10 +1,12 @@
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import dotenv, os
+import dotenv
+import os
 import requests  # type: ignore
 import traceback
-import datetime, subprocess, sys
+import subprocess
+import sys
 import litellm
 
 
@@ -47,7 +49,6 @@ class Supabase:
             print_verbose(f"data: {data}")
         except:
             print_verbose(f"Supabase Logging Error - {traceback.format_exc()}")
-            pass
 
     def log_event(
         self,
@@ -111,4 +112,3 @@ class Supabase:
 
         except:
             print_verbose(f"Supabase Logging Error - {traceback.format_exc()}")
-            pass

@@ -7,7 +7,7 @@ from litellm.proxy._types import (
 )
 from litellm.proxy.utils import hash_token
 from litellm import get_secret
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, List, Literal
 import json
 from datetime import datetime
 from litellm._logging import verbose_proxy_logger

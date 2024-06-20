@@ -2,7 +2,6 @@
 #    This tests calling batch_completions by running 100 messages together
 
 import sys, os
-import traceback
 import pytest
 
 sys.path.insert(
@@ -39,7 +38,6 @@ def test_batch_completions():
         assert len(result) == 3
     except Timeout as e:
         print(f"IN TIMEOUT")
-        pass
     except Exception as e:
         pytest.fail(f"An error occurred: {e}")
 

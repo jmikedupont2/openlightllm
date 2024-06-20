@@ -1,9 +1,8 @@
 # What is this?
 ## Handler file for databricks API https://docs.databricks.com/en/machine-learning/foundation-models/api-reference.html#chat-request
 from functools import partial
-import os, types
+import types
 import json
-from enum import Enum
 import requests, copy  # type: ignore
 import time
 from typing import Callable, Optional, List, Union, Tuple, Literal
