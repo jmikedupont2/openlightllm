@@ -14,29 +14,16 @@ phases:
       - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com | tee -a log.txt
       - BRANCH=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | cut -d '/' -f3)
       - echo Building image for branch $BRANCH
-      #- docker build -t my-image:$BRANCH .
-
-      # aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com
-      
-      # aws ecr get-login-password --region region | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
-      
-      #- echo Pulling Docker Images for cache ... | tee -a log.txt
-      #- docker-compose pull --ignore-pull-failures --parallel 2>&1 | tee -a log.txt
   build:
     commands:
       - echo Building the Docker image ... | tee -a log.txt
-      #- docker compose build --no-cache=true --progress=plain 2>&1 | tee -a log.txt
-      - docker build -t bitensor-repo:$BRANCH .
-      - docker tag bitensor-repo:$BRANCH 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:$BRANCH
+      - docker build -t litellm-repo:test .
+      - docker tag litellm-repo:test 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:test
   post_build:
     commands:
       - echo Pushing the Docker image ... | tee -a log.txt
-      #- aws ecr get-login-password --region us-west-1 | docker login 723854145424.dkr.ecr.us-west-1.amazonaws.com --username AWS --password-stdin | tee -a log.txt
       - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 723854145424.dkr.ecr.us-west-1.amazonaws.com
-      - docker push 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:$BRANCH
-      #- echo printenv | tee -a log.txt
-      #- printenv | tee -a log.txt
-     # - echo Sending build log ... | tee -a log.txt
+      - docker push 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:test
       - echo "CODEBUILD_BUILD_SUCCEEDING:${CODEBUILD_BUILD_SUCCEEDING}" | tee -a sns-message.txt
-      #- echo Sending notification ...
+
 
