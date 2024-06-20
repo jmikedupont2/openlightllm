@@ -30,7 +30,6 @@ from litellm._service_logger import ServiceLogging, ServiceTypes
 from litellm.caching import DualCache, RedisCache
 from litellm.exceptions import RejectedRequestError
 from litellm.integrations.custom_logger import CustomLogger
-from litellm.integrations.slack_alerting import SlackAlerting
 from litellm.llms.custom_httpx.httpx_handler import HTTPHandler
 from litellm.proxy._types import (
     AlertType,
@@ -183,12 +182,7 @@ class ProxyLogging:
             "new_model_added",
             "outage_alerts",
         ]
-        self.slack_alerting_instance: SlackAlerting = SlackAlerting(
-            alerting_threshold=self.alerting_threshold,
-            alerting=self.alerting,
-            alert_types=self.alert_types,
-            internal_usage_cache=self.internal_usage_cache,
-        )
+
 
     def update_values(
         self,
@@ -198,36 +192,16 @@ class ProxyLogging:
         alert_types: Optional[List[AlertType]] = None,
         alerting_args: Optional[dict] = None,
     ):
-        updated_slack_alerting: bool = False
+
         if self.alerting is not None:
             self.alerting = alerting
-            updated_slack_alerting = True
+
         if alerting_threshold is not None:
             self.alerting_threshold = alerting_threshold
-            updated_slack_alerting = True
+
         if alert_types is not None:
             self.alert_types = alert_types
-            updated_slack_alerting = True
 
-        if updated_slack_alerting is True:
-            self.slack_alerting_instance.update_values(
-                alerting=self.alerting,
-                alerting_threshold=self.alerting_threshold,
-                alert_types=self.alert_types,
-                alerting_args=alerting_args,
-            )
-
-            if (
-                self.alerting is not None
-                and "slack" in self.alerting
-                and "daily_reports" in self.alert_types
-            ):
-                # NOTE: ENSURE we only add callbacks when alerting is on
-                # We should NOT add callbacks when alerting is off
-                litellm.callbacks.append(self.slack_alerting_instance)  # type: ignore
-
-        if redis_cache is not None:
-            self.internal_usage_cache.redis_cache = redis_cache
 
     def _init_litellm_callbacks(self):
         print_verbose("INITIALIZING LITELLM CALLBACKS!")
@@ -236,9 +210,7 @@ class ProxyLogging:
         litellm.callbacks.append(self.max_budget_limiter)
         litellm.callbacks.append(self.cache_control_check)
         litellm.callbacks.append(self.service_logging_obj)
-        litellm.success_callback.append(
-            self.slack_alerting_instance.response_taking_too_long_callback
-        )
+
         for callback in litellm.callbacks:
             if isinstance(callback, str):
                 callback = litellm.litellm_core_utils.litellm_logging._init_custom_logger_compatible_class(
@@ -295,9 +267,7 @@ class ProxyLogging:
         """
         print_verbose("Inside Proxy Logging Pre-call hook!")
         ### ALERTING ###
-        asyncio.create_task(
-            self.slack_alerting_instance.response_taking_too_long(request_data=data)
-        )
+
 
         try:
             for callback in litellm.callbacks:
@@ -395,9 +365,7 @@ class ProxyLogging:
     async def failed_tracking_alert(self, error_message: str):
         if self.alerting is None:
             return
-        await self.slack_alerting_instance.failed_tracking_alert(
-            error_message=error_message
-        )
+
 
     async def budget_alerts(
         self,
@@ -413,10 +381,7 @@ class ProxyLogging:
         if self.alerting is None:
             # do nothing if alerting is not switched on
             return
-        await self.slack_alerting_instance.budget_alerts(
-            type=type,
-            user_info=user_info,
-        )
+
 
     async def alerting_handler(
         self,
@@ -461,34 +426,7 @@ class ProxyLogging:
 
         extra_kwargs = {}
         alerting_metadata = {}
-        if request_data is not None:
-            _url = self.slack_alerting_instance._add_langfuse_trace_id_to_alert(
-                request_data=request_data
-            )
-            if _url is not None:
-                extra_kwargs["🪢 Langfuse Trace"] = _url
-                formatted_message += "\n\n🪢 Langfuse Trace: {}".format(_url)
-            if (
-                "metadata" in request_data
-                and request_data["metadata"].get("alerting_metadata", None) is not None
-                and isinstance(request_data["metadata"]["alerting_metadata"], dict)
-            ):
-                alerting_metadata = request_data["metadata"]["alerting_metadata"]
-        for client in self.alerting:
-            if client == "slack":
-                await self.slack_alerting_instance.send_alert(
-                    message=message,
-                    level=level,
-                    alert_type=alert_type,
-                    user_info=None,
-                    alerting_metadata=alerting_metadata,
-                    **extra_kwargs,
-                )
-            elif client == "sentry":
-                if litellm.utils.sentry_sdk_instance is not None:
-                    litellm.utils.sentry_sdk_instance.capture_message(formatted_message)
-                else:
-                    raise Exception("Missing SENTRY_DSN from environment")
+
 
     async def failure_handler(
         self, original_exception, duration: float, call_type: str, traceback_str=""

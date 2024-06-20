@@ -4,6 +4,7 @@ import copy
 import hashlib
 import importlib
 import inspect
+import logging
 import os
 import platform
 import random
@@ -20,7 +21,12 @@ import warnings
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, get_args
 
+import backoff
+import fastapi
+import orjson
 import requests
+import yaml  # type: ignore
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi.responses import HTMLResponse
 
 if TYPE_CHECKING:
@@ -48,27 +54,8 @@ sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path - for litellm local dev
 
-try:
-<<<<<<< HEAD
-=======
 
-    pass
-    import backoff
-    import fastapi
-    import orjson
-    import yaml  # type: ignore
->>>>>>> e976833b9 (dos2unix)
-    import logging
 
-    import backoff
-    import fastapi
-    import orjson
-    import yaml  # type: ignore
-    from apscheduler.schedulers.asyncio import AsyncIOScheduler
-except ImportError as e:
-    raise ImportError(f"Missing dependency {e}. Run `pip install 'litellm[proxy]'`")
-
-import random
 
 list_of_messages = [
     "'The thing I wish you improved is...'",
@@ -113,12 +100,34 @@ def generate_feedback_box():
 import pydantic
 
 import litellm
-from litellm import (
+from litellm import *
+from litellm import (  # from litellm import (; #    CancelBatchRequest,; CreateBatchRequest,; CreateFileRequest,; ListBatchRequest,; RetrieveBatchRequest,; ); from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
+    AssistantsTypedDict,
     CancelBatchRequest,
     CreateBatchRequest,
     CreateFileRequest,
+    Deployment,
+    DualCache,
+    HTTPHandler,
     ListBatchRequest,
+    LiteLLM_Params,
+    ModelGroupInfo,
+    RedisCache,
+    RejectedRequestError,
     RetrieveBatchRequest,
+    from,
+    import,
+    litellm._logging,
+    litellm.caching,
+    litellm.exceptions,
+    litellm.llms.custom_httpx.httpx_handler,
+    litellm.proxy._types,
+    litellm.proxy.health_check,
+    litellm.router,
+    perform_health_check,
+    updateDeployment,
+    verbose_proxy_logger,
+    verbose_router_logger,
 )
 from litellm._logging import verbose_proxy_logger, verbose_router_logger
 from litellm.caching import DualCache, RedisCache
@@ -145,7 +154,6 @@ from litellm.proxy.auth.model_checks import (
 )
 from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
 
-## Import All Misc routes here ##
 from litellm.proxy.caching_routes import router as caching_router
 from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
 from litellm.proxy.health_check import perform_health_check
@@ -160,12 +168,100 @@ from litellm.proxy.management_endpoints.internal_user_endpoints import (
 from litellm.proxy.management_endpoints.internal_user_endpoints import user_update
 from litellm.proxy.management_endpoints.key_management_endpoints import (
     _duration_in_seconds,
+    _read_request_body,
+    add_litellm_data_to_request,
     delete_verification_token,
+    from,
     generate_key_helper_fn,
+    import,
+    litellm.proxy.caching_routes,
+    litellm.proxy.common_utils.http_parsing_utils,
+    litellm.proxy.health_check,
+    litellm.proxy.health_endpoints._health_endpoints,
+    litellm.proxy.litellm_pre_call_utils,
+    litellm.proxy.management_endpoints.internal_user_endpoints,
+    perform_health_check,
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as caching_router,  # # Import All Misc routes here ##; from litellm.proxy.hooks.prompt_injection_detection import (; _OPTIONAL_PromptInjectionDetection,; )
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as health_router,
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as internal_user_router,
 )
 from litellm.proxy.management_endpoints.key_management_endpoints import (
     router as key_management_router,
 )
+from litellm.proxy.management_endpoints.team_endpoints import router as team_router
+from litellm.proxy.secret_managers.aws_secret_manager import (
+    load_aws_kms,
+    load_aws_secret_manager,
+)
+
+#from litellm.proxy.secret_managers.google_kms import load_google_kms
+#from litellm.proxy.spend_reporting_endpoints.spend_management_endpoints import (
+#    router as spend_management_router,
+#)
+from litellm.proxy.utils import (
+    DBClient,
+    PrismaClient,
+    ProxyLogging,
+    308c59eb9,
+    _cache_user_row,
+    _get_projected_spend_over_limit,
+    _is_projected_spend_over_limit,
+    _is_valid_team_configs,
+    decrypt_value,
+    encrypt_value,
+    get_error_message_str,
+    get_instance_fn,
+    get_logging_payload,
+    hash_token,
+    html_form,
+    missing_keys_html_form,
+    now,
+    reset_budget,
+    running,
+    send_email,
+    update_spend,
+)
+from litellm.scheduler import DefaultPriorities, FlowItem, Scheduler
+
+)
+import json
+import logging
+from typing import Union
+
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Path,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
+from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import (
+    FileResponse,
+    JSONResponse,
+    ORJSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
+from fastapi.routing import APIRouter
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.security.api_key import APIKeyHeader
+from fastapi.staticfiles import StaticFiles
+
 from litellm.proxy.management_endpoints.team_endpoints import router as team_router
 from litellm.proxy.secret_managers.aws_secret_manager import (
     load_aws_kms,
@@ -211,43 +307,7 @@ try:
 except:
     version = "0.0.0"
 litellm.suppress_debug_info = True
-<<<<<<< HEAD
-=======
 
-import json
-
-from fastapi import (
-    Depends,
-    FastAPI,
-    File,
-    Form,
-    Header,
-    HTTPException,
-    Path,
-    Request,
-    Response,
-    UploadFile,
-    status,
-)
-from fastapi.encoders import jsonable_encoder
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
-from fastapi.responses import (
-    FileResponse,
-    JSONResponse,
-    ORJSONResponse,
-    RedirectResponse,
-    StreamingResponse,
-)
-from fastapi.routing import APIRouter
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.security.api_key import APIKeyHeader
-from fastapi.staticfiles import StaticFiles
-
->>>>>>> e976833b9 (dos2unix)
-import json
-import logging
-from typing import Union
 
 # from fastapi import (
 #     Depends,
@@ -409,7 +469,8 @@ user_config_file_path = f"config_{int(time.time())}.yaml"
 local_logging = True  # writes logs to a local api_log.json file for debugging
 experimental = False
 #### GLOBAL VARIABLES ####
-llm_router: Optional[litellm.Router] = None
+# : Optional[litellm.Router] 
+llm_router= None
 llm_model_list: Optional[list] = None
 general_settings: dict = {}
 log_file = "api_log.json"
@@ -440,7 +501,8 @@ proxy_batch_write_at = 10  # in seconds
 litellm_master_key_hash = None
 disable_spend_logs = False
 jwt_handler = JWTHandler()
-prompt_injection_detection_obj: Optional[_OPTIONAL_PromptInjectionDetection] = None
+#prompt_injection_detection_obj: Optional[_OPTIONAL_PromptInjectionDetection] = None
+prompt_injection_detection_obj = None
 store_model_in_db: bool = False
 open_telemetry_logger = None
 ### INITIALIZE GLOBAL LOGGING OBJECT ###
@@ -537,46 +599,45 @@ def prisma_setup(database_url: Optional[str]):
             raise e
 
 
-def load_from_azure_key_vault(use_azure_key_vault: bool = False):
-    if use_azure_key_vault is False:
-        return
+# def load_from_azure_key_vault(use_azure_key_vault: bool = False):
+#     if use_azure_key_vault is False:
+#         return
 
-    try:
-        from azure.identity import ClientSecretCredential
-        from azure.keyvault.secrets import SecretClient
+#     try:
+#         from azure.identity import ClientSecretCredential
+#         from azure.keyvault.secrets import SecretClient
+#         # Set your Azure Key Vault URI
+#         KVUri = os.getenv("AZURE_KEY_VAULT_URI", None)
 
-        # Set your Azure Key Vault URI
-        KVUri = os.getenv("AZURE_KEY_VAULT_URI", None)
+#         # Set your Azure AD application/client ID, client secret, and tenant ID
+#         client_id = os.getenv("AZURE_CLIENT_ID", None)
+#         client_secret = os.getenv("AZURE_CLIENT_SECRET", None)
+#         tenant_id = os.getenv("AZURE_TENANT_ID", None)
 
-        # Set your Azure AD application/client ID, client secret, and tenant ID
-        client_id = os.getenv("AZURE_CLIENT_ID", None)
-        client_secret = os.getenv("AZURE_CLIENT_SECRET", None)
-        tenant_id = os.getenv("AZURE_TENANT_ID", None)
+#         if (
+#             KVUri is not None
+#             and client_id is not None
+#             and client_secret is not None
+#             and tenant_id is not None
+#         ):
+#             # Initialize the ClientSecretCredential
+#             credential = ClientSecretCredential(
+#                 client_id=client_id, client_secret=client_secret, tenant_id=tenant_id
+#             )
 
-        if (
-            KVUri is not None
-            and client_id is not None
-            and client_secret is not None
-            and tenant_id is not None
-        ):
-            # Initialize the ClientSecretCredential
-            credential = ClientSecretCredential(
-                client_id=client_id, client_secret=client_secret, tenant_id=tenant_id
-            )
+#             # Create the SecretClient using the credential
+#             client = SecretClient(vault_url=KVUri, credential=credential)
 
-            # Create the SecretClient using the credential
-            client = SecretClient(vault_url=KVUri, credential=credential)
-
-            litellm.secret_manager_client = client
-            litellm._key_management_system = KeyManagementSystem.AZURE_KEY_VAULT
-        else:
-            raise Exception(
-                f"Missing KVUri or client_id or client_secret or tenant_id from environment"
-            )
-    except Exception as e:
-        verbose_proxy_logger.debug(
-            "Error when loading keys from Azure Key Vault. Ensure you run `pip install azure-identity azure-keyvault-secrets`"
-        )
+#             litellm.secret_manager_client = client
+#             litellm._key_management_system = KeyManagementSystem.AZURE_KEY_VAULT
+#         else:
+#             raise Exception(
+#                 f"Missing KVUri or client_id or client_secret or tenant_id from environment"
+#             )
+#     except Exception as e:
+#         verbose_proxy_logger.debug(
+#             "Error when loading keys from Azure Key Vault. Ensure you run `pip install azure-identity azure-keyvault-secrets`"
+#         )
 
 
 def cost_tracking():
@@ -711,13 +772,13 @@ async def _PROXY_track_cost_callback(
                     team_id=team_id,
                 )
 
-                await proxy_logging_obj.slack_alerting_instance.customer_spend_alert(
-                    token=user_api_key,
-                    key_alias=key_alias,
-                    end_user_id=end_user_id,
-                    response_cost=response_cost,
-                    max_budget=end_user_max_budget,
-                )
+                # await proxy_logging_obj.slack_alerting_instance.customer_spend_alert(
+                #     token=user_api_key,
+                #     key_alias=key_alias,
+                #     end_user_id=end_user_id,
+                #     response_cost=response_cost,
+                #     max_budget=end_user_max_budget,
+                # )
             else:
                 raise Exception(
                     "User API key and team id and user id missing from custom callback."
@@ -1381,9 +1442,10 @@ class ProxyConfig:
             redis_usage_cache = litellm.cache.cache
 
     async def load_config(
-        self, router: Optional[litellm.Router], config_file_path: str
+        self, router, config_file_path: str
     ):
         """
+        : Optional[litellm.Router]
         Load config values into proxy global state
         """
         global master_key, user_config_file_path, otel_logging, user_custom_auth, user_custom_auth_path, user_custom_key_generate, use_background_health_checks, health_check_interval, use_queue, custom_db_client, proxy_budget_rescheduler_max_time, proxy_budget_rescheduler_min_time, ui_access_mode, litellm_master_key_hash, proxy_batch_write_at, disable_spend_logs, prompt_injection_detection_obj, redis_usage_cache, store_model_in_db, open_telemetry_logger
@@ -1690,13 +1752,13 @@ class ProxyConfig:
             ### LOAD SECRET MANAGER ###
             key_management_system = general_settings.get("key_management_system", None)
             if key_management_system is not None:
-                if key_management_system == KeyManagementSystem.AZURE_KEY_VAULT.value:
+#                if key_management_system == KeyManagementSystem.AZURE_KEY_VAULT.value:
                     ### LOAD FROM AZURE KEY VAULT ###
-                    load_from_azure_key_vault(use_azure_key_vault=True)
-                elif key_management_system == KeyManagementSystem.GOOGLE_KMS.value:
+#                    load_from_azure_key_vault(use_azure_key_vault=True)
+                #elif key_management_system == KeyManagementSystem.GOOGLE_KMS.value:
                     ### LOAD FROM GOOGLE KMS ###
-                    load_google_kms(use_google_kms=True)
-                elif (
+                    #load_google_kms(use_google_kms=True)
+                if (
                     key_management_system
                     == KeyManagementSystem.AWS_SECRET_MANAGER.value  # noqa: F405
                 ):
@@ -1714,11 +1776,11 @@ class ProxyConfig:
                     **key_management_settings
                 )
             ### [DEPRECATED] LOAD FROM GOOGLE KMS ### old way of loading from google kms
-            use_google_kms = general_settings.get("use_google_kms", False)
-            load_google_kms(use_google_kms=use_google_kms)
+            #use_google_kms = general_settings.get("use_google_kms", False)
+            #load_google_kms(use_google_kms=use_google_kms)
             ### [DEPRECATED] LOAD FROM AZURE KEY VAULT ### old way of loading from azure secret manager
-            use_azure_key_vault = general_settings.get("use_azure_key_vault", False)
-            load_from_azure_key_vault(use_azure_key_vault=use_azure_key_vault)
+            #use_azure_key_vault = general_settings.get("use_azure_key_vault", False)
+#            load_from_azure_key_vault(use_azure_key_vault=use_azure_key_vault)
             ### ALERTING ###
 
             proxy_logging_obj.update_values(
@@ -2152,32 +2214,32 @@ class ProxyConfig:
                         general_settings["alerting"].append(alert)
 
                 proxy_logging_obj.alerting = general_settings["alerting"]
-                proxy_logging_obj.slack_alerting_instance.alerting = general_settings[
-                    "alerting"
-                ]
+                # proxy_logging_obj.slack_alerting_instance.alerting = general_settings[
+                #     "alerting"
+                # ]
             elif general_settings is None:
                 general_settings = {}
                 general_settings["alerting"] = _general_settings["alerting"]
                 proxy_logging_obj.alerting = general_settings["alerting"]
-                proxy_logging_obj.slack_alerting_instance.alerting = general_settings[
-                    "alerting"
-                ]
+                # proxy_logging_obj.slack_alerting_instance.alerting = general_settings[
+                #     "alerting"
+                # ]
 
         if "alert_types" in _general_settings:
             general_settings["alert_types"] = _general_settings["alert_types"]
             proxy_logging_obj.alert_types = general_settings["alert_types"]
-            proxy_logging_obj.slack_alerting_instance.update_values(
-                alert_types=general_settings["alert_types"], llm_router=llm_router
-            )
+            # proxy_logging_obj.slack_alerting_instance.update_values(
+            #     alert_types=general_settings["alert_types"], llm_router=llm_router
+            # )
 
         if "alert_to_webhook_url" in _general_settings:
             general_settings["alert_to_webhook_url"] = _general_settings[
                 "alert_to_webhook_url"
             ]
-            proxy_logging_obj.slack_alerting_instance.update_values(
-                alert_to_webhook_url=general_settings["alert_to_webhook_url"],
-                llm_router=llm_router,
-            )
+            # proxy_logging_obj.slack_alerting_instance.update_values(
+            #     alert_to_webhook_url=general_settings["alert_to_webhook_url"],
+            #     llm_router=llm_router,
+            # )
 
     async def _update_general_settings(self, db_general_settings: Optional[Json]):
         """
@@ -2201,9 +2263,9 @@ class ProxyConfig:
         ## ALERTING ARGS ##
         if "alerting_args" in _general_settings:
             general_settings["alerting_args"] = _general_settings["alerting_args"]
-            proxy_logging_obj.slack_alerting_instance.update_values(
-                alerting_args=general_settings["alerting_args"],
-            )
+            # proxy_logging_obj.slack_alerting_instance.update_values(
+            #     alerting_args=general_settings["alerting_args"],
+            # )
 
     async def add_deployment(
         self,
@@ -2573,7 +2635,7 @@ async def startup_event():
     error_tracking()
 
     ## UPDATE SLACK ALERTING ##
-    proxy_logging_obj.slack_alerting_instance.update_values(llm_router=llm_router)
+#    proxy_logging_obj.slack_alerting_instance.update_values(llm_router=llm_router)
 
     db_writer_client = HTTPHandler()
 
@@ -2584,12 +2646,12 @@ async def startup_event():
 
     proxy_logging_obj._init_litellm_callbacks()  # INITIALIZE LITELLM CALLBACKS ON SERVER STARTUP <- do this to catch any logging errors on startup, not when calls are being made
 
-    if "daily_reports" in proxy_logging_obj.slack_alerting_instance.alert_types:
-        asyncio.create_task(
-            proxy_logging_obj.slack_alerting_instance._run_scheduled_daily_report(
-                llm_router=llm_router
-            )
-        )  # RUN DAILY REPORT (if scheduled)
+    # if "daily_reports" in proxy_logging_obj.slack_alerting_instance.alert_types:
+    #     asyncio.create_task(
+    #         proxy_logging_obj.slack_alerting_instance._run_scheduled_daily_report(
+    #             llm_router=llm_router
+    #         )
+    #     )  # RUN DAILY REPORT (if scheduled)
 
     ## JWT AUTH ##
     if general_settings.get("litellm_jwtauth", None) is not None:
@@ -2728,26 +2790,26 @@ async def startup_event():
                 prisma_client=prisma_client, proxy_logging_obj=proxy_logging_obj
             )
 
-        if (
-            proxy_logging_obj is not None
-            and proxy_logging_obj.slack_alerting_instance is not None
-            and prisma_client is not None
-        ):
-            print("Alerting: Initializing Weekly/Monthly Spend Reports")  # noqa
-            ### Schedule weekly/monhtly spend reports ###
-            scheduler.add_job(
-                proxy_logging_obj.slack_alerting_instance.send_weekly_spend_report,
-                "cron",
-                day_of_week="mon",
-            )
+        # if (
+        #     proxy_logging_obj is not None
+        #     and proxy_logging_obj.slack_alerting_instance is not None
+        #     and prisma_client is not None
+        # ):
+        #     print("Alerting: Initializing Weekly/Monthly Spend Reports")  # noqa
+        #     ### Schedule weekly/monhtly spend reports ###
+        #     scheduler.add_job(
+        #         proxy_logging_obj.slack_alerting_instance.send_weekly_spend_report,
+        #         "cron",
+        #         day_of_week="mon",
+        #     )
 
-            scheduler.add_job(
-                proxy_logging_obj.slack_alerting_instance.send_monthly_spend_report,
-                "cron",
-                day=1,
-            )
+        #     scheduler.add_job(
+        #         proxy_logging_obj.slack_alerting_instance.send_monthly_spend_report,
+        #         "cron",
+        #         day=1,
+        #     )
 
-        scheduler.start()
+        # scheduler.start()
 
 
 #### API ENDPOINTS ####
@@ -5759,18 +5821,18 @@ async def add_new_model(
             await proxy_config.add_deployment(
                 prisma_client=prisma_client, proxy_logging_obj=proxy_logging_obj
             )
-            try:
+            #try:
                 # don't let failed slack alert block the /model/new response
-                _alerting = general_settings.get("alerting", []) or []
-                if "slack" in _alerting:
-                    # send notification - new model added
-                    await proxy_logging_obj.slack_alerting_instance.model_added_alert(
-                        model_name=model_params.model_name,
-                        litellm_model_name=_orignal_litellm_model_name,
-                        passed_model_info=model_params.model_info,
-                    )
-            except:
-                pass
+            #    _alerting = general_settings.get("alerting", []) or []
+            #     if "slack" in _alerting:
+            #         # send notification - new model added
+            #         await proxy_logging_obj.slack_alerting_instance.model_added_alert(
+            #             model_name=model_params.model_name,
+            #             litellm_model_name=_orignal_litellm_model_name,
+            #             passed_model_info=model_params.model_info,
+            #         )
+            # except:
+            #     pass
 
         else:
             raise HTTPException(
@@ -8811,5 +8873,5 @@ app.include_router(health_router)
 app.include_router(key_management_router)
 app.include_router(internal_user_router)
 app.include_router(team_router)
-app.include_router(spend_management_router)
+#app.include_router(spend_management_router)
 app.include_router(caching_router)
