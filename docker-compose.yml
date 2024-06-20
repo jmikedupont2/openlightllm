@@ -6,7 +6,8 @@ services:
       args:
         target: runtime
     image: 723854145424.dkr.ecr.us-west-1.amazonaws.com/litellm-repo:latest
-    # ghcr.io/berriai/litellm:main-stable
+  # image: ghcr.io/berriai/litellm:main-stable
+
     ports:
       - "4000:4000" # Map the container port to the host, change the host port if necessary
     environment:
@@ -14,17 +15,19 @@ services:
         STORE_MODEL_IN_DB: "True" # allows adding models to proxy via UI
     env_file:
       - .env # Load local .env file
-
+    volumes:
+      - ./proxy_server_config.yaml:/app/proxy_server_config.yaml
+    command: [ "--config", "/app//app/proxy_server_config.yaml", "--port", "4000", "--num_workers", "8" ]
  
   db:
     image: postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: example
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 1s
-      timeout: 5s
-      retries: 10
+    #healthcheck:
+    #  test: ["CMD-SHELL", "pg_isready"]
+    #  interval: 1s
+    #  timeout: 5s
+    #  retries: 10
 
 # ...rest of your docker-compose config if any
