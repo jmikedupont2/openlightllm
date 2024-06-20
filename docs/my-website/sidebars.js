@@ -36,7 +36,6 @@ const sidebars = {
           label: "📖 All Endpoints (Swagger)",
           href: "https://litellm-api.up.railway.app/",
         },
-        "proxy/enterprise",
         "proxy/demo",
         "proxy/configs",
         "proxy/reliability",

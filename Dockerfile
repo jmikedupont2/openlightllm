@@ -18,8 +18,11 @@ RUN pip install --upgrade pip && \
     pip install build
 
 # Copy the current directory contents into the container at /app
-COPY . .
-
+#COPY . .
+COPY build_admin_ui.sh build_admin_ui.sh
+COPY pyproject.toml pyproject.toml
+COPY README.md README.md
+COPY litellm  litellm 
 # Build Admin UI
 RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
 
@@ -51,7 +54,7 @@ FROM $LITELLM_RUNTIME_IMAGE as runtime
 
 WORKDIR /app
 # Copy the current directory contents into the container at /app
-COPY . .
+#COPY . .
 RUN ls -la /app
 
 # Copy the built wheel from the builder stage to the runtime stage; assumes only one wheel file is present

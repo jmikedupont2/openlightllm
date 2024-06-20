@@ -102,12 +102,6 @@ const config = {
           {
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Enterprise',
-            to: "docs/enterprise"
-          },
-          {
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
             label: '🚀 Hosted',
             to: "docs/hosted"
           },

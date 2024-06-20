@@ -17,6 +17,7 @@ import time
 import traceback
 import uuid
 import warnings
+from fastapi.responses import HTMLResponse
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, get_args
 
@@ -233,35 +234,21 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 
-# import enterprise folder
-try:
-    # when using litellm cli
-    import litellm.proxy.enterprise as enterprise
-except Exception as e:
-    # when using litellm docker image
-    try:
-        import enterprise  # type: ignore
-    except Exception as e:
-        pass
 
 _license_check = LicenseCheck()
-premium_user: bool = _license_check.is_premium()
 ui_link = f"/ui/"
 ui_message = (
     f"👉 [```LiteLLM Admin Panel on /ui```]({ui_link}). Create, Edit Keys with SSO"
 )
-custom_swagger_message = f"[**Customize Swagger Docs**](https://docs.litellm.ai/docs/proxy/enterprise#swagger-docs---custom-routes--branding)"
+custom_swagger_message = f""
 
-### CUSTOM BRANDING [ENTERPRISE FEATURE] ###
 _docs_url = None if os.getenv("NO_DOCS", "False") == "True" else "/"
-_title = os.getenv("DOCS_TITLE", "LiteLLM API") if premium_user else "LiteLLM API"
+_title = os.getenv("DOCS_TITLE", "LiteLLM API") 
 _description = (
     os.getenv(
         "DOCS_DESCRIPTION",
         f"Proxy Server to call 100+ LLMs in the OpenAI format. {custom_swagger_message}\n\n{ui_message}",
     )
-    if premium_user
-    else f"Proxy Server to call 100+ LLMs in the OpenAI format. {custom_swagger_message}\n\n{ui_message}"
 )
 
 app = FastAPI(
@@ -296,7 +283,7 @@ def custom_openapi():
     return app.openapi_schema
 
 
-if os.getenv("DOCS_FILTERED", "False") == "True" and premium_user:
+if os.getenv("DOCS_FILTERED", "False") == "True" :
     app.openapi = custom_openapi  # type: ignore
 
 
@@ -1346,7 +1333,7 @@ class ProxyConfig:
         """
         Load config values into proxy global state
         """
-        global master_key, user_config_file_path, otel_logging, user_custom_auth, user_custom_auth_path, user_custom_key_generate, use_background_health_checks, health_check_interval, use_queue, custom_db_client, proxy_budget_rescheduler_max_time, proxy_budget_rescheduler_min_time, ui_access_mode, litellm_master_key_hash, proxy_batch_write_at, disable_spend_logs, prompt_injection_detection_obj, redis_usage_cache, store_model_in_db, premium_user, open_telemetry_logger
+        global master_key, user_config_file_path, otel_logging, user_custom_auth, user_custom_auth_path, user_custom_key_generate, use_background_health_checks, health_check_interval, use_queue, custom_db_client, proxy_budget_rescheduler_max_time, proxy_budget_rescheduler_min_time, ui_access_mode, litellm_master_key_hash, proxy_batch_write_at, disable_spend_logs, prompt_injection_detection_obj, redis_usage_cache, store_model_in_db, open_telemetry_logger
 
         # Load existing config
         config = await self.get_config(config_file_path=config_file_path)
@@ -1480,126 +1467,6 @@ class ProxyConfig:
 
                                 pii_masking_object = _OPTIONAL_PresidioPIIMasking()
                                 imported_list.append(pii_masking_object)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "llamaguard_moderations"
-                            ):
-                                from enterprise.enterprise_hooks.llama_guard import (
-                                    _ENTERPRISE_LlamaGuard,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use Llama Guard"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                llama_guard_object = _ENTERPRISE_LlamaGuard()
-                                imported_list.append(llama_guard_object)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "openai_moderations"
-                            ):
-                                from enterprise.enterprise_hooks.openai_moderation import (
-                                    _ENTERPRISE_OpenAI_Moderation,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use OpenAI Moderations Check"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                openai_moderations_object = (
-                                    _ENTERPRISE_OpenAI_Moderation()
-                                )
-                                imported_list.append(openai_moderations_object)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "lakera_prompt_injection"
-                            ):
-                                from enterprise.enterprise_hooks.lakera_ai import (
-                                    _ENTERPRISE_lakeraAI_Moderation,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use LakeraAI Prompt Injection"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                lakera_moderations_object = (
-                                    _ENTERPRISE_lakeraAI_Moderation()
-                                )
-                                imported_list.append(lakera_moderations_object)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "google_text_moderation"
-                            ):
-                                from enterprise.enterprise_hooks.google_text_moderation import (
-                                    _ENTERPRISE_GoogleTextModeration,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use Google Text Moderation"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                google_text_moderation_obj = (
-                                    _ENTERPRISE_GoogleTextModeration()
-                                )
-                                imported_list.append(google_text_moderation_obj)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "llmguard_moderations"
-                            ):
-                                from enterprise.enterprise_hooks.llm_guard import (
-                                    _ENTERPRISE_LLMGuard,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use Llm Guard"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                llm_guard_moderation_obj = _ENTERPRISE_LLMGuard()
-                                imported_list.append(llm_guard_moderation_obj)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "blocked_user_check"
-                            ):
-                                from enterprise.enterprise_hooks.blocked_user_list import (
-                                    _ENTERPRISE_BlockedUserList,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use ENTERPRISE BlockedUser"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                blocked_user_list = _ENTERPRISE_BlockedUserList(
-                                    prisma_client=prisma_client
-                                )
-                                imported_list.append(blocked_user_list)
-                            elif (
-                                isinstance(callback, str)
-                                and callback == "banned_keywords"
-                            ):
-                                from enterprise.enterprise_hooks.banned_keywords import (
-                                    _ENTERPRISE_BannedKeywords,
-                                )
-
-                                if premium_user != True:
-                                    raise Exception(
-                                        "Trying to use ENTERPRISE BannedKeyword"
-                                        + CommonProxyErrors.not_premium_user.value
-                                    )
-
-                                banned_keywords_obj = _ENTERPRISE_BannedKeywords()
-                                imported_list.append(banned_keywords_obj)
                             elif (
                                 isinstance(callback, str)
                                 and callback == "detect_prompt_injection"
@@ -1909,15 +1776,15 @@ class ProxyConfig:
             )
             health_check_interval = general_settings.get("health_check_interval", 300)
 
-            ## check if user has set a premium feature in general_settings
-            if (
-                general_settings.get("enforced_params") is not None
-                and premium_user is not True
-            ):
-                raise ValueError(
-                    "Trying to use `enforced_params`"
-                    + CommonProxyErrors.not_premium_user.value
-                )
+            # ## check if user has set a premium feature in general_settings
+            # if (
+            #     general_settings.get("enforced_params") is not None
+            #     and premium_user is not True
+            # ):
+            #     raise ValueError(
+            #         "Trying to use `enforced_params`"
+            #         + CommonProxyErrors.not_premium_user.value
+            #     )
 
         router_params: dict = {
             "cache_responses": litellm.cache
@@ -1986,8 +1853,6 @@ class ProxyConfig:
             model.model_info["id"] = _id
             model.model_info["db_model"] = True
 
-        if premium_user is True:
-            # seeing "created_at", "updated_at", "created_by", "updated_by" is a LiteLLM Enterprise Feature
             model.model_info["created_at"] = getattr(model, "created_at", None)
             model.model_info["updated_at"] = getattr(model, "updated_at", None)
             model.model_info["created_by"] = getattr(model, "created_by", None)
@@ -4998,20 +4863,6 @@ async def unblock_user(data: BlockUsers):
     }'
     ```
     """
-    from enterprise.enterprise_hooks.blocked_user_list import (
-        _ENTERPRISE_BlockedUserList,
-    )
-
-    if (
-        not any(isinstance(x, _ENTERPRISE_BlockedUserList) for x in litellm.callbacks)
-        or litellm.blocked_user_list is None
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "Blocked user check was never set. This call has no effect."
-            },
-        )
 
     if isinstance(litellm.blocked_user_list, list):
         for id in data.user_ids:
@@ -5374,8 +5225,6 @@ async def delete_end_user(
 
 
 async def create_audit_log_for_update(request_data: LiteLLM_AuditLogs):
-    if premium_user is not True:
-        return
 
     if litellm.store_audit_logs is not True:
         return
@@ -7021,7 +6870,7 @@ async def google_login(request: Request):
     PROXY_BASE_URL should be the your deployed proxy endpoint, e.g. PROXY_BASE_URL="https://litellm-production-7002.up.railway.app/"
     Example:
     """
-    global premium_user, prisma_client, master_key
+    global  prisma_client, master_key
 
     microsoft_client_id = os.getenv("MICROSOFT_CLIENT_ID", None)
     google_client_id = os.getenv("GOOGLE_CLIENT_ID", None)
@@ -7033,17 +6882,9 @@ async def google_login(request: Request):
         or google_client_id is not None
         or generic_client_id is not None
     ):
-        if premium_user != True:
-            raise ProxyException(
-                message="You must be a LiteLLM Enterprise user to use SSO. If you have a license please set `LITELLM_LICENSE` in your env. If you want to obtain a license meet with us here: https://calendly.com/d/4mp-gd3-k5k/litellm-1-1-onboarding-chat You are seeing this error message because You set one of `MICROSOFT_CLIENT_ID`, `GOOGLE_CLIENT_ID`, or `GENERIC_CLIENT_ID` in your env. Please unset this",
-                type="auth_error",
-                param="premium_user",
-                code=status.HTTP_403_FORBIDDEN,
-            )
-
     ####### Detect DB + MASTER KEY in .env #######
-    if prisma_client is None or master_key is None:
-        from fastapi.responses import HTMLResponse
+        if prisma_client is None or master_key is None:
+            
 
         return HTMLResponse(content=missing_keys_html_form, status_code=200)
 
@@ -7208,7 +7049,6 @@ async def fallback_login(request: Request):
     "/login", include_in_schema=False
 )  # hidden since this is a helper for UI sso login
 async def login(request: Request):
-    global premium_user
     try:
         import multipart
     except ImportError:
@@ -7297,7 +7137,7 @@ async def login(request: Request):
                 "user_email": user_id,
                 "user_role": user_role,  # this is the path without sso - we can assume only admins will use this
                 "login_method": "username_password",
-                "premium_user": premium_user,
+
             },
             "secret",
             algorithm="HS256",
@@ -7359,7 +7199,7 @@ async def login(request: Request):
                     "user_email": user_email,
                     "user_role": user_role,
                     "login_method": "username_password",
-                    "premium_user": premium_user,
+
                 },
                 "secret",
                 algorithm="HS256",
@@ -7483,7 +7323,7 @@ async def onboarding(invite_link: str):
             "user_email": user_obj.user_email,
             "user_role": user_obj.user_role,
             "login_method": "username_password",
-            "premium_user": premium_user,
+
         },
         "secret",
         algorithm="HS256",
@@ -7618,7 +7458,7 @@ def get_image():
 @app.get("/sso/callback", tags=["experimental"], include_in_schema=False)
 async def auth_callback(request: Request):
     """Verify login"""
-    global general_settings, ui_access_mode, premium_user
+    global general_settings, ui_access_mode
     microsoft_client_id = os.getenv("MICROSOFT_CLIENT_ID", None)
     google_client_id = os.getenv("GOOGLE_CLIENT_ID", None)
     generic_client_id = os.getenv("GENERIC_CLIENT_ID", None)
@@ -7903,7 +7743,7 @@ async def auth_callback(request: Request):
             "user_email": user_email,
             "user_role": user_role,
             "login_method": "sso",
-            "premium_user": premium_user,
+
         },
         "secret",
         algorithm="HS256",

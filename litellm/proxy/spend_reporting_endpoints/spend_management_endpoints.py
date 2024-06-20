@@ -8,6 +8,7 @@ import fastapi
 from fastapi import Depends, Request, APIRouter, Header, status
 from fastapi import HTTPException
 from litellm.proxy._types import *
+from litellm.proxy.proxy_server import prisma_client
 
 router = APIRouter()
 
@@ -135,7 +136,6 @@ async def view_spend_tags(
     ```
     """
 
-    from enterprise.utils import get_spend_by_tags
     from litellm.proxy.proxy_server import prisma_client
 
     try:
@@ -1090,9 +1090,8 @@ async def global_view_spend_tags(
     ```
     """
 
-    from enterprise.utils import ui_get_spend_by_tags
 
-    from litellm.proxy.proxy_server import prisma_client
+    
 
     try:
         if prisma_client is None:
@@ -1822,7 +1821,6 @@ async def global_spend_models(
     include_in_schema=False,
 )
 async def global_predict_spend_logs(request: Request):
-    from enterprise.utils import _forecast_daily_cost
 
     data = await request.json()
     data = data.get("data")

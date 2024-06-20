@@ -938,17 +938,6 @@ ModelResponse(
 ```
 
 
-## Custom Callback APIs [Async]
-
-:::info
-
-This is an Enterprise only feature [Get Started with Enterprise here](https://github.com/BerriAI/litellm/tree/main/enterprise)
-
-:::
-
-Use this if you:
-- Want to use custom callbacks written in a non Python programming language
-- Want your callbacks to run on a different microservice
 
 #### Step 1. Create your generic logging API endpoint
 Set up a generic API endpoint that can receive data in JSON format. The data will be included within a "data" field. 
