@@ -60,3 +60,7 @@ litellm/proxy/_experimental/out/404/index.html
 litellm/proxy/_experimental/out/model_hub/index.html
 litellm/proxy/_experimental/out/onboarding/index.html
 litellm/tests/log.txt
+/ui/litellm-dashboard/out/
+*.whl
+/litellm/proxy/_experimental/out/
+/cache/
