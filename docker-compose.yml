@@ -17,7 +17,8 @@ services:
       - .env # Load local .env file
     volumes:
       - ./proxy_server_config.yaml:/app/proxy_server_config.yaml
-    command: [ "--config", "/app//app/proxy_server_config.yaml" ]
+
+    command: [ "--config", "/app/proxy_server_config.yaml" ]
  
   db:
     image: postgres
@@ -29,3 +30,6 @@ services:
     #  interval: 1s
     #  timeout: 5s
     #  retries: 10
+
+# ...rest of your docker-compose config if any
+

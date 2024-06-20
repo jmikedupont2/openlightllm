@@ -8,7 +8,6 @@ Run checks for:
 2. If user is in budget 
 3. If end_user ('user' passed to /chat/completions, /embeddings endpoint) is in budget 
 """
-from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, Optional
 import litellm
 from litellm.caching import DualCache

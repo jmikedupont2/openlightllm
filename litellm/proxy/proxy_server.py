@@ -1,25 +1,20 @@
 import ast
 import asyncio
 import copy
-import hashlib
-import importlib
 import inspect
 import logging
 import os
-import platform
 import random
-import re
 import secrets
-import shutil
 import subprocess
 import sys
-import threading
 import time
 import traceback
 import uuid
 import warnings
-from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, get_args
+from fastapi.responses import HTMLResponse
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, List, Optional, get_args
 
 import backoff
 import fastapi
@@ -47,14 +42,10 @@ warnings.showwarning = showwarning
 warnings.filterwarnings("default", category=UserWarning)
 
 # Your client code here
-
-
 messages: list = []
 sys.path.insert(
     0, os.path.abspath("../..")
 )  # Adds the parent directory to the system path - for litellm local dev
-
-
 
 
 list_of_messages = [
@@ -100,6 +91,7 @@ def generate_feedback_box():
 import pydantic
 
 import litellm
+
 from litellm import *
 from litellm import (  # from litellm import (; #    CancelBatchRequest,; CreateBatchRequest,; CreateFileRequest,; ListBatchRequest,; RetrieveBatchRequest,; ); from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
     AssistantsTypedDict,
@@ -129,10 +121,19 @@ from litellm import (  # from litellm import (; #    CancelBatchRequest,; Create
     verbose_proxy_logger,
     verbose_router_logger,
 )
+
+# from litellm import (
+# #    CancelBatchRequest,
+#     CreateBatchRequest,
+#     CreateFileRequest,
+#     ListBatchRequest,
+#     RetrieveBatchRequest,
+# )
+
 from litellm._logging import verbose_proxy_logger, verbose_router_logger
 from litellm.caching import DualCache, RedisCache
 from litellm.exceptions import RejectedRequestError
-from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
+#from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
 from litellm.llms.custom_httpx.httpx_handler import HTTPHandler
 from litellm.proxy._types import *
 from litellm.proxy.auth.auth_checks import (
@@ -158,9 +159,9 @@ from litellm.proxy.caching_routes import router as caching_router
 from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
 from litellm.proxy.health_check import perform_health_check
 from litellm.proxy.health_endpoints._health_endpoints import router as health_router
-from litellm.proxy.hooks.prompt_injection_detection import (
-    _OPTIONAL_PromptInjectionDetection,
-)
+#from litellm.proxy.hooks.prompt_injection_detection import (
+#    _OPTIONAL_PromptInjectionDetection,
+#)
 from litellm.proxy.litellm_pre_call_utils import add_litellm_data_to_request
 from litellm.proxy.management_endpoints.internal_user_endpoints import (
     router as internal_user_router,
@@ -307,6 +308,7 @@ try:
 except:
     version = "0.0.0"
 litellm.suppress_debug_info = True
+import json
 
 
 # from fastapi import (
@@ -606,6 +608,29 @@ def prisma_setup(database_url: Optional[str]):
 #     try:
 #         from azure.identity import ClientSecretCredential
 #         from azure.keyvault.secrets import SecretClient
+#         # Set your Azure Key Vault URI
+#         KVUri = os.getenv("AZURE_KEY_VAULT_URI", None)
+
+#         # Set your Azure AD application/client ID, client secret, and tenant ID
+#         client_id = os.getenv("AZURE_CLIENT_ID", None)
+#         client_secret = os.getenv("AZURE_CLIENT_SECRET", None)
+#         tenant_id = os.getenv("AZURE_TENANT_ID", None)
+
+#         if (
+#             KVUri is not None
+#             and client_id is not None
+#             and client_secret is not None
+#             and tenant_id is not None
+#         ):
+#             # Initialize the ClientSecretCredential
+#             credential = ClientSecretCredential(
+#                 client_id=client_id, client_secret=client_secret, tenant_id=tenant_id
+#             )
+
+#             # Create the SecretClient using the credential
+#             client = SecretClient(vault_url=KVUri, credential=credential)
+
+
 #         # Set your Azure Key Vault URI
 #         KVUri = os.getenv("AZURE_KEY_VAULT_URI", None)
 
