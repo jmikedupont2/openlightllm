@@ -64,3 +64,4 @@ litellm/tests/log.txt
 *.whl
 /litellm/proxy/_experimental/out/
 /cache/
+/litellm/llms/tokenizers/

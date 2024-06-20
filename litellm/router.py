@@ -98,10 +98,10 @@ class Router:
         ## ASSISTANTS API ##
         assistants_config: Optional[AssistantsTypedDict] = None,
         ## CACHING ##
-        redis_url: Optional[str] = None,
-        redis_host: Optional[str] = None,
-        redis_port: Optional[int] = None,
-        redis_password: Optional[str] = None,
+        # redis_url: Optional[str] = None,
+        # redis_host: Optional[str] = None,
+        # redis_port: Optional[int] = None,
+        # redis_password: Optional[str] = None,
         cache_responses: Optional[bool] = False,
         cache_kwargs: dict = {},  # additional kwargs to pass to RedisCache (see caching.py)
         caching_groups: Optional[
@@ -242,28 +242,28 @@ class Router:
         redis_cache = None
         cache_config = {}
         self.client_ttl = client_ttl
-        if redis_url is not None or (
-            redis_host is not None
-            and redis_port is not None
-            and redis_password is not None
-        ):
-            cache_type = "redis"
+        # if redis_url is not None or (
+        #     redis_host is not None
+        #     and redis_port is not None
+        #     and redis_password is not None
+        # ):
+        #     cache_type = "redis"
 
-            if redis_url is not None:
-                cache_config["url"] = redis_url
+        #     if redis_url is not None:
+        #         cache_config["url"] = redis_url
 
-            if redis_host is not None:
-                cache_config["host"] = redis_host
+        #     if redis_host is not None:
+        #         cache_config["host"] = redis_host
 
-            if redis_port is not None:
-                cache_config["port"] = str(redis_port)  # type: ignore
+        #     if redis_port is not None:
+        #         cache_config["port"] = str(redis_port)  # type: ignore
 
-            if redis_password is not None:
-                cache_config["password"] = redis_password
+        #     if redis_password is not None:
+        #         cache_config["password"] = redis_password
 
-            # Add additional key-value pairs from cache_kwargs
-            cache_config.update(cache_kwargs)
-            redis_cache = RedisCache(**cache_config)
+        #     # Add additional key-value pairs from cache_kwargs
+        #     cache_config.update(cache_kwargs)
+        #     redis_cache = RedisCache(**cache_config)
 
         if cache_responses:
             if litellm.cache is None:

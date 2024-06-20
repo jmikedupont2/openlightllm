@@ -6,8 +6,21 @@ import random
 import importlib
 from dotenv import load_dotenv
 import urllib.parse as urlparse
+# bad practive
+#sys.path.append(os.getcwd())
 
-sys.path.append(os.getcwd())
+from .proxy_server import (
+    save_worker_config,
+    #     app,
+#     
+     ProxyConfig,
+#     KeyManagementSystem,
+#     KeyManagementSettings,
+#     #load_from_azure_key_vault,
+#     load_aws_kms,
+#     load_aws_secret_manager,
+#     #load_google_kms,
+)
 
 config_filename = "litellm.secrets"
 
@@ -226,48 +239,7 @@ def run_server(
     ssl_certfile_path,
 ):
     args = locals()
-    if local:
-        from proxy_server import (
-            app,
-            save_worker_config,
-            ProxyConfig,
-            KeyManagementSystem,
-            KeyManagementSettings,
-            load_from_azure_key_vault,
-            load_aws_kms,
-            load_aws_secret_manager,
-            load_google_kms,
-        )
-    else:
-        try:
-            from .proxy_server import (
-                app,
-                save_worker_config,
-                ProxyConfig,
-                KeyManagementSystem,
-                KeyManagementSettings,
-                load_from_azure_key_vault,
-                load_aws_kms,
-                load_aws_secret_manager,
-                load_google_kms,
-            )
-        except ImportError as e:
-            if "litellm[proxy]" in str(e):
-                # user is missing a proxy dependency, ask them to pip install litellm[proxy]
-                raise e
-            else:
-                # this is just a local/relative import error, user git cloned litellm
-                from proxy_server import (
-                    app,
-                    save_worker_config,
-                    ProxyConfig,
-                    KeyManagementSystem,
-                    KeyManagementSettings,
-                    load_from_azure_key_vault,
-                    load_aws_kms,
-                    load_aws_secret_manager,
-                    load_google_kms,
-                )
+
     if version == True:
         pkg_version = importlib.metadata.version("litellm")
         click.echo(f"\nLiteLLM: Current Version = {pkg_version}\n")
@@ -401,6 +373,7 @@ def run_server(
     else:
         if headers:
             headers = json.loads(headers)
+            
         save_worker_config(
             model=model,
             alias=alias,
