@@ -22,7 +22,9 @@ RUN pip install --upgrade pip && \
 COPY build_admin_ui.sh build_admin_ui.sh
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
-COPY litellm  litellm 
+COPY litellm  litellm
+COPY enterprise  enterprise
+COPY requirements.txt requirements.txt
 # Build Admin UI
 RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
 
@@ -66,6 +68,7 @@ RUN pip install *.whl /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl 
 
 # Generate prisma client
 RUN prisma generate
+COPY entrypoint.sh  entrypoint.sh
 RUN chmod +x entrypoint.sh
 
 EXPOSE 4000/tcp
@@ -74,3 +77,4 @@ ENTRYPOINT ["litellm"]
 
 # Append "--detailed_debug" to the end of CMD to view detailed debug logs 
 CMD ["--port", "4000"]
+
