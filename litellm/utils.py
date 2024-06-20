@@ -129,13 +129,6 @@ from .types.llms.openai import (
 )
 from .types.router import LiteLLM_Params
 
-try:
-    from .proxy.enterprise.enterprise_callbacks.generic_api_callback import (
-        GenericAPILogger,
-    )
-except Exception as e:
-    verbose_logger.debug(f"Exception import enterprise features {str(e)}")
-
 from concurrent.futures import ThreadPoolExecutor
 from typing import (
     Any,

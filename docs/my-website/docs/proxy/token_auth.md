@@ -9,7 +9,6 @@ Use JWT's to auth admins / projects into the proxy.
 
 This is a new feature, and subject to changes based on feedback.
 
-*UPDATE*: This will be moving to the [enterprise tier](./enterprise.md), once it's out of beta (~by end of April).
 :::
 
 ## Usage

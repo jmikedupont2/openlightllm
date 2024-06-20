@@ -119,7 +119,6 @@ We might need to update the function schema in the future, to support multiple e
 
 :::
 
-See a complete example with our [Llama Guard content moderation hook](https://github.com/BerriAI/litellm/blob/main/enterprise/enterprise_hooks/llm_guard.py)
 
 ```python
 from litellm.integrations.custom_logger import CustomLogger

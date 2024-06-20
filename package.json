@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "@remixicon/react": "^4.2.0",
+    "@tremor/react": "^3.17.3",
+    "antd": "^5.18.3",
+    "autoprefixer": "^10.4.19",
+    "jwt-decode": "^4.0.0",
+    "next": "^14.2.4",
     "react-copy-to-clipboard": "^5.1.0"
   },
   "devDependencies": {
