@@ -8,8 +8,9 @@ import fastapi
 from fastapi import Depends, Request, APIRouter, Header, status
 from fastapi import HTTPException
 from litellm.proxy._types import *
-from litellm.proxy.proxy_server import prisma_client
+#from litellm.proxy.proxy_server import prisma_client
 
+import litellm.proxy.proxy_server
 router = APIRouter()
 
 

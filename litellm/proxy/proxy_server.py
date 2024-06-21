@@ -93,34 +93,26 @@ import pydantic
 import litellm
 
 from litellm import *
-from litellm import (  # from litellm import (; #    CancelBatchRequest,; CreateBatchRequest,; CreateFileRequest,; ListBatchRequest,; RetrieveBatchRequest,; ); from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
-    AssistantsTypedDict,
-    CancelBatchRequest,
-    CreateBatchRequest,
-    CreateFileRequest,
-    Deployment,
-    DualCache,
-    HTTPHandler,
-    ListBatchRequest,
-    LiteLLM_Params,
-    ModelGroupInfo,
-    RedisCache,
-    RejectedRequestError,
-    RetrieveBatchRequest,
-    from,
-    import,
-    litellm._logging,
-    litellm.caching,
-    litellm.exceptions,
-    litellm.llms.custom_httpx.httpx_handler,
-    litellm.proxy._types,
-    litellm.proxy.health_check,
-    litellm.router,
-    perform_health_check,
-    updateDeployment,
-    verbose_proxy_logger,
-    verbose_router_logger,
-)
+#from litellm import (  # from litellm import (; #    CancelBatchRequest,; CreateBatchRequest,; CreateFileRequest,; ListBatchRequest,; RetrieveBatchRequest,; ); from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
+#    AssistantsTypedDict,
+#    CancelBatchRequest,
+#    CreateBatchRequest,
+#    CreateFileRequest,
+#    Deployment,
+#    DualCache,
+#    HTTPHandler,
+#    ListBatchRequest,
+#    LiteLLM_Params,
+#    ModelGroupInfo,
+#    RedisCache,
+#     RejectedRequestError,
+#     RetrieveBatchRequest,
+
+#     perform_health_check,
+#     updateDeployment,
+#     verbose_proxy_logger,
+#     verbose_router_logger,
+# )
 
 # from litellm import (
 # #    CancelBatchRequest,
@@ -156,7 +148,7 @@ from litellm.proxy.auth.model_checks import (
 from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
 
 from litellm.proxy.caching_routes import router as caching_router
-from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
+#from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
 from litellm.proxy.health_check import perform_health_check
 from litellm.proxy.health_endpoints._health_endpoints import router as health_router
 #from litellm.proxy.hooks.prompt_injection_detection import (
@@ -167,22 +159,14 @@ from litellm.proxy.management_endpoints.internal_user_endpoints import (
     router as internal_user_router,
 )
 from litellm.proxy.management_endpoints.internal_user_endpoints import user_update
-from litellm.proxy.management_endpoints.key_management_endpoints import (
-    _duration_in_seconds,
-    _read_request_body,
-    add_litellm_data_to_request,
-    delete_verification_token,
-    from,
-    generate_key_helper_fn,
-    import,
-    litellm.proxy.caching_routes,
-    litellm.proxy.common_utils.http_parsing_utils,
-    litellm.proxy.health_check,
-    litellm.proxy.health_endpoints._health_endpoints,
-    litellm.proxy.litellm_pre_call_utils,
-    litellm.proxy.management_endpoints.internal_user_endpoints,
-    perform_health_check,
-)
+# from litellm.proxy.management_endpoints.key_management_endpoints import (
+#     _duration_in_seconds,
+# #    _read_request_body,
+#     add_litellm_data_to_request,
+#     delete_verification_token,
+#     generate_key_helper_fn,
+#     perform_health_check,
+# )
 from litellm.proxy.management_endpoints.key_management_endpoints import (
     router as caching_router,  # # Import All Misc routes here ##; from litellm.proxy.hooks.prompt_injection_detection import (; _OPTIONAL_PromptInjectionDetection,; )
 )
@@ -209,7 +193,6 @@ from litellm.proxy.utils import (
     DBClient,
     PrismaClient,
     ProxyLogging,
-    308c59eb9,
     _cache_user_row,
     _get_projected_spend_over_limit,
     _is_projected_spend_over_limit,
@@ -222,15 +205,12 @@ from litellm.proxy.utils import (
     hash_token,
     html_form,
     missing_keys_html_form,
-    now,
     reset_budget,
-    running,
     send_email,
     update_spend,
 )
-from litellm.scheduler import DefaultPriorities, FlowItem, Scheduler
+from litellm.scheduler import (DefaultPriorities, FlowItem, Scheduler)
 
-)
 import json
 import logging
 from typing import Union
@@ -293,7 +273,7 @@ from litellm.proxy.utils import (
     update_spend,
 )
 from litellm.router import (
-    AssistantsTypedDict,
+#    AssistantsTypedDict,
     Deployment,
     LiteLLM_Params,
     ModelGroupInfo,
@@ -1949,7 +1929,7 @@ class ProxyConfig:
                     run_ollama_serve()
 
         ## ASSISTANT SETTINGS
-        assistants_config: Optional[AssistantsTypedDict] = None
+        assistants_config: Optional[litellm.router.AssistantsTypedDict] = None
         assistant_settings = config.get("assistant_settings", None)
         if assistant_settings:
             for k, v in assistant_settings["litellm_params"].items():
@@ -1957,7 +1937,7 @@ class ProxyConfig:
                     _v = v.replace("os.environ/", "")
                     v = os.getenv(_v)
                     assistant_settings["litellm_params"][k] = v
-            assistants_config = AssistantsTypedDict(**assistant_settings)  # type: ignore
+            assistants_config = litellm.router.AssistantsTypedDict(**assistant_settings)  # type: ignore
 
         ## ROUTER SETTINGS (e.g. routing_strategy, ...)
         router_settings = config.get("router_settings", None)
