@@ -59,8 +59,11 @@ RUN pip uninstall PyJWT -y
 RUN pip install PyJWT --no-cache-dir
 
 # build the package at the end
-COPY litellm  litellm
-COPY enterprise  enterprise
+
+RUN mkdir litellm
+RUN touch litellm/__init__.py
+COPY litellm/py.typed litellm/py.typed 
+
 RUN python -m build
 RUN pip install dist/*.whl
 # Runtime stage
@@ -72,12 +75,23 @@ WORKDIR /app
 RUN ls -la /app
 
 # Copy the built wheel from the builder stage to the runtime stage; assumes only one wheel file is present
-COPY --from=builder /app/dist/*.whl .
+#COPY --from=builder /app/dist/*.whl .
 COPY --from=builder /wheels/ /wheels/
 
+# remove the junk whl that is empty
+#RUN rm litellm-*.whl
 # Install the built wheel using pip; again using a wildcard if it's the only file
-RUN pip install *.whl /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl && rm -rf /wheels
+#RUN ls *.whl /wheels/*
+RUN pip install  /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl && rm -rf /wheels
 
+# now we can add the application code and install it
+COPY pyproject.toml pyproject.toml
+COPY README.md README.md
+COPY requirements.txt requirements.txt
+COPY litellm/py.typed litellm/py.typed 
+COPY litellm  litellm
+COPY enterprise  enterprise
+RUN pip install -e .
 # Generate prisma client
 RUN prisma generate
 COPY entrypoint.sh  entrypoint.sh

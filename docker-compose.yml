@@ -17,7 +17,7 @@ services:
       - .env # Load local .env file
     volumes:
       - ./proxy_server_config.yaml:/app/proxy_server_config.yaml
-      - 
+      - ./litellm:/app/litellm
 
     command: [ "--config", "/app/proxy_server_config.yaml" ]
  
