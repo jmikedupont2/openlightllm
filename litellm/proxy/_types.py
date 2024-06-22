@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, TypedDict, Union
 
-from pydantic import BaseModel, ConfigDict, Extra, Field, Json, model_validator
+from pydantic import BaseModel, ConfigDict, Extra, Field, Json#, model_validator
 from typing_extensions import Annotated
 
 from litellm.types.router import UpdateRouterConfig
@@ -125,6 +125,8 @@ class LiteLLMBase(BaseModel):
     """
     Implements default functions, all pydantic objects should have.
     """
+#    class Config:
+#        
 
     def json(self, **kwargs):
         try:
@@ -140,7 +142,10 @@ class LiteLLMBase(BaseModel):
             # if using pydantic v1
             return self.__fields_set__
 
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed = True
+    )
 
 
 class LiteLLM_UpperboundKeyGenerateParams(LiteLLMBase):
@@ -382,7 +387,7 @@ class LiteLLMPromptInjectionParams(LiteLLMBase):
         description="Return rejected request error message as a string to the user. Default behaviour is to raise an exception.",
     )
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_llm_api_params(cls, values):
         llm_api_check = values.get("llm_api_check")
@@ -472,7 +477,7 @@ class ModelInfo(LiteLLMBase):
 
     model_config = ConfigDict(protected_namespaces=(), extra="allow")
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         if values.get("id") is None:
@@ -506,7 +511,7 @@ class ModelParams(LiteLLMBase):
 
     model_config = ConfigDict(protected_namespaces=())
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         if values.get("model_info") is None:
@@ -554,7 +559,7 @@ class GenerateKeyResponse(GenerateKeyRequest):
     user_id: Optional[str] = None
     token_id: Optional[str] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         if values.get("token") is not None:
@@ -656,7 +661,7 @@ class UpdateUserRequest(GenerateRequestBase):
     ] = None
     max_budget: Optional[float] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_user_info(cls, values):
         if values.get("user_id") is None and values.get("user_email") is None:
@@ -681,7 +686,7 @@ class NewCustomerRequest(LiteLLMBase):
         None  # if no equivalent model in allowed region - default all requests to this model
     )
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_user_info(cls, values):
         if values.get("max_budget") is not None and values.get("budget_id") is not None:
@@ -722,7 +727,7 @@ class Member(LiteLLMBase):
     user_id: Optional[str] = None
     user_email: Optional[str] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_user_info(cls, values):
         if not isinstance(values, dict):
@@ -789,7 +794,7 @@ class TeamMemberDeleteRequest(LiteLLMBase):
     user_id: Optional[str] = None
     user_email: Optional[str] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_user_info(cls, values):
         if values.get("user_id") is None and values.get("user_email") is None:
@@ -858,7 +863,7 @@ class LiteLLM_TeamTable(TeamBase):
 
     model_config = ConfigDict(protected_namespaces=())
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         dict_fields = [
@@ -1229,7 +1234,7 @@ class UserAPIKeyAuth(
     allowed_model_region: Optional[Literal["eu"]] = None
     parent_otel_span: Optional[Span] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def check_api_key(cls, values):
         if values.get("api_key") is not None:
@@ -1260,7 +1265,7 @@ class LiteLLM_UserTable(LiteLLMBase):
     tpm_limit: Optional[int] = None
     rpm_limit: Optional[int] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         if values.get("spend") is None:
@@ -1281,7 +1286,7 @@ class LiteLLM_EndUserTable(LiteLLMBase):
     default_model: Optional[str] = None
     litellm_budget_table: Optional[LiteLLM_BudgetTable] = None
 
-    @model_validator(mode="before")
+    #@model_validator(mode="before")
     @classmethod
     def set_model_info(cls, values):
         if values.get("spend") is None:

@@ -37,21 +37,15 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 
 WORKDIR /app/
 
-
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
-COPY litellm  litellm
-COPY enterprise  enterprise
 COPY requirements.txt requirements.txt
 
 # Build the package
-RUN rm -rf dist/* && python -m build
-
 # There should be only one wheel file now, assume the build only creates one
 RUN ls -1 dist/*.whl | head -1
 
 # Install the package
-RUN pip install dist/*.whl
 
 # install dependencies as wheels
 RUN pip wheel --no-cache-dir --wheel-dir=/wheels/ -r requirements.txt
@@ -64,9 +58,11 @@ RUN pip uninstall jwt -y
 RUN pip uninstall PyJWT -y
 RUN pip install PyJWT --no-cache-dir
 
-# Build Admin UI
-#RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
-
+# build the package at the end
+COPY litellm  litellm
+COPY enterprise  enterprise
+RUN python -m build
+RUN pip install dist/*.whl
 # Runtime stage
 FROM $LITELLM_RUNTIME_IMAGE as runtime
 

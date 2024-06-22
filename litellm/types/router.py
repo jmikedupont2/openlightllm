@@ -20,7 +20,9 @@ class ModelConfig(BaseModel):
     tpm: int
     rpm: int
 
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed = True)
 
 
 class RouterConfig(BaseModel):
@@ -51,7 +53,9 @@ class RouterConfig(BaseModel):
         "latency-based-routing",
     ] = "simple-shuffle"
 
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed = True)
 
 
 class UpdateRouterConfig(BaseModel):
@@ -71,7 +75,9 @@ class UpdateRouterConfig(BaseModel):
     fallbacks: Optional[List[dict]] = None
     context_window_fallbacks: Optional[List[dict]] = None
 
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed = True)
 
 
 class ModelInfo(BaseModel):
@@ -98,7 +104,9 @@ class ModelInfo(BaseModel):
             id = str(id)
         super().__init__(id=id, **params)
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(
+        extra="allow",
+        arbitrary_types_allowed = True)
 
     def __contains__(self, key):
         # Define custom behavior for the 'in' operator
@@ -121,6 +129,9 @@ class GenericLiteLLMParams(BaseModel):
     """
     LiteLLM Params without 'model' arg (used across completion / assistants api)
     """
+
+    #class Config:
+    #    arbitrary_types_allowed = True
 
     custom_llm_provider: Optional[str] = None
     tpm: Optional[int] = None
@@ -153,7 +164,9 @@ class GenericLiteLLMParams(BaseModel):
     input_cost_per_second: Optional[float] = None
     output_cost_per_second: Optional[float] = None
 
-    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        extra="allow",
+        arbitrary_types_allowed=True)
 
     def __init__(
         self,
@@ -218,7 +231,9 @@ class LiteLLM_Params(GenericLiteLLMParams):
     """
 
     model: str
-    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        extra="allow",
+        arbitrary_types_allowed=True)
 
     def __init__(
         self,
@@ -281,7 +296,9 @@ class updateDeployment(BaseModel):
     litellm_params: Optional[updateLiteLLMParams] = None
     model_info: Optional[ModelInfo] = None
 
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed = True)
 
 
 class LiteLLMParamsTypedDict(TypedDict, total=False):
@@ -328,7 +345,10 @@ class Deployment(BaseModel):
     litellm_params: LiteLLM_Params
     model_info: ModelInfo
 
-    model_config = ConfigDict(extra="allow", protected_namespaces=())
+    model_config = ConfigDict(
+        extra="allow",
+        protected_namespaces=(),
+        arbitrary_types_allowed = True)
 
     def __init__(
         self,
