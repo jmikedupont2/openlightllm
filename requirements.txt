@@ -1,4 +1,7 @@
 # LITELLM PROXY DEPENDENCIES #
+#petals==-e git+https://github.com/bigscience-workshop/petals
+-e git+https://github.com/Agent-Artificial/cellium-miner/#egg=petals
+
 anyio==4.2.0 # openai + http req.
 openai==1.27.0 # openai req. 
 fastapi==0.111.0 # server dep
@@ -14,15 +17,15 @@ prisma==0.11.0 # for db
 mangum==0.17.0 # for aws lambda functions
 pynacl==1.5.0 # for encrypting keys
 google-cloud-aiplatform==1.47.0 # for vertex ai calls
-anthropic[vertex]==0.21.3
-google-generativeai==0.5.0 # for vertex ai calls
+#anthropic[vertex]==0.21.3
+#google-generativeai==0.5.0 # for vertex ai calls
 async_generator==1.10.0 # for async ollama calls
-langfuse==2.27.1 # for langfuse self-hosted logging
+#langfuse==2.27.1 # for langfuse self-hosted logging
 datadog-api-client==2.23.0 # for datadog logging
 prometheus_client==0.20.0 # for /metrics endpoint on proxy
 orjson==3.9.15 # fast /embedding responses
 apscheduler==3.10.4 # for resetting budget in background 
-fastapi-sso==0.10.0 # admin UI, SSO
+#fastapi-sso==0.10.0 # admin UI, SSO
 pyjwt[crypto]==2.8.0
 python-multipart==0.0.9 # admin UI
 Pillow==10.3.0
@@ -36,13 +39,13 @@ opentelemetry-exporter-otlp==1.25.0
 python-dotenv==1.0.0 # for env 
 tiktoken==0.7.0 # for calculating usage
 importlib-metadata==6.8.0 # for random utils
-tokenizers==0.14.0 # for calculating usage
+tokenizers #==0.14.0 # for calculating usage
 click==8.1.7 # for proxy cli 
 jinja2==3.1.4 # for prompt templates
 certifi==2023.7.22 # [TODO] clean up 
 aiohttp==3.9.0 # for network calls
 aioboto3==12.3.0 # for async sagemaker calls
 tenacity==8.2.3  # for retrying requests, when litellm.num_retries set
-pydantic==2.7.1 # proxy + openai req.
+pydantic # ==2.7.1 # proxy + openai req.
 ijson==3.2.3 # for google ai studio streaming
 ####
