@@ -724,7 +724,6 @@ async def generate_key_helper_fn(
         prisma_client,
         custom_db_client,
         litellm_proxy_budget_name,
-        premium_user,
     )
 
     if prisma_client is None and custom_db_client is None:
@@ -820,14 +819,6 @@ async def generate_key_helper_fn(
         if isinstance(saved_token["metadata"], str):
             saved_token["metadata"] = json.loads(saved_token["metadata"])
         if isinstance(saved_token["permissions"], str):
-            if (
-                "get_spend_routes" in saved_token["permissions"]
-                and premium_user != True
-            ):
-                raise ValueError(
-                    "get_spend_routes permission is only available for LiteLLM Enterprise users"
-                )
-
             saved_token["permissions"] = json.loads(saved_token["permissions"])
         if isinstance(saved_token["model_max_budget"], str):
             saved_token["model_max_budget"] = json.loads(
