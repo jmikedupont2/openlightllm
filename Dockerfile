@@ -11,22 +11,38 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apt-get clean && apt-get update && \
-    apt-get install -y gcc python3-dev && \
-    rm -rf /var/lib/apt/lists/*
-
+    apt-get install -y gcc python3-dev
 RUN pip install --upgrade pip && \
     pip install build
+RUN        apt-get install -y curl
 
-# Copy the current directory contents into the container at /app
-#COPY . .
-COPY build_admin_ui.sh build_admin_ui.sh
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+# Set debconf to run non-interactively
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+# Install base dependencies
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+        apt-transport-https \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        libssl-dev \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+
+
+
+WORKDIR /app/
+
+
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
 COPY litellm  litellm
 COPY enterprise  enterprise
 COPY requirements.txt requirements.txt
-# Build Admin UI
-RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
 
 # Build the package
 RUN rm -rf dist/* && python -m build
@@ -49,7 +65,7 @@ RUN pip uninstall PyJWT -y
 RUN pip install PyJWT --no-cache-dir
 
 # Build Admin UI
-RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
+#RUN chmod +x build_admin_ui.sh && ./build_admin_ui.sh
 
 # Runtime stage
 FROM $LITELLM_RUNTIME_IMAGE as runtime

@@ -1,12 +1,5 @@
 #!/bin/bash
 
-
-# print contents of ui_colors.json
-echo "Contents of ui_colors.json:"
-cat ui_colors.json
-
-npm install .
-
 # Run npm build
 npm run build
 

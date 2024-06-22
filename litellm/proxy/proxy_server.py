@@ -12,7 +12,6 @@ import time
 import traceback
 import uuid
 import warnings
-from fastapi.responses import HTMLResponse
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, List, Optional, get_args
 
@@ -23,7 +22,9 @@ import requests
 import yaml  # type: ignore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi.responses import HTMLResponse
+#from fastapi_sso import AuthJWTSSO
 
+user_custom_auth_path = None 
 if TYPE_CHECKING:
     from opentelemetry.trace import Span as _Span
 
@@ -88,11 +89,145 @@ def generate_feedback_box():
     print()  # noqa
 
 
+import json
+import logging
+from typing import Union
+
 import pydantic
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Path,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
+from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import (
+    FileResponse,
+    JSONResponse,
+    ORJSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
+from fastapi.routing import APIRouter
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.security.api_key import APIKeyHeader
+from fastapi.staticfiles import StaticFiles
 
 import litellm
+from litellm._logging import verbose_proxy_logger, verbose_router_logger
+from litellm.caching import DualCache, RedisCache
+from litellm.exceptions import RejectedRequestError
 
-from litellm import *
+#from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
+from litellm.llms.custom_httpx.httpx_handler import HTTPHandler
+from litellm.proxy._types import *
+from litellm.proxy.auth.auth_checks import (
+    allowed_routes_check,
+    common_checks,
+    get_actual_routes,
+    get_end_user_object,
+    get_org_object,
+    get_team_object,
+    get_user_object,
+    log_to_opentelemetry,
+)
+from litellm.proxy.auth.handle_jwt import JWTHandler
+from litellm.proxy.auth.litellm_license import LicenseCheck
+from litellm.proxy.auth.model_checks import (
+    get_complete_model_list,
+    get_key_models,
+    get_team_models,
+)
+from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
+from litellm.proxy.caching_routes import router as caching_router
+
+#from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
+from litellm.proxy.health_check import perform_health_check
+from litellm.proxy.health_endpoints._health_endpoints import router as health_router
+
+#from litellm.proxy.hooks.prompt_injection_detection import (
+#    _OPTIONAL_PromptInjectionDetection,
+#)
+from litellm.proxy.litellm_pre_call_utils import add_litellm_data_to_request
+from litellm.proxy.management_endpoints.internal_user_endpoints import (
+    router as internal_user_router,
+)
+from litellm.proxy.management_endpoints.internal_user_endpoints import user_update
+
+# from litellm.proxy.management_endpoints.key_management_endpoints import (
+#     _duration_in_seconds,
+# #    _read_request_body,
+#     add_litellm_data_to_request,
+#     delete_verification_token,
+#     generate_key_helper_fn,
+#     perform_health_check,
+# )
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as caching_router,  # # Import All Misc routes here ##; from litellm.proxy.hooks.prompt_injection_detection import (; _OPTIONAL_PromptInjectionDetection,; )
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as health_router,
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as internal_user_router,
+)
+from litellm.proxy.management_endpoints.key_management_endpoints import (
+    router as key_management_router,
+)
+from litellm.proxy.management_endpoints.team_endpoints import router as team_router
+from litellm.proxy.secret_managers.aws_secret_manager import (
+    load_aws_kms,
+    load_aws_secret_manager,
+)
+from litellm.proxy.secret_managers.google_kms import load_google_kms
+from litellm.proxy.spend_reporting_endpoints.spend_management_endpoints import (
+    router as spend_management_router,
+)
+
+#from litellm.proxy.secret_managers.google_kms import load_google_kms
+#from litellm.proxy.spend_reporting_endpoints.spend_management_endpoints import (
+#    router as spend_management_router,
+#)
+from litellm.proxy.utils import (
+    DBClient,
+    PrismaClient,
+    ProxyLogging,
+    _cache_user_row,
+    _get_projected_spend_over_limit,
+    _is_projected_spend_over_limit,
+    _is_valid_team_configs,
+    decrypt_value,
+    encrypt_value,
+    get_error_message_str,
+    get_instance_fn,
+    get_logging_payload,
+    hash_token,
+    html_form,
+    missing_keys_html_form,
+    reset_budget,
+    send_email,
+    update_spend,
+)
+from litellm.router import (  # AssistantsTypedDict,
+    Deployment,
+    LiteLLM_Params,
+    ModelGroupInfo,
+)
+from litellm.router import ModelInfo as RouterModelInfo
+from litellm.router import updateDeployment  # AssistantsTypedDict,
+from litellm.scheduler import DefaultPriorities, FlowItem, Scheduler
+from litellm.types.llms.openai import HttpxBinaryResponseContent
+
+#from litellm import 
 #from litellm import (  # from litellm import (; #    CancelBatchRequest,; CreateBatchRequest,; CreateFileRequest,; ListBatchRequest,; RetrieveBatchRequest,; ); from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
 #    AssistantsTypedDict,
 #    CancelBatchRequest,
@@ -122,166 +257,11 @@ from litellm import *
 #     RetrieveBatchRequest,
 # )
 
-from litellm._logging import verbose_proxy_logger, verbose_router_logger
-from litellm.caching import DualCache, RedisCache
-from litellm.exceptions import RejectedRequestError
-#from litellm.integrations.slack_alerting import SlackAlerting, SlackAlertingArgs
-from litellm.llms.custom_httpx.httpx_handler import HTTPHandler
-from litellm.proxy._types import *
-from litellm.proxy.auth.auth_checks import (
-    allowed_routes_check,
-    common_checks,
-    get_actual_routes,
-    get_end_user_object,
-    get_org_object,
-    get_team_object,
-    get_user_object,
-    log_to_opentelemetry,
-)
-from litellm.proxy.auth.handle_jwt import JWTHandler
-from litellm.proxy.auth.litellm_license import LicenseCheck
-from litellm.proxy.auth.model_checks import (
-    get_complete_model_list,
-    get_key_models,
-    get_team_models,
-)
-from litellm.proxy.auth.user_api_key_auth import user_api_key_auth
 
-from litellm.proxy.caching_routes import router as caching_router
-#from litellm.proxy.common_utils.http_parsing_utils import _read_request_body
-from litellm.proxy.health_check import perform_health_check
-from litellm.proxy.health_endpoints._health_endpoints import router as health_router
-#from litellm.proxy.hooks.prompt_injection_detection import (
-#    _OPTIONAL_PromptInjectionDetection,
-#)
-from litellm.proxy.litellm_pre_call_utils import add_litellm_data_to_request
-from litellm.proxy.management_endpoints.internal_user_endpoints import (
-    router as internal_user_router,
-)
-from litellm.proxy.management_endpoints.internal_user_endpoints import user_update
-# from litellm.proxy.management_endpoints.key_management_endpoints import (
-#     _duration_in_seconds,
-# #    _read_request_body,
-#     add_litellm_data_to_request,
-#     delete_verification_token,
-#     generate_key_helper_fn,
-#     perform_health_check,
-# )
-from litellm.proxy.management_endpoints.key_management_endpoints import (
-    router as caching_router,  # # Import All Misc routes here ##; from litellm.proxy.hooks.prompt_injection_detection import (; _OPTIONAL_PromptInjectionDetection,; )
-)
-from litellm.proxy.management_endpoints.key_management_endpoints import (
-    router as health_router,
-)
-from litellm.proxy.management_endpoints.key_management_endpoints import (
-    router as internal_user_router,
-)
-from litellm.proxy.management_endpoints.key_management_endpoints import (
-    router as key_management_router,
-)
-from litellm.proxy.management_endpoints.team_endpoints import router as team_router
-from litellm.proxy.secret_managers.aws_secret_manager import (
-    load_aws_kms,
-    load_aws_secret_manager,
-)
 
-#from litellm.proxy.secret_managers.google_kms import load_google_kms
-#from litellm.proxy.spend_reporting_endpoints.spend_management_endpoints import (
-#    router as spend_management_router,
-#)
-from litellm.proxy.utils import (
-    DBClient,
-    PrismaClient,
-    ProxyLogging,
-    _cache_user_row,
-    _get_projected_spend_over_limit,
-    _is_projected_spend_over_limit,
-    _is_valid_team_configs,
-    decrypt_value,
-    encrypt_value,
-    get_error_message_str,
-    get_instance_fn,
-    get_logging_payload,
-    hash_token,
-    html_form,
-    missing_keys_html_form,
-    reset_budget,
-    send_email,
-    update_spend,
-)
-from litellm.scheduler import (DefaultPriorities, FlowItem, Scheduler)
 
-import json
-import logging
-from typing import Union
 
-from fastapi import (
-    Depends,
-    FastAPI,
-    File,
-    Form,
-    Header,
-    HTTPException,
-    Path,
-    Request,
-    Response,
-    UploadFile,
-    status,
-)
-from fastapi.encoders import jsonable_encoder
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
-from fastapi.responses import (
-    FileResponse,
-    JSONResponse,
-    ORJSONResponse,
-    RedirectResponse,
-    StreamingResponse,
-)
-from fastapi.routing import APIRouter
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.security.api_key import APIKeyHeader
-from fastapi.staticfiles import StaticFiles
 
-from litellm.proxy.management_endpoints.team_endpoints import router as team_router
-from litellm.proxy.secret_managers.aws_secret_manager import (
-    load_aws_kms,
-    load_aws_secret_manager,
-)
-from litellm.proxy.secret_managers.google_kms import load_google_kms
-from litellm.proxy.spend_reporting_endpoints.spend_management_endpoints import (
-    router as spend_management_router,
-)
-from litellm.proxy.utils import (
-    DBClient,
-    PrismaClient,
-    ProxyLogging,
-    _cache_user_row,
-    _get_projected_spend_over_limit,
-    _is_projected_spend_over_limit,
-    _is_valid_team_configs,
-    decrypt_value,
-    encrypt_value,
-    get_error_message_str,
-    get_instance_fn,
-    get_logging_payload,
-    hash_token,
-    html_form,
-    missing_keys_html_form,
-    reset_budget,
-    send_email,
-    update_spend,
-)
-from litellm.router import (
-#    AssistantsTypedDict,
-    Deployment,
-    LiteLLM_Params,
-    ModelGroupInfo,
-)
-from litellm.router import ModelInfo as RouterModelInfo
-from litellm.router import updateDeployment
-from litellm.scheduler import DefaultPriorities, FlowItem, Scheduler
-from litellm.types.llms.openai import HttpxBinaryResponseContent
 
 try:
     from litellm._version import version
@@ -289,7 +269,6 @@ except:
     version = "0.0.0"
 litellm.suppress_debug_info = True
 import json
-
 
 # from fastapi import (
 #     Depends,
@@ -372,6 +351,7 @@ def custom_openapi():
     # Filter routes to include only specific ones
     openai_routes = LiteLLMRoutes.openai_routes.value
     paths_to_include: dict = {}
+    # FIXME:[E1133(not-an-iterable), custom_openapi] Non-iterable value openai_routes is used in an iterating context
     for route in openai_routes:
         paths_to_include[route] = openapi_schema["paths"][route]
     openapi_schema["paths"] = paths_to_include
@@ -2696,7 +2676,9 @@ async def startup_event():
                 "PROXY_ADMIN_ID", litellm_proxy_admin_name
             )
         asyncio.create_task(
-            generate_key_helper_fn(
+            
+
+            litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
                 request_type="user",
                 duration=None,
                 models=[],
@@ -2719,7 +2701,7 @@ async def startup_event():
 
         # add proxy budget to db in the user table
         asyncio.create_task(
-            generate_key_helper_fn(
+            litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
                 request_type="user",
                 user_id=litellm_proxy_budget_name,
                 duration=None,
@@ -2739,7 +2721,7 @@ async def startup_event():
 
     if custom_db_client is not None and master_key is not None:
         # add master key to db
-        await generate_key_helper_fn(
+        await litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
             request_type="key",
             duration=None,
             models=[],
@@ -4612,7 +4594,7 @@ async def create_file(
             proxy_config=proxy_config,
         )
 
-        _create_file_request = CreateFileRequest()
+        _create_file_request = litellm.CreateFileRequest()
 
         # for now use custom_llm_provider=="openai" -> this will change as LiteLLM adds more providers for acreate_batch
         response = await litellm.acreate_file(
@@ -6374,9 +6356,9 @@ async def model_metrics_slow_responses(
     startTime = startTime or datetime.now() - timedelta(days=30)
     endTime = endTime or datetime.now()
 
-    alerting_threshold = (
-        proxy_logging_obj.slack_alerting_instance.alerting_threshold or 300
-    )
+    alerting_threshold = 300
+    #proxy_logging_obj.slack_alerting_instance.alerting_threshold or 300
+    #)
     alerting_threshold = int(alerting_threshold)
 
     sql_query = """
@@ -6830,32 +6812,31 @@ async def alerting_settings(
         "max_outage_alert_list_size": {"type": "Integer"},
     }
 
-    _slack_alerting: SlackAlerting = proxy_logging_obj.slack_alerting_instance
-    _slack_alerting_args_dict = _slack_alerting.alerting_args.model_dump()
+    #_slack_alerting: SlackAlerting = proxy_logging_obj.slack_alerting_instance
+    #_slack_alerting_args_dict = _slack_alerting.alerting_args.model_dump()
 
     return_val = []
 
-    for field_name, field_info in SlackAlertingArgs.model_fields.items():
-        if field_name in allowed_args:
+    # for field_name, field_info in SlackAlertingArgs.model_fields.items():
+    #     if field_name in allowed_args:
 
-            _stored_in_db: Optional[bool] = None
-            if field_name in alerting_args_dict:
-                _stored_in_db = True
-            else:
-                _stored_in_db = False
-
-            _response_obj = ConfigList(
-                field_name=field_name,
-                field_type=allowed_args[field_name]["type"],
-                field_description=field_info.description or "",
-                field_value=_slack_alerting_args_dict.get(field_name, None),
-                stored_in_db=_stored_in_db,
-                field_default_value=field_info.default,
-                premium_field=(
-                    True if field_name == "region_outage_alert_ttl" else False
-                ),
-            )
-            return_val.append(_response_obj)
+    #         _stored_in_db: Optional[bool] = None
+    #         if field_name in alerting_args_dict:
+    #             _stored_in_db = True
+    #         else:
+    #             _stored_in_db = False
+    #         _response_obj = ConfigList(
+    #             field_name=field_name,
+    #             field_type=allowed_args[field_name]["type"],
+    #             field_description=field_info.description or "",
+    #             field_value=_slack_alerting_args_dict.get(field_name, None),
+    #             stored_in_db=_stored_in_db,
+    #             field_default_value=field_info.default,
+    #             premium_field=(
+    #                 True if field_name == "region_outage_alert_ttl" else False
+    #             ),
+    #         )
+    #         return_val.append(_response_obj)
     return return_val
 
 
@@ -7225,7 +7206,7 @@ async def login(request: Request):
             )
         )
         if os.getenv("DATABASE_URL") is not None:
-            response = await generate_key_helper_fn(
+            response = await litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
                 request_type="key",
                 **{"user_role": LitellmUserRoles.PROXY_ADMIN, "duration": "2hr", "key_max_budget": 5, "models": [], "aliases": {}, "config": {}, "spend": 0, "user_id": key_user_id, "team_id": "litellm-dashboard"},  # type: ignore
             )
@@ -7277,7 +7258,7 @@ async def login(request: Request):
             hash_password, _password
         ):
             if os.getenv("DATABASE_URL") is not None:
-                response = await generate_key_helper_fn(
+                response = await litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
                     request_type="key",
                     **{  # type: ignore
                         "user_role": user_role,
@@ -7407,7 +7388,7 @@ async def onboarding(invite_link: str):
 
     user_email = user_obj.user_email
 
-    response = await generate_key_helper_fn(
+    response = await litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
         request_type="key",
         **{
             "user_role": user_obj.user_role,
@@ -7817,7 +7798,7 @@ async def auth_callback(request: Request):
 
     default_ui_key_values.update(user_defined_values)
     default_ui_key_values["request_type"] = "key"
-    response = await generate_key_helper_fn(
+    response = await litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn(
         **default_ui_key_values,  # type: ignore
     )
     key = response["token"]  # type: ignore
@@ -8650,51 +8631,51 @@ async def get_config():
                     )
                     _slack_env_vars[_var] = _decrypted_value
 
-            _alerting_types = proxy_logging_obj.slack_alerting_instance.alert_types
-            _all_alert_types = (
-                proxy_logging_obj.slack_alerting_instance._all_possible_alert_types()
-            )
-            _alerts_to_webhook = (
-                proxy_logging_obj.slack_alerting_instance.alert_to_webhook_url
-            )
-            alerting_data.append(
-                {
-                    "name": "slack",
-                    "variables": _slack_env_vars,
-                    "active_alerts": _alerting_types,
-                    "alerts_to_webhook": _alerts_to_webhook,
-                }
-            )
-        # pass email alerting vars
-        _email_vars = [
-            "SMTP_HOST",
-            "SMTP_PORT",
-            "SMTP_USERNAME",
-            "SMTP_PASSWORD",
-            "SMTP_SENDER_EMAIL",
-            "TEST_EMAIL_ADDRESS",
-            "EMAIL_LOGO_URL",
-            "EMAIL_SUPPORT_CONTACT",
-        ]
-        _email_env_vars = {}
-        for _var in _email_vars:
-            env_variable = environment_variables.get(_var, None)
-            if env_variable is None:
-                _email_env_vars[_var] = None
-            else:
-                # decode + decrypt the value
-                decoded_b64 = base64.b64decode(env_variable)
-                _decrypted_value = decrypt_value(
-                    value=decoded_b64, master_key=master_key
-                )
-                _email_env_vars[_var] = _decrypted_value
+            #_alerting_types = proxy_logging_obj.slack_alerting_instance.alert_types
+            #_all_alert_types = (
+            #    proxy_logging_obj.slack_alerting_instance._all_possible_alert_types()
+            #)
+            #_alerts_to_webhook = (
+            #    proxy_logging_obj.slack_alerting_instance.alert_to_webhook_url
+            #)
+        #     alerting_data.append(
+        #         {
+        #             "name": "slack",
+        #             "variables": _slack_env_vars,
+        #             "active_alerts": _alerting_types,
+        #             "alerts_to_webhook": _alerts_to_webhook,
+        #         }
+        #     )
+        # # pass email alerting vars
+        # _email_vars = [
+        #     "SMTP_HOST",
+        #     "SMTP_PORT",
+        #     "SMTP_USERNAME",
+        #     "SMTP_PASSWORD",
+        #     "SMTP_SENDER_EMAIL",
+        #     "TEST_EMAIL_ADDRESS",
+        #     "EMAIL_LOGO_URL",
+        #     "EMAIL_SUPPORT_CONTACT",
+        # ]
+        # _email_env_vars = {}
+        # for _var in _email_vars:
+        #     env_variable = environment_variables.get(_var, None)
+        #     if env_variable is None:
+        #         _email_env_vars[_var] = None
+        #     else:
+        #         # decode + decrypt the value
+        #         decoded_b64 = base64.b64decode(env_variable)
+        #         _decrypted_value = decrypt_value(
+        #             value=decoded_b64, master_key=master_key
+        #         )
+        #         _email_env_vars[_var] = _decrypted_value
 
-        alerting_data.append(
-            {
-                "name": "email",
-                "variables": _email_env_vars,
-            }
-        )
+        # alerting_data.append(
+        #     {
+        #         "name": "email",
+        #         "variables": _email_env_vars,
+        #     }
+        # )
 
         if llm_router is None:
             _router_settings = {}
@@ -8812,16 +8793,16 @@ async def token_generate():
     Test endpoint. Admin-only access. Meant for generating admin tokens with specific claims and testing if they work for creating keys, etc.
     """
     # Initialize AuthJWTSSO with your OpenID Provider configuration
-    from fastapi_sso import AuthJWTSSO
+    
 
-    auth_jwt_sso = AuthJWTSSO(
-        issuer=os.getenv("OPENID_BASE_URL"),
-        client_id=os.getenv("OPENID_CLIENT_ID"),
-        client_secret=os.getenv("OPENID_CLIENT_SECRET"),
-        scopes=["litellm_proxy_admin"],
-    )
+    # auth_jwt_sso = AuthJWTSSO(
+    #     issuer=os.getenv("OPENID_BASE_URL"),
+    #     client_id=os.getenv("OPENID_CLIENT_ID"),
+    #     client_secret=os.getenv("OPENID_CLIENT_SECRET"),
+    #     scopes=["litellm_proxy_admin"],
+    # )
 
-    token = auth_jwt_sso.create_access_token()
+    # token = auth_jwt_sso.create_access_token()
 
     return {"token": token}
 
