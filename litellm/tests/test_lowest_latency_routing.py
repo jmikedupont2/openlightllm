@@ -594,7 +594,7 @@ async def test_lowest_latency_routing_with_timeouts():
                 "model_name": "azure-model",
                 "litellm_params": {
                     "model": "openai/slow-endpoint",
-                    "api_base": "https://exampleopenaiendpoint-production-c715.up.railway.app/",  # If you are Krrish, this is OpenAI Endpoint3 on our Railway endpoint :)
+                    "api_base": "https://exampleopenaiendpoint-production-c715.up.railway.app/",  # this is OpenAI Endpoint3 on our Railway endpoint :)
                     "api_key": "fake-key",
                 },
                 "model_info": {"id": "slow-endpoint"},

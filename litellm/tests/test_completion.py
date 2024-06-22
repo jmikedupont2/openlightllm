@@ -2209,8 +2209,7 @@ def test_completion_anyscale_with_functions():
 def test_completion_azure_key_completion_arg():
     # this tests if we can pass api_key to completion, when it's not in the env.
     # DO NOT REMOVE THIS TEST. No MATTER WHAT Happens!
-    # If you want to remove it, speak to Ishaan!
-    # Ishaan will be very disappointed if this test is removed -> this is a standard way to pass api_key + the router + proxy use this
+    # People might be very disappointed if this test is removed -> this is a standard way to pass api_key + the router + proxy use this
     old_key = os.environ["AZURE_API_KEY"]
     os.environ.pop("AZURE_API_KEY", None)
     try:

@@ -5,7 +5,6 @@
 # |   https://github.com/BerriAI/litellm/issues/  |
 # +-----------------------------------------------+
 #
-#  Tell us how we can improve! - Krrish & Ishaan
 
 
 from typing import Optional, Union

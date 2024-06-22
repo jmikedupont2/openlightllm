@@ -332,7 +332,7 @@ def test_exception_raising():
 def test_reading_key_from_model_list():
     # [PROD TEST CASE]
     # this tests if the router can read key from model list and make completion call, and completion + stream call. This is 90% of the router use case
-    # DO NOT REMOVE THIS TEST. It's an IMP ONE. Speak to Ishaan, if you are tring to remove this
+    # DO NOT REMOVE THIS TEST. It's an IMP ONE. 
     litellm.set_verbose = False
     import openai
 
@@ -470,7 +470,7 @@ def test_call_one_endpoint():
 def test_router_azure_acompletion():
     # [PROD TEST CASE]
     # This is 90% of the router use case, makes an acompletion call, acompletion + stream call and verifies it got a response
-    # DO NOT REMOVE THIS TEST. It's an IMP ONE. Speak to Ishaan, if you are tring to remove this
+    # DO NOT REMOVE THIS TEST. It's an IMP ONE. 
     litellm.set_verbose = False
     import openai
 

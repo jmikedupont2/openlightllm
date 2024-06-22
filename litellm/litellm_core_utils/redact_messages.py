@@ -5,7 +5,6 @@
 # |                                               |
 # +-----------------------------------------------+
 #
-#  Thank you users! We ❤️ you! - Krrish & Ishaan
 
 import copy
 from typing import TYPE_CHECKING, Any

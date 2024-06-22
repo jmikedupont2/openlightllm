@@ -17,6 +17,7 @@ services:
       - .env # Load local .env file
     volumes:
       - ./proxy_server_config.yaml:/app/proxy_server_config.yaml
+      - 
 
     command: [ "--config", "/app/proxy_server_config.yaml" ]
  

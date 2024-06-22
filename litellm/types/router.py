@@ -139,7 +139,7 @@ class GenericLiteLLMParams(BaseModel):
     api_key: Optional[str] = None
     api_base: Optional[str] = None
     api_version: Optional[str] = None
-    timeout: Optional[Union[float, str, httpx.Timeout]] = (
+    timeout: Optional[Union[float, str]] = ( #, httpx.Timeout
         None  # if str, pass in as os.environ/
     )
     stream_timeout: Optional[Union[float, str]] = (
@@ -309,7 +309,7 @@ class LiteLLMParamsTypedDict(TypedDict, total=False):
     api_key: Optional[str]
     api_base: Optional[str]
     api_version: Optional[str]
-    timeout: Optional[Union[float, str, httpx.Timeout]]
+    timeout: Optional[Union[float, str]]
     stream_timeout: Optional[Union[float, str]]
     max_retries: Optional[int]
     organization: Optional[Union[List, str]]  # for openai orgs

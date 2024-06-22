@@ -5,7 +5,6 @@
 # |                                               |
 # +-----------------------------------------------+
 #
-#  Thank you users! We ❤️ you! - Krrish & Ishaan
 
 import os, json, time
 import litellm

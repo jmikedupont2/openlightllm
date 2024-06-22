@@ -5,7 +5,6 @@
 # |                                               |
 # +-----------------------------------------------+
 #
-#  Thank you ! We ❤️ you! - Krrish & Ishaan
 
 import asyncio
 import copy
