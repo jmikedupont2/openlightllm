@@ -2477,6 +2477,8 @@ def completion(
 
             custom_llm_provider = "petals"
             stream = optional_params.pop("stream", False)
+#            print("DEBUG optional_params",optional_params)
+#            print("DEBUG litellm_params",litellm_params)
             model_response = petals.completion(
                 model=model,
                 messages=messages,

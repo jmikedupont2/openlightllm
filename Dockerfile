@@ -64,8 +64,11 @@ RUN mkdir litellm
 RUN touch litellm/__init__.py
 COPY litellm/py.typed litellm/py.typed 
 
+
+
 RUN python -m build
 RUN pip install dist/*.whl
+
 # Runtime stage
 FROM $LITELLM_RUNTIME_IMAGE as runtime
 
@@ -82,6 +85,9 @@ COPY --from=builder /wheels/ /wheels/
 #RUN rm litellm-*.whl
 # Install the built wheel using pip; again using a wildcard if it's the only file
 #RUN ls *.whl /wheels/*
+RUN apt-get update
+RUN apt-get install -y git
+RUN rm /wheels/multiaddr-*.whl #conflicts
 RUN pip install  /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl && rm -rf /wheels
 
 # now we can add the application code and install it
@@ -91,6 +97,7 @@ COPY requirements.txt requirements.txt
 COPY litellm/py.typed litellm/py.typed 
 COPY litellm  litellm
 COPY enterprise  enterprise
+
 RUN pip install -e .
 # Generate prisma client
 RUN prisma generate

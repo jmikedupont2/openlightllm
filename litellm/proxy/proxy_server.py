@@ -1350,7 +1350,7 @@ class ProxyConfig:
                         else:
                             # if it's not in the config - then add it
                             config[param_name] = param_value
-
+        #print("DEBUG config", config)
         return config
 
     async def save_config(self, new_config: dict):

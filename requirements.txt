@@ -1,6 +1,6 @@
 # LITELLM PROXY DEPENDENCIES #
 #petals==-e git+https://github.com/bigscience-workshop/petals
--e git+https://github.com/Agent-Artificial/cellium-miner/#egg=petals
+
 
 anyio==4.2.0 # openai + http req.
 openai==1.27.0 # openai req. 
@@ -48,4 +48,7 @@ aioboto3==12.3.0 # for async sagemaker calls
 tenacity==8.2.3  # for retrying requests, when litellm.num_retries set
 pydantic # ==2.7.1 # proxy + openai req.
 ijson==3.2.3 # for google ai studio streaming
+torch==2.2.2
 ####
+-e git+https://github.com/Agent-Artificial/hivemind@feature/KAN-217#egg=hivemind
+-e git+https://github.com/Agent-Artificial/cellium-miner@feature/KAN-217#egg=petals

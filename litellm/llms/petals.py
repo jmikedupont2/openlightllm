@@ -5,6 +5,9 @@ from typing import Callable, Optional
 import litellm
 from litellm.utils import ModelResponse, Usage
 from .prompt_templates.factory import prompt_factory, custom_prompt
+import torch
+from transformers import AutoTokenizer
+from petals import AutoDistributedModelForCausalLM  # type: ignore
 
 
 class PetalsError(Exception):
@@ -99,7 +102,10 @@ def completion(
 ):
     ## Load Config
     config = litellm.PetalsConfig.get_config()
+    
     for k, v in config.items():
+        #{'model_name': 'petals-sauerkraut', 'litellm_params': {'model_config': {'extra': 'allow', 'arbitrary_types_allowed': True}, 'model': 'petals/VAGOsolutions/SauerkrautLM-Mixtral-8x7B-Instruct'}, 'model_info': {'id': '1', 'db_model': False, 'model_config': {'extra': 'allow', 'arbitrary_types_allowed': True}}, 'model_config': {'extra': 'allow', 'protected_namespaces': (), 'arbitrary_types_allowed': True}} for model: petals-sauerkraut
+        print("DEBUG CONFIG",k,v)
         if (
             k not in optional_params
         ):  # completion(top_k=3) > petals_config(top_k=3) <- allows for dynamic variables to be passed in
@@ -147,21 +153,15 @@ def completion(
             PetalsError(status_code=response.status_code, message=str(e))
 
     else:
-        try:
-            import torch
-            from transformers import AutoTokenizer
-            from petals import AutoDistributedModelForCausalLM  # type: ignore
-        except:
-            raise Exception(
-                "Importing torch, transformers, petals failed\nTry pip installing petals \npip install git+https://github.com/bigscience-workshop/petals"
-            )
-
         model = model
 
         tokenizer = AutoTokenizer.from_pretrained(
             model, use_fast=False, add_bos_token=False
         )
-        model_obj = AutoDistributedModelForCausalLM.from_pretrained(model)
+        model_obj = AutoDistributedModelForCausalLM.from_pretrained(
+            model,
+            # 
+            initial_peers=["/dns/dht1.cillium.dev.compute.agentartificial.com/tcp/8008/p2p/QmYUro5QJx3YvgC4A9UBXL3ESdb3wSHXZzqUL19Fmy5Gsp"]) # FIXME, KAN-218
 
         ## LOGGING
         logging_obj.pre_call(
