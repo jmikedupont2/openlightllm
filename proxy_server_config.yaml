@@ -3,12 +3,12 @@ model_list:
     litellm_params:
       model: "petals/meta-llama/Meta-Llama-3-70B"
     optional_params:
-      initial_peers: "/dns/bootstrap1.petals.dev/tcp/31337/p2p/QmedTaZXmULqwspJXz44SsPZyTNKxhnnFvYRajfH7MGhCY"     
+      initial_peers: ""     
   - model_name: petals-sauerkraut
     litellm_params:
       model: "petals/VAGOsolutions/SauerkrautLM-Mixtral-8x7B-Instruct"
     optional_params:
-      initial_peers: "/dns/dht1.cillium.dev.compute.agentartificial.com/tcp/8008/p2p/QmYUro5QJx3YvgC4A9UBXL3ESdb3wSHXZzqUL19Fmy5Gsp"
+      initial_peers: ""
     model_info:
       id: "1"
 
