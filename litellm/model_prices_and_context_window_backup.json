@@ -21271,8 +21271,7 @@
         "supports_function_calling": true,
         "supports_system_messages": true,
         "supports_tool_choice": true,
-        "source": "https://aws.amazon.com/bedrock/pricing/",
-        "supports_native_structured_output": true
+        "source": "https://aws.amazon.com/bedrock/pricing/"
     },
     "minimax/speech-02-hd": {
         "input_cost_per_character": 0.0001,
@@ -22229,8 +22228,7 @@
         "supports_system_messages": true,
         "supports_tool_choice": true,
         "supports_vision": true,
-        "source": "https://aws.amazon.com/bedrock/pricing/",
-        "supports_native_structured_output": true
+        "source": "https://aws.amazon.com/bedrock/pricing/"
     },
     "moonshot/kimi-k2-0711-preview": {
         "cache_read_input_token_cost": 1.5e-07,
@@ -26254,8 +26252,7 @@
         "supports_function_calling": true,
         "supports_system_messages": true,
         "supports_tool_choice": true,
-        "source": "https://aws.amazon.com/bedrock/pricing/",
-        "supports_native_structured_output": true
+        "source": "https://aws.amazon.com/bedrock/pricing/"
     },
     "recraft/recraftv2": {
         "litellm_provider": "recraft",
