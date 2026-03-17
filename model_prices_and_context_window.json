@@ -18405,7 +18405,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": true,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -18445,7 +18446,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": true,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2-2025-12-11": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -18485,7 +18487,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": true,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2-chat-latest": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -18522,7 +18525,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.3-chat-latest": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -18559,7 +18563,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2-pro": {
         "input_cost_per_token": 2.1e-05,
@@ -18592,7 +18597,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2-pro-2025-12-11": {
         "input_cost_per_token": 2.1e-05,
@@ -18625,7 +18631,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.4": {
         "cache_read_input_token_cost": 2.5e-07,
@@ -18674,7 +18681,8 @@
         "supports_service_tier": true,
         "supports_vision": true,
         "supports_none_reasoning_effort": true,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.4-2026-03-05": {
         "cache_read_input_token_cost": 2.5e-07,
@@ -18769,7 +18777,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.4-pro-2026-03-05": {
         "cache_read_input_token_cost": 3e-06,
@@ -18817,7 +18826,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.4-mini": {
         "cache_read_input_token_cost": 7.5e-08,
@@ -18858,7 +18868,8 @@
         "supports_service_tier": true,
         "supports_vision": true,
         "supports_none_reasoning_effort": true,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": false
     },
     "gpt-5.4-nano": {
         "cache_read_input_token_cost": 2e-08,
@@ -18899,7 +18910,8 @@
         "supports_service_tier": true,
         "supports_vision": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": false
     },
     "gpt-5-pro": {
         "input_cost_per_token": 1.5e-05,
@@ -18934,7 +18946,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-pro-2025-10-06": {
         "input_cost_per_token": 1.5e-05,
@@ -18969,7 +18982,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-2025-08-07": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19011,7 +19025,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-chat": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19045,7 +19060,8 @@
         "supports_tool_choice": false,
         "supports_vision": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-chat-latest": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19079,7 +19095,8 @@
         "supports_tool_choice": false,
         "supports_vision": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-codex": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19112,7 +19129,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.1-codex": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19148,7 +19166,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.1-codex-max": {
         "cache_read_input_token_cost": 1.25e-07,
@@ -19181,7 +19200,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.1-codex-mini": {
         "cache_read_input_token_cost": 2.5e-08,
@@ -19217,7 +19237,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.2-codex": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -19253,7 +19274,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": true
+        "supports_xhigh_reasoning_effort": true,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5.3-codex": {
         "cache_read_input_token_cost": 1.75e-07,
@@ -19289,7 +19311,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-mini": {
         "cache_read_input_token_cost": 2.5e-08,
@@ -19331,7 +19354,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-mini-2025-08-07": {
         "cache_read_input_token_cost": 2.5e-08,
@@ -19373,7 +19397,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-nano": {
         "cache_read_input_token_cost": 5e-09,
@@ -19412,7 +19437,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-nano-2025-08-07": {
         "cache_read_input_token_cost": 5e-09,
@@ -19450,7 +19476,9 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
+
     },
     "gpt-image-1": {
         "cache_read_input_image_token_cost": 2.5e-06,
@@ -36421,7 +36449,8 @@
         "supports_vision": true,
         "supports_web_search": true,
         "supports_none_reasoning_effort": false,
-        "supports_xhigh_reasoning_effort": false
+        "supports_xhigh_reasoning_effort": false,
+        "supports_minimal_reasoning_effort": true
     },
     "gpt-5-search-api-2025-10-14": {
         "cache_read_input_token_cost": 1.25e-07,
