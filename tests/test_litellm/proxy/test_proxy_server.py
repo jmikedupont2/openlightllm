@@ -103,10 +103,7 @@ def test_login_v2_returns_redirect_url_and_sets_cookie(monkeypatch):
     )
 
     assert response.status_code == 200
-    assert (
-        response.json()
-        == {"redirect_url": "http://testserver/ui/?login=success"}
-    )
+    assert response.json() == {"redirect_url": "http://testserver/ui/?login=success"}
     assert response.cookies.get("token") == "signed-token"
 
     mock_authenticate_user.assert_awaited_once_with(
@@ -512,15 +509,11 @@ def test_restructure_ui_html_files_handles_nested_routes(tmp_path):
     assert (ui_root / "home" / "index.html").read_text() == "home"
     assert not (ui_root / "mcp" / "oauth" / "callback.html").exists()
     assert (
-        (ui_root / "mcp" / "oauth" / "callback" / "index.html").read_text()
-        == "callback"
-    )
+        ui_root / "mcp" / "oauth" / "callback" / "index.html"
+    ).read_text() == "callback"
     assert (ui_root / "existing" / "index.html").read_text() == "keep"
     assert (ui_root / "_next" / "ignore.html").read_text() == "asset"
-    assert (
-        (ui_root / "litellm-asset-prefix" / "ignore.html").read_text()
-        == "asset"
-    )
+    assert (ui_root / "litellm-asset-prefix" / "ignore.html").read_text() == "asset"
 
 
 def test_ui_extensionless_route_requires_restructure(tmp_path):
@@ -537,9 +530,7 @@ def test_ui_extensionless_route_requires_restructure(tmp_path):
     (ui_root / "login.html").write_text("login")
 
     fastapi_app = FastAPI()
-    fastapi_app.mount(
-        "/ui", StaticFiles(directory=str(ui_root), html=True), name="ui"
-    )
+    fastapi_app.mount("/ui", StaticFiles(directory=str(ui_root), html=True), name="ui")
     client = TestClient(fastapi_app)
 
     assert client.get("/ui/login.html").status_code == 200
@@ -560,37 +551,37 @@ def test_restructure_always_happens(monkeypatch):
     """
     # Test Case 1: is_non_root is True - restructuring happens in /var/lib/litellm/ui
     monkeypatch.setenv("LITELLM_NON_ROOT", "true")
-    
+
     runtime_ui_path = "/var/lib/litellm/ui"
     packaged_ui_path = "/some/packaged/ui/path"
-    
+
     # Simulate the logic from proxy_server.py
     is_non_root = os.getenv("LITELLM_NON_ROOT", "").lower() == "true"
     if is_non_root:
         ui_path = runtime_ui_path
     else:
         ui_path = packaged_ui_path
-    
+
     # Restructuring always happens now, regardless of ui_path vs packaged_ui_path
     should_restructure = True
-    
+
     assert is_non_root is True
     assert should_restructure is True
     assert ui_path == runtime_ui_path
-    
+
     # Test Case 2: is_non_root is False - restructuring happens directly in packaged_ui_path
     monkeypatch.delenv("LITELLM_NON_ROOT", raising=False)
-    
+
     # Simulate the logic from proxy_server.py
     is_non_root = os.getenv("LITELLM_NON_ROOT", "").lower() == "true"
     if is_non_root:
         ui_path = runtime_ui_path
     else:
         ui_path = packaged_ui_path
-    
+
     # Restructuring always happens now, even when ui_path == packaged_ui_path
     should_restructure = True
-    
+
     assert is_non_root is False
     assert should_restructure is True
     assert ui_path == packaged_ui_path
@@ -687,9 +678,7 @@ def test_update_config_fields_deep_merge_db_wins():
                 "hidden": True,
             },
             # Demonstrate that None values from DB are skipped (preserve existing)
-            "legacy-sonnet": {
-                "hidden": None  # should not clobber current True
-            },
+            "legacy-sonnet": {"hidden": None},  # should not clobber current True
         }
     }
 
@@ -739,9 +728,7 @@ def test_get_config_custom_callback_api_env_vars(monkeypatch):
     mock_router = MagicMock()
     mock_router.get_settings.return_value = {}
     monkeypatch.setattr("litellm.proxy.proxy_server.llm_router", mock_router)
-    monkeypatch.setattr(
-        proxy_config, "get_config", AsyncMock(return_value=config_data)
-    )
+    monkeypatch.setattr(proxy_config, "get_config", AsyncMock(return_value=config_data))
 
     # Bypass auth dependency
     original_overrides = app.dependency_overrides.copy()
@@ -919,7 +906,9 @@ def test_embedding_input_array_of_tokens(client_no_auth):
             assert response.status_code == 200
             result = response.json()
             print(len(result["data"][0]["embedding"]))
-            assert len(result["data"][0]["embedding"]) > 10  # this usually has len==1536 so
+            assert (
+                len(result["data"][0]["embedding"]) > 10
+            )  # this usually has len==1536 so
     except Exception as e:
         pytest.fail(f"LiteLLM Proxy test failed. Exception - {str(e)}")
 
@@ -1176,7 +1165,6 @@ async def test_delete_deployment_type_mismatch():
     with patch("litellm.proxy.proxy_server.llm_router", mock_llm_router), patch(
         "litellm.proxy.proxy_server.user_config_file_path", "test_config.yaml"
     ):
-
         # Call the function under test
         deleted_count = await pc._delete_deployment(db_models=[])
 
@@ -1318,6 +1306,7 @@ def test_normalize_datetime_for_sorting():
 
     # Test Case 6: Timezone-aware datetime object (non-UTC)
     from datetime import timedelta
+
     aware_dt = datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone(timedelta(hours=5)))
     result = _normalize_datetime_for_sorting(aware_dt)
     assert result is not None
@@ -1556,6 +1545,70 @@ async def test_load_environment_variables_direct_and_os_environ():
 
             # Verify that the environment variable was not set when secret resolution fails
             assert "FAILED_SECRET" not in os.environ
+
+
+@pytest.mark.asyncio
+async def test_load_environment_variables_blocks_dangerous_keys():
+    """
+    Test that _load_environment_variables rejects dangerous env var keys
+    like PATH, LD_PRELOAD, PYTHONPATH, etc.
+    """
+    import logging
+
+    from litellm.proxy.proxy_server import ProxyConfig
+
+    proxy_config = ProxyConfig()
+
+    original_path = os.environ.get("PATH", "")
+
+    test_config = {
+        "environment_variables": {
+            "PATH": "/tmp/evil",
+            "LD_PRELOAD": "/tmp/evil.so",
+            "PYTHONPATH": "/tmp/evil",
+            "SAFE_CUSTOM_VAR": "safe_value",
+        }
+    }
+
+    with patch.dict(os.environ, {}, clear=False):
+        proxy_config._load_environment_variables(test_config)
+
+        # Blocked keys should not be set to the attacker value
+        assert os.environ.get("PATH") != "/tmp/evil"
+        assert (
+            "LD_PRELOAD" not in os.environ or os.environ["LD_PRELOAD"] != "/tmp/evil.so"
+        )
+        assert os.environ.get("PYTHONPATH") != "/tmp/evil"
+
+        # Safe keys should still be set
+        assert os.environ["SAFE_CUSTOM_VAR"] == "safe_value"
+
+
+@pytest.mark.asyncio
+async def test_load_environment_variables_blocks_proxy_keys():
+    """
+    Test that _load_environment_variables rejects proxy-related env var keys.
+    """
+    from litellm.proxy.proxy_server import ProxyConfig
+
+    proxy_config = ProxyConfig()
+
+    test_config = {
+        "environment_variables": {
+            "HTTP_PROXY": "http://evil-proxy:8080",
+            "HTTPS_PROXY": "http://evil-proxy:8080",
+            "http_proxy": "http://evil-proxy:8080",
+            "https_proxy": "http://evil-proxy:8080",
+        }
+    }
+
+    with patch.dict(os.environ, {}, clear=False):
+        proxy_config._load_environment_variables(test_config)
+
+        assert os.environ.get("HTTP_PROXY") != "http://evil-proxy:8080"
+        assert os.environ.get("HTTPS_PROXY") != "http://evil-proxy:8080"
+        assert os.environ.get("http_proxy") != "http://evil-proxy:8080"
+        assert os.environ.get("https_proxy") != "http://evil-proxy:8080"
 
 
 @pytest.mark.asyncio
@@ -1866,7 +1919,6 @@ async def test_chat_completion_result_no_nested_none_values():
         "litellm.proxy.proxy_server.ProxyBaseLLMRequestProcessing",
         return_value=mock_base_processor,
     ):
-
         # Call the chat_completion function
         result = await chat_completion(
             request=mock_request,
@@ -2011,9 +2063,7 @@ class TestPriceDataReloadAPI:
 
             # Mock the database connection
             with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma:
-                mock_prisma.db.litellm_config.find_unique = AsyncMock(
-                    return_value=None
-                )
+                mock_prisma.db.litellm_config.find_unique = AsyncMock(return_value=None)
                 mock_prisma.db.litellm_config.upsert = AsyncMock(return_value=None)
 
                 response = client_with_auth.post("/reload/model_cost_map")
@@ -2356,8 +2406,13 @@ class TestPriceDataReloadIntegration:
                 with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma:
                     # Simulate existing config with a schedule
                     mock_existing = MagicMock()
-                    mock_existing.param_value = {"interval_hours": 12, "force_reload": False}
-                    mock_prisma.db.litellm_config.find_unique = AsyncMock(return_value=mock_existing)
+                    mock_existing.param_value = {
+                        "interval_hours": 12,
+                        "force_reload": False,
+                    }
+                    mock_prisma.db.litellm_config.find_unique = AsyncMock(
+                        return_value=mock_existing
+                    )
                     mock_prisma.db.litellm_config.upsert = AsyncMock(return_value=None)
 
                     response = client.post("/reload/model_cost_map")
@@ -2399,7 +2454,9 @@ class TestPriceDataReloadIntegration:
         ) as mock_reload:
             mock_reload.return_value = {"anthropic": {"beta_header": "test-value"}}
 
-            asyncio.run(proxy_config._check_and_reload_anthropic_beta_headers(mock_prisma))
+            asyncio.run(
+                proxy_config._check_and_reload_anthropic_beta_headers(mock_prisma)
+            )
 
             # Verify the upsert update branch preserves interval_hours
             mock_prisma.db.litellm_config.upsert.assert_called()
@@ -2440,7 +2497,9 @@ class TestPriceDataReloadIntegration:
                 # Simulate existing config with a schedule
                 mock_existing = MagicMock()
                 mock_existing.param_value = {"interval_hours": 8, "force_reload": False}
-                mock_prisma.db.litellm_config.find_unique = AsyncMock(return_value=mock_existing)
+                mock_prisma.db.litellm_config.find_unique = AsyncMock(
+                    return_value=mock_existing
+                )
                 mock_prisma.db.litellm_config.upsert = AsyncMock(return_value=None)
 
                 response = client.post("/reload/anthropic_beta_headers")
@@ -2805,7 +2864,7 @@ async def test_model_info_v1_oci_secrets_not_leaked():
     mock_user_api_key_dict.api_key = "test-key"
     mock_user_api_key_dict.team_models = []
     mock_user_api_key_dict.models = ["oci-grok-test"]
-    
+
     # Mock model data with OCI sensitive information
     mock_model_data = {
         "model_name": "oci-grok-test",
@@ -2818,59 +2877,73 @@ async def test_model_info_v1_oci_secrets_not_leaked():
             "oci_tenancy": "ocid1.tenancy.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk",
             "oci_key_file": "/path/to/oci_api_key.pem",
             "oci_compartment_id": "ocid1.compartment.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk",
-            "drop_params": True
+            "drop_params": True,
         },
-        "model_info": {
-            "mode": "completion",
-            "id": "test-model-id"
-        }
+        "model_info": {"mode": "completion", "id": "test-model-id"},
     }
-    
+
     # Mock the llm_router to return our test data
     mock_router = MagicMock()
     mock_router.get_model_names.return_value = ["oci-grok-test"]
     mock_router.get_model_access_groups.return_value = {}
     mock_router.get_model_list.return_value = [mock_model_data]
-    
+
     # Mock global variables
-    with patch("litellm.proxy.proxy_server.llm_router", mock_router), \
-         patch("litellm.proxy.proxy_server.llm_model_list", [mock_model_data]), \
-         patch("litellm.proxy.proxy_server.general_settings", {"infer_model_from_keys": False}), \
-         patch("litellm.proxy.proxy_server.user_model", None):
-        
+    with patch("litellm.proxy.proxy_server.llm_router", mock_router), patch(
+        "litellm.proxy.proxy_server.llm_model_list", [mock_model_data]
+    ), patch(
+        "litellm.proxy.proxy_server.general_settings", {"infer_model_from_keys": False}
+    ), patch(
+        "litellm.proxy.proxy_server.user_model", None
+    ):
         # Call the model_info_v1 endpoint
         result = await model_info_v1(
-            user_api_key_dict=mock_user_api_key_dict,
-            litellm_model_id=None
+            user_api_key_dict=mock_user_api_key_dict, litellm_model_id=None
         )
-        
+
         # Verify the result structure
         assert "data" in result
         assert len(result["data"]) == 1
-        
+
         model_info = result["data"][0]
         litellm_params = model_info["litellm_params"]
-        
+
         # Verify that sensitive OCI fields are masked
         assert "****" in litellm_params["oci_key"], "oci_key should be masked"
-        assert "****" in litellm_params["oci_fingerprint"], "oci_fingerprint should be masked"
+        assert (
+            "****" in litellm_params["oci_fingerprint"]
+        ), "oci_fingerprint should be masked"
         assert "****" in litellm_params["oci_tenancy"], "oci_tenancy should be masked"
         assert "****" in litellm_params["oci_key_file"], "oci_key_file should be masked"
-        
+
         # Verify that non-sensitive fields are NOT masked
-        assert litellm_params["model"] == "oci/xai.grok-4", "model field should not be masked"
-        assert litellm_params["oci_region"] == "us-phoenix-1", "oci_region should not be masked"
+        assert (
+            litellm_params["model"] == "oci/xai.grok-4"
+        ), "model field should not be masked"
+        assert (
+            litellm_params["oci_region"] == "us-phoenix-1"
+        ), "oci_region should not be masked"
         assert litellm_params["drop_params"] is True, "drop_params should not be masked"
-        
+
         # Verify the model field specifically is not masked (this was the original issue)
-        assert "****" not in litellm_params["model"], "model field should never be masked"
-        assert litellm_params["model"].startswith("oci/"), "model should retain its full value"
-        
+        assert (
+            "****" not in litellm_params["model"]
+        ), "model field should never be masked"
+        assert litellm_params["model"].startswith(
+            "oci/"
+        ), "model should retain its full value"
+
         # Verify that actual secret values are not present in the response
         result_str = str(result)
-        assert "ocid1.api_key.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk" not in result_str
+        assert (
+            "ocid1.api_key.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk"
+            not in result_str
+        )
         assert "aa:bb:cc:dd:ee:ff:11:22:33:44:55:66:77:88:99:00" not in result_str
-        assert "ocid1.tenancy.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk" not in result_str
+        assert (
+            "ocid1.tenancy.oc1..aaaaaaaa7kbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbkbk"
+            not in result_str
+        )
         assert "/path/to/oci_api_key.pem" not in result_str
 
 
@@ -2882,17 +2955,17 @@ def test_add_callback_from_db_to_in_memory_litellm_callbacks():
     from unittest.mock import MagicMock, patch
 
     from litellm.proxy.proxy_server import ProxyConfig
-    
+
     proxy_config = ProxyConfig()
-    
+
     # Mock the callback manager
     mock_callback_manager = MagicMock()
-    
+
     with patch("litellm.proxy.proxy_server.litellm") as mock_litellm:
         # Set up mock litellm attributes
         mock_litellm._known_custom_logger_compatible_callbacks = []
         mock_litellm.logging_callback_manager = mock_callback_manager
-        
+
         # Test Case 1: Add success callback
         mock_success_callbacks = []
         proxy_config._add_callback_from_db_to_in_memory_litellm_callbacks(
@@ -2900,9 +2973,11 @@ def test_add_callback_from_db_to_in_memory_litellm_callbacks():
             event_types=["success"],
             existing_callbacks=mock_success_callbacks,
         )
-        mock_callback_manager.add_litellm_success_callback.assert_called_once_with("prometheus")
+        mock_callback_manager.add_litellm_success_callback.assert_called_once_with(
+            "prometheus"
+        )
         mock_callback_manager.reset_mock()
-        
+
         # Test Case 2: Add failure callback
         mock_failure_callbacks = []
         proxy_config._add_callback_from_db_to_in_memory_litellm_callbacks(
@@ -2910,9 +2985,11 @@ def test_add_callback_from_db_to_in_memory_litellm_callbacks():
             event_types=["failure"],
             existing_callbacks=mock_failure_callbacks,
         )
-        mock_callback_manager.add_litellm_failure_callback.assert_called_once_with("langfuse")
+        mock_callback_manager.add_litellm_failure_callback.assert_called_once_with(
+            "langfuse"
+        )
         mock_callback_manager.reset_mock()
-        
+
         # Test Case 3: Add callback for both success and failure
         mock_callbacks = []
         proxy_config._add_callback_from_db_to_in_memory_litellm_callbacks(
@@ -2922,7 +2999,7 @@ def test_add_callback_from_db_to_in_memory_litellm_callbacks():
         )
         mock_callback_manager.add_litellm_callback.assert_called_once_with("s3")
         mock_callback_manager.reset_mock()
-        
+
         # Test Case 4: Don't add callback if it already exists
         existing_callbacks_with_item = ["prometheus"]
         proxy_config._add_callback_from_db_to_in_memory_litellm_callbacks(
@@ -2936,7 +3013,7 @@ def test_add_callback_from_db_to_in_memory_litellm_callbacks():
 def test_should_load_db_object_with_supported_db_objects():
     """
     Test _should_load_db_object method with supported_db_objects configuration.
-    
+
     Verifies that when supported_db_objects is set, only specified object types
     are loaded from the database.
     """
@@ -3040,8 +3117,12 @@ async def test_tag_cache_update_called():
         "spend": 10.0,
     }
 
-    with patch.object(cache, "async_get_cache", new=AsyncMock(return_value=mock_tag_obj)) as mock_get_cache:
-        with patch.object(cache, "async_set_cache_pipeline", new=AsyncMock()) as mock_set_cache:
+    with patch.object(
+        cache, "async_get_cache", new=AsyncMock(return_value=mock_tag_obj)
+    ) as mock_get_cache:
+        with patch.object(
+            cache, "async_set_cache_pipeline", new=AsyncMock()
+        ) as mock_set_cache:
             await litellm.proxy.proxy_server.update_cache(
                 token=None,
                 user_id=None,
@@ -3092,8 +3173,12 @@ async def test_tag_cache_update_multiple_tags():
             return mock_tag2_obj
         return None
 
-    with patch.object(cache, "async_get_cache", new=AsyncMock(side_effect=mock_get_cache_side_effect)) as mock_get_cache:
-        with patch.object(cache, "async_set_cache_pipeline", new=AsyncMock()) as mock_set_cache:
+    with patch.object(
+        cache, "async_get_cache", new=AsyncMock(side_effect=mock_get_cache_side_effect)
+    ) as mock_get_cache:
+        with patch.object(
+            cache, "async_set_cache_pipeline", new=AsyncMock()
+        ) as mock_set_cache:
             await litellm.proxy.proxy_server.update_cache(
                 token=None,
                 user_id=None,
@@ -3114,7 +3199,9 @@ async def test_tag_cache_update_multiple_tags():
 
             assert len(cache_list) == 2
 
-            tag_updates = {cache_key: cache_value for cache_key, cache_value in cache_list}
+            tag_updates = {
+                cache_key: cache_value for cache_key, cache_value in cache_list
+            }
             assert "tag:tag1" in tag_updates
             assert "tag:tag2" in tag_updates
             assert tag_updates["tag:tag1"]["spend"] == 15.0
@@ -3234,7 +3321,9 @@ async def test_init_sso_settings_in_db_error_handling():
         assert True
     except Exception as e:
         # The exception should be caught and logged, not propagated
-        pytest.fail(f"Exception should have been caught and logged, but was raised: {e}")
+        pytest.fail(
+            f"Exception should have been caught and logged, but was raised: {e}"
+        )
 
 
 @pytest.mark.asyncio
@@ -3337,11 +3426,15 @@ def test_get_prompt_spec_for_db_prompt_with_versions():
     }
 
     # Test version 1
-    prompt_spec_v1 = proxy_config._get_prompt_spec_for_db_prompt(db_prompt=mock_prompt_v1)
+    prompt_spec_v1 = proxy_config._get_prompt_spec_for_db_prompt(
+        db_prompt=mock_prompt_v1
+    )
     assert prompt_spec_v1.prompt_id == "chat_prompt.v1"
 
     # Test version 2
-    prompt_spec_v2 = proxy_config._get_prompt_spec_for_db_prompt(db_prompt=mock_prompt_v2)
+    prompt_spec_v2 = proxy_config._get_prompt_spec_for_db_prompt(
+        db_prompt=mock_prompt_v2
+    )
     assert prompt_spec_v2.prompt_id == "chat_prompt.v2"
 
 
@@ -3356,15 +3449,15 @@ def test_root_redirect_when_docs_url_not_root_and_redirect_url_set(monkeypatch):
     config_fp = f"{filepath}/test_configs/test_config_no_auth.yaml"
     # Ensure docs are mounted on a non-root path to trigger redirect logic
     monkeypatch.setenv("DOCS_URL", "/docs")
-    
+
     test_redirect_url = "/ui"
     monkeypatch.setenv("ROOT_REDIRECT_URL", test_redirect_url)
-    
+
     asyncio.run(initialize(config=config_fp, debug=True))
-    
+
     docs_url = _get_docs_url()
     root_redirect_url = os.getenv("ROOT_REDIRECT_URL")
-    
+
     # Remove any existing "/" route that might interfere
     routes_to_remove = []
     for route in app.routes:
@@ -3373,16 +3466,17 @@ def test_root_redirect_when_docs_url_not_root_and_redirect_url_set(monkeypatch):
                 routes_to_remove.append(route)
             elif not hasattr(route, "methods"):  # Catch-all routes
                 routes_to_remove.append(route)
-    
+
     for route in routes_to_remove:
         app.routes.remove(route)
-    
+
     # Add the redirect route if conditions are met (matching the actual implementation)
     if docs_url != "/" and root_redirect_url:
+
         @app.get("/", include_in_schema=False)
         async def root_redirect():
             return RedirectResponse(url=root_redirect_url)
-    
+
     client = TestClient(app)
     response = client.get("/", follow_redirects=False)
     assert response.status_code == 307
@@ -3406,12 +3500,13 @@ async def test_get_image_non_root_uses_var_lib_assets_dir(monkeypatch):
     def exists_side_effect(path):
         return False if path == "/var/lib/litellm/assets" else True
 
-    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, \
-         patch("litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.os.getenv") as mock_getenv, \
-         patch("litellm.proxy.proxy_server.FileResponse") as mock_file_response:
-
+    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, patch(
+        "litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect
+    ), patch("litellm.proxy.proxy_server.os.access", return_value=True), patch(
+        "litellm.proxy.proxy_server.os.getenv"
+    ) as mock_getenv, patch(
+        "litellm.proxy.proxy_server.FileResponse"
+    ) as mock_file_response:
         # Setup mock_getenv to return empty string for UI_LOGO_PATH
         def getenv_side_effect(key, default=""):
             if key == "UI_LOGO_PATH":
@@ -3455,12 +3550,13 @@ async def test_get_image_non_root_fallback_to_default_logo(monkeypatch):
         return True
 
     # Mock os.path operations
-    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, \
-         patch("litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.os.getenv") as mock_getenv, \
-         patch("litellm.proxy.proxy_server.FileResponse") as mock_file_response:
-
+    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, patch(
+        "litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect
+    ), patch("litellm.proxy.proxy_server.os.access", return_value=True), patch(
+        "litellm.proxy.proxy_server.os.getenv"
+    ) as mock_getenv, patch(
+        "litellm.proxy.proxy_server.FileResponse"
+    ) as mock_file_response:
         # Setup mock_getenv
         def getenv_side_effect(key, default=""):
             if key == "UI_LOGO_PATH":
@@ -3479,8 +3575,9 @@ async def test_get_image_non_root_fallback_to_default_logo(monkeypatch):
 
         # Verify that exists was called to check /var/lib/litellm/assets/logo.jpg
         assets_logo_path = "/var/lib/litellm/assets/logo.jpg"
-        assert any(assets_logo_path in str(call) for call in exists_calls), \
-            f"Should check if {assets_logo_path} exists"
+        assert any(
+            assets_logo_path in str(call) for call in exists_calls
+        ), f"Should check if {assets_logo_path} exists"
 
         # Verify FileResponse was called (with fallback logo)
         assert mock_file_response.called, "FileResponse should be called"
@@ -3500,11 +3597,11 @@ async def test_get_image_root_case_uses_current_dir(monkeypatch):
     monkeypatch.delenv("UI_LOGO_PATH", raising=False)
 
     # Mock os.path operations
-    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, \
-         patch("litellm.proxy.proxy_server.os.path.exists", return_value=True), \
-         patch("litellm.proxy.proxy_server.os.getenv") as mock_getenv, \
-         patch("litellm.proxy.proxy_server.FileResponse") as mock_file_response:
-
+    with patch("litellm.proxy.proxy_server.os.makedirs") as mock_makedirs, patch(
+        "litellm.proxy.proxy_server.os.path.exists", return_value=True
+    ), patch("litellm.proxy.proxy_server.os.getenv") as mock_getenv, patch(
+        "litellm.proxy.proxy_server.FileResponse"
+    ) as mock_file_response:
         # Setup mock_getenv
         def getenv_side_effect(key, default=""):
             if key == "UI_LOGO_PATH":
@@ -3520,10 +3617,13 @@ async def test_get_image_root_case_uses_current_dir(monkeypatch):
 
         # Verify makedirs was NOT called with /var/lib/litellm/assets (should not create it for root case)
         var_lib_assets_calls = [
-            call for call in mock_makedirs.call_args_list
+            call
+            for call in mock_makedirs.call_args_list
             if "/var/lib/litellm/assets" in str(call)
         ]
-        assert len(var_lib_assets_calls) == 0, "Should not create /var/lib/litellm/assets for root case"
+        assert (
+            len(var_lib_assets_calls) == 0
+        ), "Should not create /var/lib/litellm/assets for root case"
 
         # Verify FileResponse was called
         assert mock_file_response.called, "FileResponse should be called"
@@ -3553,13 +3653,14 @@ async def test_get_image_custom_local_logo_bypasses_cache(monkeypatch):
         calls_to_file_response.append(path)
         return MagicMock()
 
-    with patch("litellm.proxy.proxy_server.os.path.exists", return_value=True), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
-
+    with patch("litellm.proxy.proxy_server.os.path.exists", return_value=True), patch(
+        "litellm.proxy.proxy_server.os.access", return_value=True
+    ), patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
         await get_image()
 
-    assert len(calls_to_file_response) == 1, "FileResponse should be called exactly once"
+    assert (
+        len(calls_to_file_response) == 1
+    ), "FileResponse should be called exactly once"
     assert calls_to_file_response[0] == "/app/custom_logo.jpg", (
         f"Expected custom logo path, got {calls_to_file_response[0]}. "
         "A stale cached_logo.jpg may have been returned instead."
@@ -3586,17 +3687,18 @@ async def test_get_image_default_logo_still_uses_cache(monkeypatch):
         calls_to_file_response.append(path)
         return MagicMock()
 
-    with patch("litellm.proxy.proxy_server.os.path.exists", return_value=True), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
-
+    with patch("litellm.proxy.proxy_server.os.path.exists", return_value=True), patch(
+        "litellm.proxy.proxy_server.os.access", return_value=True
+    ), patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
         await get_image()
 
-    assert len(calls_to_file_response) == 1, "FileResponse should be called exactly once"
+    assert (
+        len(calls_to_file_response) == 1
+    ), "FileResponse should be called exactly once"
     served_path = calls_to_file_response[0]
-    assert served_path.endswith("cached_logo.jpg"), (
-        f"Expected cached_logo.jpg for default logo, got {served_path}"
-    )
+    assert served_path.endswith(
+        "cached_logo.jpg"
+    ), f"Expected cached_logo.jpg for default logo, got {served_path}"
 
 
 @pytest.mark.asyncio
@@ -3625,20 +3727,23 @@ async def test_get_image_custom_logo_missing_falls_through_to_default(monkeypatc
             return False
         return True
 
-    with patch("litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
-
+    with patch(
+        "litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect
+    ), patch("litellm.proxy.proxy_server.os.access", return_value=True), patch(
+        "litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response
+    ):
         await get_image()
 
-    assert len(calls_to_file_response) == 1, "FileResponse should be called exactly once"
+    assert (
+        len(calls_to_file_response) == 1
+    ), "FileResponse should be called exactly once"
     served_path = calls_to_file_response[0]
-    assert served_path != "/app/nonexistent_logo.jpg", (
-        "Should not attempt to serve a non-existent custom logo"
-    )
-    assert served_path.endswith("cached_logo.jpg"), (
-        f"Expected fallback to cached_logo.jpg, got {served_path}"
-    )
+    assert (
+        served_path != "/app/nonexistent_logo.jpg"
+    ), "Should not attempt to serve a non-existent custom logo"
+    assert served_path.endswith(
+        "cached_logo.jpg"
+    ), f"Expected fallback to cached_logo.jpg, got {served_path}"
 
 
 @pytest.mark.asyncio
@@ -3670,20 +3775,23 @@ async def test_get_image_custom_logo_missing_no_cache_serves_default(monkeypatch
             return False
         return True
 
-    with patch("litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect), \
-         patch("litellm.proxy.proxy_server.os.access", return_value=True), \
-         patch("litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response):
-
+    with patch(
+        "litellm.proxy.proxy_server.os.path.exists", side_effect=exists_side_effect
+    ), patch("litellm.proxy.proxy_server.os.access", return_value=True), patch(
+        "litellm.proxy.proxy_server.FileResponse", side_effect=fake_file_response
+    ):
         await get_image()
 
-    assert len(calls_to_file_response) == 1, "FileResponse should be called exactly once"
+    assert (
+        len(calls_to_file_response) == 1
+    ), "FileResponse should be called exactly once"
     served_path = calls_to_file_response[0]
-    assert served_path != "/app/nonexistent_logo.jpg", (
-        "Should not attempt to serve a non-existent custom logo"
-    )
-    assert served_path.endswith("logo.jpg"), (
-        f"Expected fallback to default logo.jpg, got {served_path}"
-    )
+    assert (
+        served_path != "/app/nonexistent_logo.jpg"
+    ), "Should not attempt to serve a non-existent custom logo"
+    assert served_path.endswith(
+        "logo.jpg"
+    ), f"Expected fallback to default logo.jpg, got {served_path}"
 
 
 def test_get_config_normalizes_string_callbacks(monkeypatch):
@@ -3705,9 +3813,7 @@ def test_get_config_normalizes_string_callbacks(monkeypatch):
     mock_router = MagicMock()
     mock_router.get_settings.return_value = {}
     monkeypatch.setattr("litellm.proxy.proxy_server.llm_router", mock_router)
-    monkeypatch.setattr(
-        proxy_config, "get_config", AsyncMock(return_value=config_data)
-    )
+    monkeypatch.setattr(proxy_config, "get_config", AsyncMock(return_value=config_data))
 
     original_overrides = app.dependency_overrides.copy()
     app.dependency_overrides[user_api_key_auth] = lambda: MagicMock()
@@ -4111,9 +4217,9 @@ async def test_update_general_settings_store_model_in_db_false():
 
     proxy_config = ProxyConfig()
 
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", True
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", True), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": False}
         )
@@ -4134,9 +4240,9 @@ async def test_update_general_settings_store_model_in_db_string_normalization():
     proxy_config = ProxyConfig()
 
     # Test "true" string
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", False
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", False), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": "true"}
         )
@@ -4145,9 +4251,9 @@ async def test_update_general_settings_store_model_in_db_string_normalization():
         assert ps.store_model_in_db is True
 
     # Test "True" string
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", False
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", False), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": "True"}
         )
@@ -4156,9 +4262,9 @@ async def test_update_general_settings_store_model_in_db_string_normalization():
         assert ps.store_model_in_db is True
 
     # Test "false" string
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", True
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", True), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": "false"}
         )
@@ -4178,9 +4284,9 @@ async def test_update_general_settings_store_model_in_db_none_keeps_current():
     proxy_config = ProxyConfig()
 
     # When current is True and DB sends None, should stay True
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", True
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", True), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": None}
         )
@@ -4189,9 +4295,9 @@ async def test_update_general_settings_store_model_in_db_none_keeps_current():
         assert ps.store_model_in_db is True
 
     # When current is False and DB sends None, should stay False
-    with patch(
-        "litellm.proxy.proxy_server.store_model_in_db", False
-    ), patch("litellm.proxy.proxy_server.general_settings", {}):
+    with patch("litellm.proxy.proxy_server.store_model_in_db", False), patch(
+        "litellm.proxy.proxy_server.general_settings", {}
+    ):
         await proxy_config._update_general_settings(
             db_general_settings={"store_model_in_db": None}
         )
@@ -4222,13 +4328,9 @@ async def test_store_model_in_db_db_override_when_config_false():
     mock_proxy_logging.slack_alerting_instance = MagicMock()
     mock_proxy_config = AsyncMock()
 
-    with patch(
-        "litellm.proxy.proxy_server.proxy_config", mock_proxy_config
-    ), patch(
+    with patch("litellm.proxy.proxy_server.proxy_config", mock_proxy_config), patch(
         "litellm.proxy.proxy_server.store_model_in_db", False
-    ), patch(
-        "litellm.proxy.proxy_server.get_secret_bool", return_value=False
-    ):
+    ), patch("litellm.proxy.proxy_server.get_secret_bool", return_value=False):
         await ProxyStartupEvent.initialize_scheduled_background_jobs(
             general_settings={},
             prisma_client=mock_prisma_client,
@@ -4266,13 +4368,9 @@ async def test_store_model_in_db_db_check_skipped_when_already_true(monkeypatch)
     mock_proxy_logging.slack_alerting_instance = MagicMock()
     mock_proxy_config = AsyncMock()
 
-    with patch(
-        "litellm.proxy.proxy_server.proxy_config", mock_proxy_config
-    ), patch(
+    with patch("litellm.proxy.proxy_server.proxy_config", mock_proxy_config), patch(
         "litellm.proxy.proxy_server.store_model_in_db", True
-    ), patch(
-        "litellm.proxy.proxy_server.get_secret_bool", return_value=True
-    ):
+    ), patch("litellm.proxy.proxy_server.get_secret_bool", return_value=True):
         await ProxyStartupEvent.initialize_scheduled_background_jobs(
             general_settings={},
             prisma_client=mock_prisma_client,
@@ -4312,13 +4410,9 @@ async def test_store_model_in_db_db_failure_graceful(monkeypatch):
     mock_proxy_logging.slack_alerting_instance = MagicMock()
     mock_proxy_config = AsyncMock()
 
-    with patch(
-        "litellm.proxy.proxy_server.proxy_config", mock_proxy_config
-    ), patch(
+    with patch("litellm.proxy.proxy_server.proxy_config", mock_proxy_config), patch(
         "litellm.proxy.proxy_server.store_model_in_db", False
-    ), patch(
-        "litellm.proxy.proxy_server.get_secret_bool", return_value=False
-    ):
+    ), patch("litellm.proxy.proxy_server.get_secret_bool", return_value=False):
         # Should not raise an exception
         await ProxyStartupEvent.initialize_scheduled_background_jobs(
             general_settings={},
