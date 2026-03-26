@@ -627,6 +627,7 @@ class RouteChecks:
                 in [
                     "/user/new",
                     "/user/delete",
+                    "/user/bulk_update",
                     "/team/new",
                     "/team/update",
                     "/team/delete",
