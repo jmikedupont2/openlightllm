@@ -1326,6 +1326,7 @@ class JWTAuthManager:
         jwt_valid_token: dict,
         user_object: Optional[LiteLLM_UserTable],
         prisma_client: Optional[PrismaClient],
+        user_api_key_cache: Optional[DualCache] = None,
     ) -> None:
         """
         Sync user role and team memberships with JWT claims
@@ -1350,6 +1351,11 @@ class JWTAuthManager:
                 data={"user_role": new_role.value},
             )
             user_object.user_role = new_role.value
+            if user_api_key_cache is not None:
+                await user_api_key_cache.async_set_cache(
+                    key=user_object.user_id,
+                    value=user_object.model_dump(),
+                )
 
         # Sync team memberships
         jwt_team_ids = set(jwt_handler.get_team_ids_from_jwt(jwt_valid_token))
@@ -1367,6 +1373,11 @@ class JWTAuthManager:
                 teams_ids_to_remove_user_from=list(teams_to_remove),
             )
             user_object.teams = list(jwt_team_ids)
+            if user_api_key_cache is not None:
+                await user_api_key_cache.async_set_cache(
+                    key=user_object.user_id,
+                    value=user_object.model_dump(),
+                )
         return None
 
     @staticmethod
@@ -1538,6 +1549,7 @@ class JWTAuthManager:
             jwt_valid_token=jwt_valid_token,
             user_object=user_object,
             prisma_client=prisma_client,
+            user_api_key_cache=user_api_key_cache,
         )
 
         ## MAP USER TO TEAMS
