@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [main, master, "release/*"]
+  pull_request:
+    branches: [main, master]
+jobs:
+  nix-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Nix develop
+        run: nix develop --command echo 'dev shell ok'
+  python-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install -e .
+      - name: Verify no enterprise
+        run: |
+          test ! -d enterprise/ || (echo "ERROR: enterprise/ still exists" && exit 1)
+      - name: Verify no license checks
+        run: |
+          ! grep -r "LITELLM_LICENSE\|is_premium\|license_check" litellm/ --include='*.py' -l || (echo "ERROR: license checks found" && exit 1)
+      - name: Import test
+        run: python -c "import litellm; print(f'litellm {litellm.version}')"
