@@ -1,0 +1,15 @@
+[package]
+name = "litellm"
+version = "2.0.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+governor = "0.6"
+prometheus = "0.13"
+anyhow = "1.0"
