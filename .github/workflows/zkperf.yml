@@ -1,0 +1,21 @@
+name: zkPerf Audit
+on:
+  push:
+    branches: [main, master, "release/*"]
+  pull_request:
+    branches: [main, master]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: meta-introspector/zkperf-action@v1
+        id: zkperf
+      - name: Summary
+        run: |
+          echo "## zkPerf Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Functions: ${{ steps.zkperf.outputs.functions }}" >> $GITHUB_STEP_SUMMARY
+          echo "- High risk: ${{ steps.zkperf.outputs.high-risk }}" >> $GITHUB_STEP_SUMMARY
+      - name: Fail on high risk
+        if: steps.zkperf.outputs.high-risk > 500
+        run: echo "Too many high risk functions" && exit 1
