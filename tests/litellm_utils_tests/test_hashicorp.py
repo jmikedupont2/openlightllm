@@ -19,7 +19,6 @@ verbose_logger.setLevel(logging.DEBUG)
 
 # Minimal setup for module-level instantiation
 import litellm.proxy.proxy_server
-litellm.proxy.proxy_server.premium_user = True
 
 from litellm.secret_managers.hashicorp_secret_manager import HashicorpSecretManager
 

@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 def initialize_callbacks_on_proxy(  # noqa: PLR0915
     value: Any,
-    premium_user: bool,
     config_file_path: str,
     litellm_settings: dict,
     callback_specific_params: dict = {},
@@ -83,10 +82,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use Llama Guard"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 llama_guard_object = _ENTERPRISE_LlamaGuard()
@@ -102,10 +99,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use secret hiding"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 _secret_detection_object = _ENTERPRISE_SecretDetection()
@@ -121,10 +116,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package_docker.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use OpenAI Moderations Check"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 openai_moderations_object = _ENTERPRISE_OpenAI_Moderation()
@@ -157,10 +150,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package_docker.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use Google Text Moderation"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 google_text_moderation_obj = _ENTERPRISE_GoogleTextModeration()
@@ -176,10 +167,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use Llm Guard"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 llm_guard_moderation_obj = _ENTERPRISE_LLMGuard()
@@ -195,10 +184,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package_docker.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use ENTERPRISE BlockedUser"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 blocked_user_list = _ENTERPRISE_BlockedUserList(
@@ -216,10 +203,8 @@ def initialize_callbacks_on_proxy(  # noqa: PLR0915
                         + CommonProxyErrors.missing_enterprise_package_docker.value
                     )
 
-                if premium_user is not True:
                     raise Exception(
                         "Trying to use ENTERPRISE BannedKeyword"
-                        + CommonProxyErrors.not_premium_user.value
                     )
 
                 banned_keywords_obj = _ENTERPRISE_BannedKeywords()

@@ -2469,7 +2469,6 @@ async def test_new_team_max_budget_exceeds_user_max_budget():
     dummy_request = MagicMock(spec=Request)
 
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
@@ -2537,7 +2536,6 @@ async def test_new_team_max_budget_within_user_limit():
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -2655,7 +2653,6 @@ async def test_new_team_org_scoped_budget_bypasses_user_limit():
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -2785,7 +2782,6 @@ async def test_new_team_org_scoped_models_bypasses_user_limit():
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -2907,7 +2903,6 @@ async def test_new_team_standalone_validates_against_user_models():
     dummy_request = MagicMock(spec=Request)
 
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -2974,7 +2969,6 @@ async def test_new_team_standalone_validates_against_user_budget():
     dummy_request = MagicMock(spec=Request)
 
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
@@ -3048,7 +3042,6 @@ async def test_new_team_org_scoped_budget_exceeds_org_limit():
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -3125,7 +3118,6 @@ async def test_new_team_org_scoped_models_not_in_org_models():
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -3929,7 +3921,6 @@ async def test_new_team_org_scoped_tpm_exceeds_org_limit():
     ) as mock_cache, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.management_endpoints.team_endpoints.get_org_object",
         new=AsyncMock(return_value=mock_org)
@@ -4005,7 +3996,6 @@ async def test_new_team_org_scoped_rpm_exceeds_org_limit():
     ) as mock_cache, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.management_endpoints.team_endpoints.get_org_object",
         new=AsyncMock(return_value=mock_org)
@@ -4084,7 +4074,6 @@ async def test_new_team_org_scoped_tpm_rpm_bypasses_user_limit():
     ) as mock_cache, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.create_audit_log_for_update", new=AsyncMock()
     ), patch(
@@ -4460,7 +4449,6 @@ async def test_update_team_guardrails_with_org_id():
     ), patch(
         "litellm.proxy.proxy_server.create_audit_log_for_update", new=AsyncMock()
     ), patch(
-        "litellm.proxy.proxy_server.premium_user", True  # Required for guardrails feature
     ):
         # Mock existing team - must have compatible models with organization
         mock_existing_team = MagicMock()
@@ -4983,7 +4971,6 @@ async def test_new_team_soft_budget_validation(
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.user_api_key_cache"
     ) as mock_cache, patch(
-        "litellm.proxy.proxy_server._license_check"
     ) as mock_license, patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(

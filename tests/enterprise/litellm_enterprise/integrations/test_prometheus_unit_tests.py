@@ -60,7 +60,6 @@ def prometheus_logger():
     for collector in collectors:
         REGISTRY.unregister(collector)
 
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         logger = PrometheusLogger()
 
         # Add the missing async_logging_hook method

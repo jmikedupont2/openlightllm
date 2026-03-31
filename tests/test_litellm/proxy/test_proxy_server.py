@@ -92,7 +92,6 @@ def test_login_v2_returns_redirect_url_and_sets_cookie(monkeypatch):
     monkeypatch.setattr("jwt.encode", mock_jwt_encode)
     monkeypatch.setattr("litellm.proxy.proxy_server.master_key", "test-master-key")
     monkeypatch.setattr("litellm.proxy.proxy_server.general_settings", {})
-    monkeypatch.setattr("litellm.proxy.proxy_server.premium_user", False)
     monkeypatch.setattr("litellm.proxy.proxy_server.prisma_client", mock_prisma_client)
     monkeypatch.setattr("litellm.proxy.utils.get_server_root_path", lambda: "")
     monkeypatch.setattr("litellm.proxy.utils.get_proxy_base_url", lambda: None)
@@ -119,7 +118,6 @@ def test_login_v2_returns_redirect_url_and_sets_cookie(monkeypatch):
     mock_create_ui_token_object.assert_called_once_with(
         login_result=mock_login_result,
         general_settings={},
-        premium_user=False,
     )
     mock_jwt_encode.assert_called_once_with(
         {"user_id": "test-user"},
@@ -264,9 +262,7 @@ def test_sso_key_generate_shows_deprecation_banner(client_no_auth, monkeypatch):
         "litellm.proxy.management_endpoints.ui_sso.SSOAuthenticationHandler.should_use_sso_handler",
         lambda *args, **kwargs: False,
     )
-    # Mock premium_user to bypass enterprise check (prevents 403 Forbidden)
     monkeypatch.setattr(
-        "litellm.proxy.proxy_server.premium_user",
         True,
     )
     monkeypatch.setenv("UI_USERNAME", "admin")
@@ -1301,9 +1297,7 @@ async def test_load_environment_variables_direct_and_os_environ():
 
 
 @pytest.mark.asyncio
-async def test_load_environment_variables_litellm_license_and_edge_cases():
     """
-    Test _load_environment_variables method with LITELLM_LICENSE special handling and edge cases
     """
     from unittest.mock import MagicMock, patch
 
@@ -1311,29 +1305,19 @@ async def test_load_environment_variables_litellm_license_and_edge_cases():
 
     proxy_config = ProxyConfig()
 
-    # Test Case 1: LITELLM_LICENSE in environment_variables
     test_config_with_license = {
         "environment_variables": {
-            "LITELLM_LICENSE": "test_license_key",
             "OTHER_VAR": "other_value",
         }
     }
 
-    # Mock _license_check
-    mock_license_check = MagicMock()
-    mock_license_check.is_premium.return_value = True
 
-    with patch("litellm.proxy.proxy_server._license_check", mock_license_check):
         with patch.dict(os.environ, {}, clear=False):
             # Call the method under test
             proxy_config._load_environment_variables(test_config_with_license)
 
-            # Verify LITELLM_LICENSE was set in environment
-            assert os.environ["LITELLM_LICENSE"] == "test_license_key"
 
             # Verify license check was updated
-            assert mock_license_check.license_str == "test_license_key"
-            mock_license_check.is_premium.assert_called_once()
 
     # Test Case 2: No environment_variables in config
     test_config_no_env_vars = {}

@@ -395,7 +395,6 @@ async def test_callback_specific_param_run_pre_call_check_lakera():
     assert len(litellm.guardrail_name_config_map) == 0
     initialize_guardrails(
         guardrails_config=guardrails_config,
-        premium_user=True,
         config_file_path="",
         litellm_settings=litellm_settings,
     )
@@ -448,7 +447,6 @@ async def test_callback_specific_thresholds():
     assert len(litellm.guardrail_name_config_map) == 0
     initialize_guardrails(
         guardrails_config=guardrails_config,
-        premium_user=True,
         config_file_path="",
         litellm_settings=litellm_settings,
     )

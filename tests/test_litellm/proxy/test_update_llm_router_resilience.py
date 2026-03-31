@@ -132,7 +132,6 @@ class TestDeleteDeploymentResilience:
                 side_effect=Exception("httpcore.ReadTimeout"),
             ),
             patch("litellm.proxy.proxy_server.llm_router", mock_router),
-            patch("litellm.proxy.proxy_server.premium_user", False),
         ):
             result = await proxy_config._delete_deployment(db_models=db_models)
 
@@ -164,7 +163,6 @@ class TestDeleteDeploymentResilience:
                 ]},
             ),
             patch("litellm.proxy.proxy_server.llm_router", mock_router),
-            patch("litellm.proxy.proxy_server.premium_user", False),
         ):
             result = await proxy_config._delete_deployment(db_models=db_models)
 

@@ -10,7 +10,6 @@ from litellm.types.guardrails import GuardrailEventHooks, Mode
 
 def test_custom_guardrail_with_mode_default_list(monkeypatch):
     """Test Mode with default as a list of modes (e.g. default: ["pre_call", "post_call"])"""
-    monkeypatch.setattr("litellm.proxy.proxy_server.premium_user", True)
     cg = CustomGuardrail(
         guardrail_name="test_guardrail",
         supported_event_hooks=[
@@ -91,7 +90,6 @@ def test_custom_guardrail_with_mode_default_list(monkeypatch):
 
 def test_custom_guardrail_with_mode_no_default(monkeypatch):
     """Test Mode with no default — guardrail only fires when tag matches"""
-    monkeypatch.setattr("litellm.proxy.proxy_server.premium_user", True)
     cg = CustomGuardrail(
         guardrail_name="test_guardrail",
         supported_event_hooks=[
@@ -136,7 +134,6 @@ def test_custom_guardrail_with_mode_no_default(monkeypatch):
 
 def test_custom_guardrail_with_mode_tag_value_list(monkeypatch):
     """Test Mode with tag value as a list of modes (e.g. tags: {"tag": ["pre_call", "post_call"]})"""
-    monkeypatch.setattr("litellm.proxy.proxy_server.premium_user", True)
     cg = CustomGuardrail(
         guardrail_name="test_guardrail",
         supported_event_hooks=[
@@ -208,8 +205,6 @@ def test_custom_guardrail_with_mode_tag_value_list(monkeypatch):
 
 def test_custom_guardrail_with_mode(monkeypatch):
     monkeypatch.setattr(
-        "litellm.proxy.proxy_server.premium_user", True
-    )  # Set premium_user to True
     cg = CustomGuardrail(
         guardrail_name="test_guardrail",
         supported_event_hooks=[

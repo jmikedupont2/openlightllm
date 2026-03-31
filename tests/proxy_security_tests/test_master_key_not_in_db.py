@@ -40,7 +40,6 @@ async def test_master_key_not_inserted(test_client):
     prisma_client = PrismaClient(
         database_url=os.environ["DATABASE_URL"],
         proxy_logging_obj=ProxyLogging(
-            user_api_key_cache=DualCache(), premium_user=True
         ),
     )
 

@@ -1055,24 +1055,17 @@ async def shared_health_check_status_endpoint(
 
 
 def _read_license_data() -> Optional[Dict[str, Any]]:
-    from litellm.proxy.proxy_server import _license_check, premium_user_data
+# REMOVED: from litellm.proxy.proxy_server import _license_check, premium_user_data
 
     license_data: Optional[EnterpriseLicenseData] = (
-        premium_user_data or _license_check.airgapped_license_data
     )
 
     if (
         license_data is None
-        and getattr(_license_check, "license_str", None)
-        and getattr(_license_check, "public_key", None)
     ):
         try:
-            verification_result = _license_check.verify_license_without_api_request(
-                public_key=_license_check.public_key,
-                license_key=_license_check.license_str,
             )
             if verification_result is True:
-                license_data = _license_check.airgapped_license_data
         except Exception:
             pass
 
@@ -1099,11 +1092,9 @@ async def health_license_endpoint(
     user_api_key_dict: UserAPIKeyAuth = Depends(user_api_key_auth),
 ):
     """Return metadata about the configured LiteLLM license without exposing the key."""
-    from litellm.proxy.proxy_server import _license_check, premium_user
+# REMOVED: from litellm.proxy.proxy_server import _license_check, premium_user
 
     license_data = _read_license_data()
-    has_license = bool(getattr(_license_check, "license_str", None))
-    license_type = "enterprise" if premium_user else "community"
 
     if license_data is None:
         return {
@@ -1498,7 +1489,7 @@ async def test_model_connection(
     from litellm.proxy.management_endpoints.model_management_endpoints import (
         ModelManagementAuthChecks,
     )
-    from litellm.proxy.proxy_server import llm_router, premium_user, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import llm_router, premium_user, prisma_client
     from litellm.types.router import Deployment, LiteLLM_Params
 
     try:
@@ -1561,7 +1552,6 @@ async def test_model_connection(
             ),
             user_api_key_dict=user_api_key_dict,
             prisma_client=prisma_client,
-            premium_user=premium_user,
         )
         # Include health_check_params if provided
         litellm_params = _update_litellm_params_for_health_check(

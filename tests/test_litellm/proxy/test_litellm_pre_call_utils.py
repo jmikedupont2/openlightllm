@@ -1296,7 +1296,6 @@ async def test_team_guardrails_append_to_key_guardrails():
         team_metadata={"guardrails": ["team-guardrail-1", "key-guardrail-1"]},
     )
 
-    with patch("litellm.proxy.utils._premium_user_check"):
         updated_data = await add_litellm_data_to_request(
             data=data,
             request=request_mock,
@@ -1345,7 +1344,6 @@ async def test_request_guardrails_do_not_override_key_guardrails():
         "guardrails": [],
     }
 
-    with patch("litellm.proxy.utils._premium_user_check"):
         updated_data_empty = await add_litellm_data_to_request(
             data=data_with_empty,
             request=request_mock,
@@ -1800,7 +1798,6 @@ async def test_bearer_token_not_in_debug_logs():
 
     try:
         with patch("litellm.proxy.proxy_server.llm_router", None), \
-             patch("litellm.proxy.proxy_server.premium_user", True):
             await add_litellm_data_to_request(
                 data=data,
                 request=mock_request,

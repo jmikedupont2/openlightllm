@@ -113,7 +113,6 @@ class TestAnthropicMessagesHandlerInputProcessing:
             },
         }
 
-        with patch("litellm.proxy.proxy_server.premium_user", True):
             await handler.process_input_messages(data=data, guardrail_to_apply=guardrail)
 
         assert data.get("litellm_metadata", {}).get("guardrails")

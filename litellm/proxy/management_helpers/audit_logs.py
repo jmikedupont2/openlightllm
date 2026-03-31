@@ -76,9 +76,8 @@ async def create_audit_log_for_update(request_data: LiteLLM_AuditLogs):
     if store_audit_logs is not True:
         return
 
-    from litellm.proxy.proxy_server import premium_user, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import premium_user, prisma_client
 
-    if premium_user is not True:
         return
 
     if prisma_client is None:

@@ -335,26 +335,21 @@ async def new_project(
     """
     from litellm.proxy.proxy_server import (
         litellm_proxy_admin_name,
-        premium_user,
         prisma_client,
     )
 
     try:
-        if getattr(data, "tags", None) is not None and not premium_user:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Only premium users can add tags to projects. "
-                    + CommonProxyErrors.not_premium_user.value
                 },
             )
 
-        if not premium_user:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Project management is an enterprise feature. "
-                    + CommonProxyErrors.not_premium_user.value
                 },
             )
 
@@ -530,26 +525,21 @@ async def update_project(  # noqa: PLR0915
     """
     from litellm.proxy.proxy_server import (
         litellm_proxy_admin_name,
-        premium_user,
         prisma_client,
     )
 
     try:
-        if getattr(data, "tags", None) is not None and not premium_user:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Only premium users can add tags to projects. "
-                    + CommonProxyErrors.not_premium_user.value
                 },
             )
 
-        if not premium_user:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Project management is an enterprise feature. "
-                    + CommonProxyErrors.not_premium_user.value
                 },
             )
 
@@ -721,15 +711,13 @@ async def delete_project(
     }'
     ```
     """
-    from litellm.proxy.proxy_server import premium_user, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import premium_user, prisma_client
 
     try:
-        if not premium_user:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Project management is an enterprise feature. "
-                    + CommonProxyErrors.not_premium_user.value
                 },
             )
 

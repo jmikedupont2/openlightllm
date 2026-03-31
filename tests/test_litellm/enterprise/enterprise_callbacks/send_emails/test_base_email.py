@@ -514,10 +514,7 @@ def mock_env_vars(monkeypatch):
     monkeypatch.setenv("PROXY_API_URL", "https://test.com")
 
 @pytest.mark.asyncio
-async def test_get_email_params_custom_templates_premium_user(mock_env_vars):
     """Test that _get_email_params returns correct values with custom templates for premium users"""
-    # Mock premium_user as True
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         email_logger = BaseEmailLogger()
         
         # Test invitation email params
@@ -546,10 +543,7 @@ async def test_get_email_params_custom_templates_premium_user(mock_env_vars):
         assert key_params.signature == "Best regards,\nTest Company Team"
 
 @pytest.mark.asyncio
-async def test_get_email_params_non_premium_user(mock_env_vars):
     """Test that non-premium users get default templates even when custom ones are provided"""
-    # Mock premium_user as False
-    with patch("litellm.proxy.proxy_server.premium_user", False):
         email_logger = BaseEmailLogger()
         
         # Test invitation email params
@@ -584,8 +578,6 @@ async def test_get_email_params_default_templates(monkeypatch):
     monkeypatch.delenv("EMAIL_SUBJECT_KEY_CREATED", raising=False)
     monkeypatch.delenv("EMAIL_SIGNATURE", raising=False)
     
-    # Mock premium_user as True (shouldn't matter since no custom values are set)
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         email_logger = BaseEmailLogger()
         
         # Test invitation email params with default template

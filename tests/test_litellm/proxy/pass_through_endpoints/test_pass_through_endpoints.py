@@ -490,7 +490,6 @@ async def test_initialize_pass_through_endpoints_with_include_subpath():
             "litellm.proxy.pass_through_endpoints.pass_through_endpoints.InitPassThroughEndpointHelpers.add_subpath_route"
         ) as mock_add_subpath_route:
             with patch(
-                "litellm.proxy.proxy_server.premium_user",
                 True,
             ):
                 with patch(
@@ -541,7 +540,6 @@ async def test_initialize_pass_through_endpoints_without_include_subpath():
             "litellm.proxy.pass_through_endpoints.pass_through_endpoints.InitPassThroughEndpointHelpers.add_subpath_route"
         ) as mock_add_subpath_route:
             with patch(
-                "litellm.proxy.proxy_server.premium_user",
                 True,
             ):
                 with patch(

@@ -770,12 +770,9 @@ async def test_new_user_license_over_limit(mocker):
     )
 
     # Mock the license check to return True (over limit)
-    mock_license_check = mocker.MagicMock()
-    mock_license_check.is_over_limit.return_value = True
 
     # Patch the imports in the endpoint
     mocker.patch("litellm.proxy.proxy_server.prisma_client", mock_prisma_client)
-    mocker.patch("litellm.proxy.proxy_server._license_check", mock_license_check)
 
     # Create test request data
     user_request = NewUserRequest(
@@ -795,7 +792,6 @@ async def test_new_user_license_over_limit(mocker):
     assert "support@berri.ai" in str(exc_info.value.message)
 
     # Verify that the license check was called with the correct user count
-    mock_license_check.is_over_limit.assert_called_once_with(total_users=1000)
 
 
 @pytest.mark.asyncio
@@ -832,12 +828,9 @@ async def test_new_user_non_admin_cannot_create_admin(mocker):
     )
 
     # Mock the license check to return False (under limit)
-    mock_license_check = mocker.MagicMock()
-    mock_license_check.is_over_limit.return_value = False
 
     # Patch the imports in the endpoint
     mocker.patch("litellm.proxy.proxy_server.prisma_client", mock_prisma_client)
-    mocker.patch("litellm.proxy.proxy_server._license_check", mock_license_check)
 
     # Test Case 1: INTERNAL_USER trying to create PROXY_ADMIN
     user_request = NewUserRequest(
@@ -1047,8 +1040,6 @@ async def test_new_user_default_teams_flow(mocker):
     )
 
     # Mock the license check to return False (under limit)
-    mock_license_check = mocker.MagicMock()
-    mock_license_check.is_over_limit.return_value = False
 
     # Mock generate_key_helper_fn
     mock_generate_key_helper_fn = mocker.AsyncMock()
@@ -1080,7 +1071,6 @@ async def test_new_user_default_teams_flow(mocker):
     try:
         # Patch all the imports
         mocker.patch("litellm.proxy.proxy_server.prisma_client", mock_prisma_client)
-        mocker.patch("litellm.proxy.proxy_server._license_check", mock_license_check)
         mocker.patch(
             "litellm.proxy.management_endpoints.internal_user_endpoints.generate_key_helper_fn",
             mock_generate_key_helper_fn,

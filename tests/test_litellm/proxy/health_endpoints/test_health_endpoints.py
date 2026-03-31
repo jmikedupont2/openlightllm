@@ -345,21 +345,15 @@ async def test_health_license_endpoint_with_active_license():
         "max_users": 100,
         "max_teams": 5,
     }
-    mock_license_check = SimpleNamespace(
         license_str="test-license",
         public_key=None,
         airgapped_license_data=license_data,
-        verify_license_without_api_request=MagicMock(return_value=True),
     )
 
     with patch(
-        "litellm.proxy.proxy_server._license_check",
-        mock_license_check,
     ), patch(
-        "litellm.proxy.proxy_server.premium_user",
         True,
     ), patch(
-        "litellm.proxy.proxy_server.premium_user_data",
         license_data,
     ):
         response = await health_license_endpoint(user_api_key_dict=MagicMock())
@@ -373,21 +367,15 @@ async def test_health_license_endpoint_with_active_license():
 
 @pytest.mark.asyncio
 async def test_health_license_endpoint_without_valid_license():
-    mock_license_check = SimpleNamespace(
         license_str="invalid-key",
         public_key=None,
         airgapped_license_data=None,
-        verify_license_without_api_request=MagicMock(return_value=False),
     )
 
     with patch(
-        "litellm.proxy.proxy_server._license_check",
-        mock_license_check,
     ), patch(
-        "litellm.proxy.proxy_server.premium_user",
         False,
     ), patch(
-        "litellm.proxy.proxy_server.premium_user_data",
         None,
     ):
         response = await health_license_endpoint(user_api_key_dict=MagicMock())
@@ -461,7 +449,6 @@ async def test_test_model_connection_loads_config_from_router():
         "litellm.proxy.proxy_server.llm_router",
         mock_router,
     ), patch(
-        "litellm.proxy.proxy_server.premium_user",
         False,
     ), patch(
         "litellm.proxy.management_endpoints.model_management_endpoints.ModelManagementAuthChecks.can_user_make_model_call",

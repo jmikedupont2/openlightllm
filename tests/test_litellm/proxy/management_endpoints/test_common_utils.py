@@ -36,7 +36,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
     """
     Regression tests for issue #20304.
 
-    The UI sends empty arrays (`[]`) for enterprise-only fields like
     guardrails, policies, and logging even when the user hasn't configured
     these features.  The backend must not treat empty collections as an
     intent to use the feature, and therefore must not trigger the premium
@@ -47,7 +46,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
     guardrails by sending `guardrails: []`).
     """
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_empty_list_does_not_trigger_premium_check(self, mock_premium_check):
         """Empty lists for premium fields must not trigger the premium check."""
         updated_kv = {
@@ -59,7 +57,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_not_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_empty_list_still_updates_metadata(self, mock_premium_check):
         """
         Empty lists must still be moved into metadata so users can clear
@@ -81,7 +78,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         assert updated_kv["metadata"]["guardrails"] == []
         assert updated_kv["metadata"]["policies"] == []
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_empty_dict_does_not_trigger_premium_check(self, mock_premium_check):
         """Empty dicts for premium fields must not trigger the premium check."""
         updated_kv = {
@@ -91,7 +87,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_not_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_empty_dict_still_updates_metadata(self, mock_premium_check):
         """
         Empty dicts must still be moved into metadata so users can clear
@@ -107,7 +102,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         )
         assert updated_kv["metadata"]["secret_manager_settings"] == {}
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_none_value_does_not_trigger_premium_check(self, mock_premium_check):
         """None values for premium fields should be silently ignored."""
         updated_kv = {
@@ -118,7 +112,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_not_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_absent_fields_do_not_trigger_premium_check(self, mock_premium_check):
         """Fields not present in the dict should not trigger premium check."""
         updated_kv = {
@@ -128,7 +121,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_not_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_non_empty_list_triggers_premium_check(self, mock_premium_check):
         """Non-empty lists for premium fields should trigger the premium check."""
         updated_kv = {
@@ -138,7 +130,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_non_empty_value_triggers_premium_check(self, mock_premium_check):
         """Non-empty string values for premium fields should trigger the premium check."""
         updated_kv = {
@@ -148,7 +139,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         _update_metadata_fields(updated_kv=updated_kv)
         mock_premium_check.assert_called()
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_non_empty_list_updates_metadata(self, mock_premium_check):
         """Non-empty lists should be moved into metadata."""
         updated_kv = {
@@ -159,7 +149,6 @@ class TestUpdateMetadataFieldsEmptyCollections:
         assert "guardrails" not in updated_kv
         assert updated_kv["metadata"]["guardrails"] == ["my-guardrail"]
 
-    @patch("litellm.proxy.management_endpoints.common_utils._premium_user_check")
     def test_ui_typical_payload_does_not_trigger_premium_check(self, mock_premium_check):
         """
         Simulate the exact payload the UI sends when no enterprise features
@@ -466,10 +455,8 @@ class TestSetObjectMetadataField:
     def test_set_object_metadata_field_parametrized(
         self, field_name, value, should_call_premium
     ):
-        """Parametrized test: premium fields trigger _premium_user_check."""
         team = LiteLLM_TeamTable(team_id="t1", metadata={})
         with patch(
-            "litellm.proxy.management_endpoints.common_utils._premium_user_check"
         ) as mock_premium:
             _set_object_metadata_field(team, field_name, value)
             if should_call_premium:
@@ -482,7 +469,6 @@ class TestSetObjectMetadataField:
         """Test initializes metadata dict when object has None."""
         team = LiteLLM_TeamTable(team_id="t1", metadata=None)
         with patch(
-            "litellm.proxy.management_endpoints.common_utils._premium_user_check"
         ):
             _set_object_metadata_field(team, "model_rpm_limit", {"x": 1})
         assert team.metadata == {"model_rpm_limit": {"x": 1}}

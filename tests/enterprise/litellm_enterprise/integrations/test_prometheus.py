@@ -523,7 +523,6 @@ def mock_prometheus_logger():
     for collector in collectors:
         REGISTRY.unregister(collector)
 
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         logger = PrometheusLogger()
 
         # Replace metrics with mocks to capture increment calls

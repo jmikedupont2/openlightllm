@@ -251,7 +251,6 @@ async def test_new_budget_invalid_model_max_budget(client_and_mocks, monkeypatch
     """
     import litellm.proxy.proxy_server as ps
 
-    monkeypatch.setattr(ps, "premium_user", True)
 
     client, _, _ = client_and_mocks
 

@@ -477,7 +477,6 @@ async def test_presidio_pii_masking_logging_output_only_logged_response_guardrai
     assert len(litellm.guardrail_name_config_map) == 0
     initialize_guardrails(
         guardrails_config=guardrails_config,
-        premium_user=True,
         config_file_path="",
         litellm_settings=litellm_settings,
     )

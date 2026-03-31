@@ -13,7 +13,6 @@ from fastapi import HTTPException
 from litellm_enterprise.proxy.auth.route_checks import EnterpriseRouteChecks
 
 
-@patch("litellm.proxy.proxy_server.premium_user", True)
 class TestEnterpriseRouteChecks:
 
     @patch.object(EnterpriseRouteChecks, "is_management_routes_disabled")
@@ -182,7 +181,6 @@ class TestEnterpriseRouteChecks:
         EnterpriseRouteChecks.should_call_route("/config/update")
 
 
-@patch("litellm.proxy.proxy_server.premium_user", True)
 class TestEnterpriseRouteChecksModelListExemption:
     """Test that /models and /v1/models are exempt from DISABLE_LLM_API_ENDPOINTS"""
 
@@ -256,7 +254,6 @@ class TestEnterpriseRouteChecksErrorMessages:
     """Test that error messages correctly identify which feature requires Enterprise license"""
 
     @patch("litellm.secret_managers.main.get_secret_bool")
-    @patch("litellm.proxy.proxy_server.premium_user", False)
     def test_disable_llm_api_endpoints_error_message(self, mock_get_secret_bool):
         """
         Test that when DISABLE_LLM_API_ENDPOINTS is set without Enterprise license,
@@ -272,7 +269,6 @@ class TestEnterpriseRouteChecksErrorMessages:
             )
 
     @patch("litellm.secret_managers.main.get_secret_bool")
-    @patch("litellm.proxy.proxy_server.premium_user", False)
     def test_disable_admin_endpoints_error_message(self, mock_get_secret_bool):
         """
         Test that when DISABLE_ADMIN_ENDPOINTS is set without Enterprise license,
@@ -293,8 +289,6 @@ class TestEnterpriseRouteChecksErrorMessages:
             assert "LLM API ENDPOINTS" not in str(exc_info.value.detail)
 
     @patch("litellm.secret_managers.main.get_secret_bool")
-    @patch("litellm.proxy.proxy_server.premium_user", True)
-    def test_disable_llm_api_endpoints_with_premium_user(self, mock_get_secret_bool):
         """
         Test that premium users can use DISABLE_LLM_API_ENDPOINTS without error
         """
@@ -305,8 +299,6 @@ class TestEnterpriseRouteChecksErrorMessages:
             assert result is True
 
     @patch("litellm.secret_managers.main.get_secret_bool")
-    @patch("litellm.proxy.proxy_server.premium_user", True)
-    def test_disable_admin_endpoints_with_premium_user(self, mock_get_secret_bool):
         """
         Test that premium users can use DISABLE_ADMIN_ENDPOINTS without error
         """

@@ -272,7 +272,6 @@ def _check_responses_cost_module_available():
 
 @pytest.mark.skipif(
     not _check_responses_cost_module_available(),
-    reason="litellm_enterprise.proxy.common_utils.check_responses_cost module not available (enterprise-only feature)"
 )
 class TestCheckResponsesCost:
     """Tests for the CheckResponsesCost polling class"""

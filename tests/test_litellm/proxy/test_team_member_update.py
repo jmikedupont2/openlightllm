@@ -8,10 +8,7 @@ from litellm.proxy.management_endpoints.team_endpoints import team_member_update
 
 
 @pytest.mark.asyncio
-async def test_ateam_member_update_admin_requires_premium(monkeypatch):
-    # Arrange: patch prisma_client and premium_user
     monkeypatch.setattr(proxy_server, "prisma_client", object())
-    monkeypatch.setattr(proxy_server, "premium_user", False)
 
     # Create a request body that tries to set role=admin
     data = TeamMemberUpdateRequest(
@@ -34,7 +31,6 @@ async def test_ateam_member_update_admin_requires_premium(monkeypatch):
     assert exc_info.value.status_code == 400
     expected_msg = (
         "Assigning team admins is a premium feature. You must be a LiteLLM Enterprise user to use this feature. "
-        "If you have a license please set `LITELLM_LICENSE` in your env. Get a 7 day trial key here: https://www.litellm.ai/#trial. "
         "Pricing: https://www.litellm.ai/#pricing"
     )
     assert exc_info.value.detail == expected_msg

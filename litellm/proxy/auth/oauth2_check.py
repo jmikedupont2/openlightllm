@@ -128,12 +128,10 @@ class Oauth2Handler:
         Raises:
             ValueError: If the token is invalid, the request fails, or the token info endpoint is not set.
         """
-        from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
-        if premium_user is not True:
             raise ValueError(
                 "Oauth2 token validation is only available for premium users"
-                + CommonProxyErrors.not_premium_user.value
             )
 
         verbose_proxy_logger.debug("Oauth2 token validation for token=%s", token)

@@ -32,10 +32,8 @@ class TestAvailableEnterpriseUsers:
     ):
         """Test when max_users is set and user count is within limit"""
         with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ), patch(
-            "litellm.proxy.proxy_server.premium_user_data",
             {"max_users": 10},
         ):
             # Mock database count
@@ -65,12 +63,9 @@ class TestAvailableEnterpriseUsers:
     async def test_available_users_without_max_users_set(
         self, client, mock_user_api_key_auth
     ):
-        """Test when max_users is not set (premium_user_data is None or doesn't contain max_users)"""
         with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ), patch(
-            "litellm.proxy.proxy_server.premium_user_data",
             None,
         ):
             # Mock database count
@@ -100,10 +95,8 @@ class TestAvailableEnterpriseUsers:
     ):
         """Test the current bug where total_users_remaining can be negative"""
         with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ), patch(
-            "litellm.proxy.proxy_server.premium_user_data",
             {"key": "value"},
         ):
             # Mock database count higher than max_users to trigger the bug
@@ -144,7 +137,6 @@ class TestAvailableEnterpriseUsers:
             "litellm.proxy.proxy_server.prisma_client",
             None,
         ), patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ):
             # Override the dependency

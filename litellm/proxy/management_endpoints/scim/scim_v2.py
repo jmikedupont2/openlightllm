@@ -1,7 +1,6 @@
 """
 ✨ SCIM v2 Endpoints for LiteLLM Proxy using Internal User/Team Management
 
-This is an enterprise feature and requires a premium license.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -48,7 +47,7 @@ from litellm.proxy.management_endpoints.team_endpoints import (
     team_member_add,
     team_member_delete,
 )
-from litellm.proxy.utils import _premium_user_check, handle_exception_on_proxy
+# REMOVED: from litellm.proxy.utils import _premium_user_check, handle_exception_on_proxy
 from litellm.types.proxy.management_endpoints.scim_v2 import *
 
 
@@ -118,8 +117,6 @@ class GroupMemberExtractionResult(BaseModel):
 
 scim_router = APIRouter(
     prefix="/scim/v2",
-    tags=["✨ SCIM v2 (Enterprise Only)"],
-    dependencies=[Depends(_premium_user_check)],
 )
 
 

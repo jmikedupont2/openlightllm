@@ -308,7 +308,6 @@ async def google_login(
     Example:
     """
     from litellm.proxy.proxy_server import (
-        premium_user,
         prisma_client,
         user_custom_ui_sso_sign_in_handler,
     )
@@ -330,22 +329,18 @@ async def google_login(
         or google_client_id is not None
         or generic_client_id is not None
     ):
-        if premium_user is not True:
             # Check if under 'free SSO user' limit
             if prisma_client is not None:
                 total_users = await prisma_client.db.litellm_usertable.count()
                 if total_users and total_users > 5:
                     raise ProxyException(
-                        message="You must be a LiteLLM Enterprise user to use SSO for more than 5 users. If you have a license please set `LITELLM_LICENSE` in your env. If you want to obtain a license meet with us here: https://calendly.com/d/cx9p-5yf-2nm/litellm-introductions You are seeing this error message because You set one of `MICROSOFT_CLIENT_ID`, `GOOGLE_CLIENT_ID`, or `GENERIC_CLIENT_ID` in your env. Please unset this",
                         type=ProxyErrorTypes.auth_error,
-                        param="premium_user",
                         code=status.HTTP_403_FORBIDDEN,
                     )
             else:
                 raise ProxyException(
                     message=CommonProxyErrors.db_not_connected_error.value,
                     type=ProxyErrorTypes.auth_error,
-                    param="premium_user",
                     code=status.HTTP_403_FORBIDDEN,
                 )
 
@@ -2365,7 +2360,6 @@ class SSOAuthenticationHandler:
             general_settings,
             generate_key_helper_fn,
             master_key,
-            premium_user,
             proxy_logging_obj,
             user_api_key_cache,
             user_custom_sso,
@@ -2521,7 +2515,6 @@ class SSOAuthenticationHandler:
             user_email=user_email,
             user_role=user_role or LitellmUserRoles.INTERNAL_USER_VIEW_ONLY.value,
             login_method="sso",
-            premium_user=premium_user,
             auth_header_name=general_settings.get(
                 "litellm_key_header_name", "Authorization"
             ),
@@ -3509,7 +3502,7 @@ async def debug_sso_login(request: Request):
     PROXY_BASE_URL should be the your deployed proxy endpoint, e.g. PROXY_BASE_URL="https://litellm-production-7002.up.railway.app/"
     Example:
     """
-    from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
     microsoft_client_id = os.getenv("MICROSOFT_CLIENT_ID", None)
     google_client_id = os.getenv("GOOGLE_CLIENT_ID", None)
@@ -3521,11 +3514,8 @@ async def debug_sso_login(request: Request):
         or google_client_id is not None
         or generic_client_id is not None
     ):
-        if premium_user is not True:
             raise ProxyException(
-                message="You must be a LiteLLM Enterprise user to use SSO. If you have a license please set `LITELLM_LICENSE` in your env. If you want to obtain a license meet with us here: https://calendly.com/d/cx9p-5yf-2nm/litellm-introductions You are seeing this error message because You set one of `MICROSOFT_CLIENT_ID`, `GOOGLE_CLIENT_ID`, or `GENERIC_CLIENT_ID` in your env. Please unset this",
                 type=ProxyErrorTypes.auth_error,
-                param="premium_user",
                 code=status.HTTP_403_FORBIDDEN,
             )
 

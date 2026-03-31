@@ -988,7 +988,7 @@ async def get_global_spend_report(
     start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
     end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
 
-    from litellm.proxy.proxy_server import premium_user, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import premium_user, prisma_client
 
     try:
         if prisma_client is None:
@@ -996,10 +996,8 @@ async def get_global_spend_report(
                 "Database not connected. Connect a database to your proxy - https://docs.litellm.ai/docs/simple_proxy#managing-auth---virtual-keys"
             )
 
-        if premium_user is not True:
             verbose_proxy_logger.debug("accessing /spend/report but not a premium user")
             raise ValueError(
-                "/spend/report endpoint " + CommonProxyErrors.not_premium_user.value
             )
         if api_key is not None:
             verbose_proxy_logger.debug("Getting /spend for api_key: %s", api_key)

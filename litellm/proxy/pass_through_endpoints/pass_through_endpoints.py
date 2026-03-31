@@ -2160,7 +2160,6 @@ async def initialize_pass_through_endpoints(
     from litellm.proxy.proxy_server import (
         app,
         config_passthrough_endpoints,
-        premium_user,
     )
 
     ## get combined pass-through endpoints from db + config
@@ -2210,10 +2209,8 @@ async def initialize_pass_through_endpoints(
         _auth = endpoint.get("auth", None)
         _dependencies = None
         if _auth is not None and str(_auth).lower() == "true":
-            if premium_user is not True:
                 raise ValueError(
                     "Error Setting Authentication on Pass Through Endpoint: {}".format(
-                        CommonProxyErrors.not_premium_user.value
                     )
                 )
             _dependencies = [Depends(user_api_key_auth)]

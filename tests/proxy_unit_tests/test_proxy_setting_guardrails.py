@@ -30,7 +30,6 @@ from litellm.proxy.proxy_server import (  # Replace with the actual module where
 def client():
     filepath = os.path.dirname(os.path.abspath(__file__))
     config_fp = f"{filepath}/test_configs/test_guardrails_config.yaml"
-    with mock.patch("litellm.proxy.proxy_server.premium_user", True):
         asyncio.run(initialize(config=config_fp))
     from litellm.proxy.proxy_server import app
 

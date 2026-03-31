@@ -101,7 +101,6 @@ def _populate_router_guardrail_list(guardrail_list: List[Guardrail]) -> None:
 ### LEGACY IMPLEMENTATION ###
 def initialize_guardrails(
     guardrails_config: List[Dict[str, GuardrailItemSpec]],
-    premium_user: bool,
     config_file_path: str,
     litellm_settings: dict,
 ) -> Dict[str, GuardrailItem]:
@@ -142,7 +141,6 @@ def initialize_guardrails(
         if len(default_on_callbacks_list) > 0:
             initialize_callbacks_on_proxy(
                 value=default_on_callbacks_list,
-                premium_user=premium_user,
                 config_file_path=config_file_path,
                 litellm_settings=litellm_settings,
                 callback_specific_params=callback_specific_params,

@@ -131,7 +131,6 @@ async def test_get_token_does_not_set_is_accepted():
     with patch("litellm.proxy.proxy_server.prisma_client", prisma), \
          patch("litellm.proxy.proxy_server.master_key", "sk-test"), \
          patch("litellm.proxy.proxy_server.general_settings", {}), \
-         patch("litellm.proxy.proxy_server.premium_user", False), \
          patch(
              "litellm.proxy.proxy_server.generate_key_helper_fn",
              new_callable=AsyncMock,

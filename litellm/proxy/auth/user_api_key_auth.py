@@ -657,12 +657,10 @@ async def _user_api_key_auth_builder(  # noqa: PLR0915
                 if not is_jwt_token:
                     # return UserAPIKeyAuth object
                     # helper to check if the api_key is a valid oauth2 token
-                    from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
-                    if premium_user is not True:
                         raise ValueError(
                             "Oauth2 token validation is only available for premium users"
-                            + CommonProxyErrors.not_premium_user.value
                         )
 
                     return await Oauth2Handler.check_oauth2_token(token=api_key)
@@ -671,11 +669,9 @@ async def _user_api_key_auth_builder(  # noqa: PLR0915
             return await handle_oauth2_proxy_request(request=request)
 
         if general_settings.get("enable_jwt_auth", False) is True:
-            from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
-            if premium_user is not True:
                 raise ValueError(
-                    f"JWT Auth is an enterprise only feature. {CommonProxyErrors.not_premium_user.value}"
                 )
             is_jwt = jwt_handler.is_jwt(token=api_key)
             verbose_proxy_logger.debug("is_jwt: %s", is_jwt)

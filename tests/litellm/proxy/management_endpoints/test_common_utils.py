@@ -57,7 +57,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
     """
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
         side_effect=Exception("Should not be called"),
     )
     def test_empty_policies_skips_premium_check(self, mock_check):
@@ -71,7 +70,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_not_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
         side_effect=Exception("Should not be called"),
     )
     def test_empty_guardrails_skips_premium_check(self, mock_check):
@@ -84,7 +82,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_not_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
         side_effect=Exception("Should not be called"),
     )
     def test_empty_string_team_member_key_duration_skips_premium_check(
@@ -99,7 +96,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_not_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
         side_effect=Exception("Should not be called"),
     )
     def test_full_ui_payload_with_empty_premium_fields_skips_premium_check(
@@ -121,7 +117,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_not_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
     )
     def test_non_empty_policies_triggers_premium_check(self, mock_check):
         """policies: ['real-policy'] SHOULD trigger premium user check."""
@@ -133,7 +128,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
     )
     def test_non_empty_guardrails_triggers_premium_check(self, mock_check):
         """guardrails: ['my-guardrail'] SHOULD trigger premium user check."""
@@ -145,7 +139,6 @@ class TestUpdateMetadataFieldsPremiumCheck:
         mock_check.assert_called()
 
     @patch(
-        "litellm.proxy.management_endpoints.common_utils._premium_user_check",
     )
     def test_non_empty_team_member_key_duration_triggers_premium_check(
         self, mock_check

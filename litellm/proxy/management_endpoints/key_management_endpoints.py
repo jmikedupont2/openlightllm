@@ -377,7 +377,6 @@ def common_key_access_checks(
     user_api_key_dict: UserAPIKeyAuth,
     data: Union[GenerateKeyRequest, UpdateKeyRequest],
     llm_router: Optional[Router],
-    premium_user: bool,
     user_id: Optional[str] = None,
 ) -> Literal[True]:
     """
@@ -403,7 +402,6 @@ def common_key_access_checks(
     _check_model_access_group(
         models=data.models,
         llm_router=llm_router,
-        premium_user=premium_user,
     )
     return True
 
@@ -466,7 +464,6 @@ async def _common_key_generation_helper(  # noqa: PLR0915
     from litellm.proxy.proxy_server import (
         litellm_proxy_admin_name,
         llm_router,
-        premium_user,
         prisma_client,
     )
 
@@ -474,7 +471,6 @@ async def _common_key_generation_helper(  # noqa: PLR0915
         user_api_key_dict=user_api_key_dict,
         data=data,
         llm_router=llm_router,
-        premium_user=premium_user,
     )
 
     if (
@@ -627,11 +623,9 @@ async def _common_key_generation_helper(  # noqa: PLR0915
 
     # Set tags on the new key
     if "tags" in data_json:
-        from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
-        if premium_user is not True and data_json["tags"] is not None:
             raise ValueError(
-                f"Only premium users can add tags to keys. {CommonProxyErrors.not_premium_user.value}"
             )
 
         _metadata = data_json.get("metadata")
@@ -1139,7 +1133,6 @@ async def generate_key_fn(
     - soft_budget: Optional[float] - Specify soft budget for a given key. Will trigger a slack alert when this soft budget is reached.
     - tags: Optional[List[str]] - Tags for [tracking spend](https://litellm.vercel.app/docs/proxy/enterprise#tracking-spend-for-custom-tags) and/or doing [tag-based routing](https://litellm.vercel.app/docs/proxy/tag_routing).
     - prompts: Optional[List[str]] - List of prompts that the key is allowed to use.
-    - enforced_params: Optional[List[str]] - List of enforced params for the key (Enterprise only). [Docs](https://docs.litellm.ai/docs/proxy/enterprise#enforce-required-params-for-llm-requests)
     - prompts: Optional[List[str]] - List of prompts that the key is allowed to use.
     - allowed_routes: Optional[list] - List of allowed routes for the key. Store the actual route or store a wildcard pattern for a set of routes. Example - ["/chat/completions", "/embeddings", "/keys/*"]
     - allowed_passthrough_routes: Optional[list] - List of allowed pass through endpoints for the key. Store the actual endpoint or store a wildcard pattern for a set of endpoints. Example - ["/my-custom-endpoint"]. Use this instead of allowed_routes, if you just want to specify which pass through endpoints the key can access, without specifying the routes. If allowed_routes is specified, allowed_pass_through_endpoints is ignored.
@@ -1319,7 +1312,6 @@ async def generate_service_account_key_fn(
     - tpm_limit: Optional[int] - Specify tpm limit for a given key (Tokens per minute)
     - soft_budget: Optional[float] - Specify soft budget for a given key. Will trigger a slack alert when this soft budget is reached.
     - tags: Optional[List[str]] - Tags for [tracking spend](https://litellm.vercel.app/docs/proxy/enterprise#tracking-spend-for-custom-tags) and/or doing [tag-based routing](https://litellm.vercel.app/docs/proxy/tag_routing).
-    - enforced_params: Optional[List[str]] - List of enforced params for the key (Enterprise only). [Docs](https://docs.litellm.ai/docs/proxy/enterprise#enforce-required-params-for-llm-requests)
     - allowed_routes: Optional[list] - List of allowed routes for the key. Store the actual route or store a wildcard pattern for a set of routes. Example - ["/chat/completions", "/embeddings", "/keys/*"]
     - object_permission: Optional[LiteLLM_ObjectPermissionBase] - key-specific object permission. Example - {"vector_stores": ["vector_store_1", "vector_store_2"], "agents": ["agent_1", "agent_2"], "agent_access_groups": ["dev_group"]}. IF null or {} then no object permission.
     Examples:
@@ -1433,9 +1425,8 @@ def prepare_metadata_fields(
                 else:
                     casted_metadata[k] = v
             if k in LiteLLM_ManagementEndpoint_MetadataFields_Premium:
-                from litellm.proxy.utils import _premium_user_check
+# REMOVED: from litellm.proxy.utils import _premium_user_check
 
-                _premium_user_check(k)
                 casted_metadata[k] = v
 
     except Exception as e:
@@ -1804,7 +1795,6 @@ async def _validate_update_key_data(
     existing_key_row: Any,
     user_api_key_dict: UserAPIKeyAuth,
     llm_router: Any,
-    premium_user: bool,
     prisma_client: Any,
     user_api_key_cache: Any,
 ) -> None:
@@ -1825,7 +1815,6 @@ async def _validate_update_key_data(
         data=data,
         user_id=existing_key_row.user_id,
         llm_router=llm_router,
-        premium_user=premium_user,
     )
 
     await TeamMemberPermissionChecks.can_team_member_execute_key_management_endpoint(
@@ -1953,9 +1942,7 @@ async def update_key_fn(
     - organization_id: Optional[str] - The organization id of the key.
     - budget_id: Optional[str] - The budget id associated with the key. Created by calling `/budget/new`.
     - models: Optional[list] - Model_name's a user is allowed to call
-    - tags: Optional[List[str]] - Tags for organizing keys (Enterprise only)
     - prompts: Optional[List[str]] - List of prompts that the key is allowed to use.
-    - enforced_params: Optional[List[str]] - List of enforced params for the key (Enterprise only). [Docs](https://docs.litellm.ai/docs/proxy/enterprise#enforce-required-params-for-llm-requests)
     - spend: Optional[float] - Amount spent by key
     - max_budget: Optional[float] - Max budget for key
     - model_max_budget: Optional[Dict[str, BudgetConfig]] - Model-specific budgets {"gpt-4": {"budget_limit": 0.0005, "time_period": "30d"}}
@@ -1980,8 +1967,6 @@ async def update_key_fn(
     - blocked: Optional[bool] - Whether the key is blocked
     - aliases: Optional[dict] - Model aliases for the key - [Docs](https://litellm.vercel.app/docs/proxy/virtual_keys#model-aliases)
     - config: Optional[dict] - [DEPRECATED PARAM] Key-specific config.
-    - temp_budget_increase: Optional[float] - Temporary budget increase for the key (Enterprise only).
-    - temp_budget_expiry: Optional[str] - Expiry time for the temporary budget increase (Enterprise only).
     - allowed_routes: Optional[list] - List of allowed routes for the key. Store the actual route or store a wildcard pattern for a set of routes. Example - ["/chat/completions", "/embeddings", "/keys/*"]
     - allowed_passthrough_routes: Optional[list] - List of allowed pass through routes for the key. Store the actual route or store a wildcard pattern for a set of routes. Example - ["/my-custom-endpoint"]. Use this instead of allowed_routes, if you just want to specify which pass through routes the key can access, without specifying the routes. If allowed_routes is specified, allowed_passthrough_routes is ignored.
     - prompts: Optional[List[str]] - List of allowed prompts for the key. If specified, the key will only be able to use these specific prompts.
@@ -2009,7 +1994,6 @@ async def update_key_fn(
     """
     from litellm.proxy.proxy_server import (
         llm_router,
-        premium_user,
         prisma_client,
         proxy_logging_obj,
         user_api_key_cache,
@@ -2047,7 +2031,6 @@ async def update_key_fn(
             existing_key_row=existing_key_row,
             user_api_key_dict=user_api_key_dict,
             llm_router=llm_router,
-            premium_user=premium_user,
             prisma_client=prisma_client,
             user_api_key_cache=user_api_key_cache,
         )
@@ -2617,7 +2600,6 @@ async def info_key_fn(
 
 
 def _check_model_access_group(
-    models: Optional[List[str]], llm_router: Optional[Router], premium_user: bool
 ) -> Literal[True]:
     """
     if is_model_access_group is True + is_wildcard_route is True, check if user is a premium user
@@ -2631,12 +2613,10 @@ def _check_model_access_group(
         if llm_router._is_model_access_group_for_wildcard_route(
             model_access_group=model
         ):
-            if not premium_user:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail={
                         "error": "Setting a model access group on a wildcard model is only available for LiteLLM Enterprise users.{}".format(
-                            CommonProxyErrors.not_premium_user.value
                         )
                     },
                 )
@@ -2705,7 +2685,7 @@ async def generate_key_helper_fn(  # noqa: PLR0915
     router_settings: Optional[dict] = None,
     access_group_ids: Optional[list] = None,
 ):
-    from litellm.proxy.proxy_server import premium_user, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import premium_user, prisma_client
 
     if prisma_client is None:
         raise Exception(
@@ -2848,7 +2828,6 @@ async def generate_key_helper_fn(  # noqa: PLR0915
         if isinstance(saved_token["permissions"], str):
             if (
                 "get_spend_routes" in saved_token["permissions"]
-                and premium_user is not True
             ):
                 raise ValueError(
                     "get_spend_routes permission is only available for LiteLLM Enterprise users"
@@ -3589,7 +3568,6 @@ async def regenerate_key_fn(  # noqa: PLR0915
         - user_id: Optional[str] - User ID associated with key
         - team_id: Optional[str] - Team ID associated with key
         - models: Optional[list] - Model_name's a user is allowed to call
-        - tags: Optional[List[str]] - Tags for organizing keys (Enterprise only)
         - spend: Optional[float] - Amount spent by key
         - max_budget: Optional[float] - Max budget for key
         - model_max_budget: Optional[Dict[str, BudgetConfig]] - Model-specific budgets {"gpt-4": {"budget_limit": 0.0005, "time_period": "30d"}}
@@ -3624,13 +3602,11 @@ async def regenerate_key_fn(  # noqa: PLR0915
     }'
     ```
 
-    Note: This is an Enterprise feature. It requires a premium license to use.
     """
     try:
         from litellm.proxy.proxy_server import (
             hash_token,
             master_key,
-            premium_user,
             prisma_client,
             proxy_logging_obj,
             user_api_key_cache,
@@ -3639,10 +3615,8 @@ async def regenerate_key_fn(  # noqa: PLR0915
         is_master_key_regeneration = data and data.new_master_key is not None
 
         if (
-            premium_user is not True and not is_master_key_regeneration
         ):  # allow master key regeneration for non-premium users
             raise ValueError(
-                f"Regenerating Virtual Keys is an Enterprise feature, {CommonProxyErrors.not_premium_user.value}"
             )
 
         # Check if key exists, raise exception if key is not in the DB
@@ -5236,11 +5210,9 @@ def validate_model_max_budget(model_max_budget: Optional[Dict]) -> None:
         if len(model_max_budget) == 0:
             return
         if model_max_budget is not None:
-            from litellm.proxy.proxy_server import CommonProxyErrors, premium_user
+# REMOVED: from litellm.proxy.proxy_server import CommonProxyErrors, premium_user
 
-            if premium_user is not True:
                 raise ValueError(
-                    f"You must have an enterprise license to set model_max_budget. {CommonProxyErrors.not_premium_user.value}"
                 )
             for _model, _budget_info in model_max_budget.items():
                 assert isinstance(_model, str)

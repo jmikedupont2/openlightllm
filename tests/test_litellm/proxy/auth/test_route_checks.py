@@ -1042,7 +1042,6 @@ class TestModelsRouteExemptFromDisableLLMEndpoints:
         spec.loader.exec_module(mod)
         return mod.EnterpriseRouteChecks
 
-    @patch("litellm.proxy.proxy_server.premium_user", True)
     def test_should_models_route_allowed_when_llm_api_disabled(self):
         """Test that /models is allowed even when LLM API routes are disabled"""
         EnterpriseRouteChecks = self._get_enterprise_route_checks()
@@ -1055,7 +1054,6 @@ class TestModelsRouteExemptFromDisableLLMEndpoints:
             # /models should NOT raise - it's exempt
             EnterpriseRouteChecks.should_call_route("/models")
 
-    @patch("litellm.proxy.proxy_server.premium_user", True)
     def test_should_v1_models_route_allowed_when_llm_api_disabled(self):
         """Test that /v1/models is allowed even when LLM API routes are disabled"""
         EnterpriseRouteChecks = self._get_enterprise_route_checks()
@@ -1068,7 +1066,6 @@ class TestModelsRouteExemptFromDisableLLMEndpoints:
             # /v1/models should NOT raise - it's exempt
             EnterpriseRouteChecks.should_call_route("/v1/models")
 
-    @patch("litellm.proxy.proxy_server.premium_user", True)
     def test_should_chat_completions_still_blocked_when_llm_api_disabled(self):
         """Test that non-exempt LLM routes like /v1/chat/completions are still blocked"""
         EnterpriseRouteChecks = self._get_enterprise_route_checks()
@@ -1086,7 +1083,6 @@ class TestModelsRouteExemptFromDisableLLMEndpoints:
                 exc_info.value.detail
             )
 
-    @patch("litellm.proxy.proxy_server.premium_user", True)
     def test_should_embeddings_still_blocked_when_llm_api_disabled(self):
         """Test that /v1/embeddings is still blocked when LLM API routes are disabled"""
         EnterpriseRouteChecks = self._get_enterprise_route_checks()
@@ -1101,7 +1097,6 @@ class TestModelsRouteExemptFromDisableLLMEndpoints:
 
             assert exc_info.value.status_code == 403
 
-    @patch("litellm.proxy.proxy_server.premium_user", True)
     def test_should_models_route_allowed_when_llm_api_not_disabled(self):
         """Test that /models works normally when LLM API routes are not disabled"""
         EnterpriseRouteChecks = self._get_enterprise_route_checks()
@@ -1126,7 +1121,6 @@ def test_route_in_additional_public_routes_wildcard_match():
         patch(
             "litellm.proxy.proxy_server.general_settings", {"public_routes": ["/api/*"]}
         ),
-        patch("litellm.proxy.proxy_server.premium_user", True),
     ):
         # Wildcard should match subpaths
         assert route_in_additonal_public_routes("/api/users") is True
@@ -1146,7 +1140,6 @@ def test_route_in_additional_public_routes_exact_match():
             "litellm.proxy.proxy_server.general_settings",
             {"public_routes": ["/health", "/status"]},
         ),
-        patch("litellm.proxy.proxy_server.premium_user", True),
     ):
         # Exact matches should work
         assert route_in_additonal_public_routes("/health") is True

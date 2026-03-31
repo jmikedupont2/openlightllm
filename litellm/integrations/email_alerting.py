@@ -83,7 +83,6 @@ async def send_team_budget_alert(webhook_event: WebhookEvent) -> bool:
     email_support_contact = os.getenv("EMAIL_SUPPORT_CONTACT", None)
 
     # await self._check_if_using_premium_email_feature(
-    #     premium_user, email_logo_url, email_support_contact
     # )
 
     if email_logo_url is None:

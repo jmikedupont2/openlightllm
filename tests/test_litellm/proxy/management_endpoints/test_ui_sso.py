@@ -1777,7 +1777,6 @@ class TestCustomUISSO:
         mock_request.base_url = "https://test.example.com/"
 
         # Mock user_custom_ui_sso_sign_in_handler to exist but make enterprise import fail
-        with patch("litellm.proxy.proxy_server.premium_user", True):
             with patch(
                 "litellm.proxy.proxy_server.user_custom_ui_sso_sign_in_handler",
                 MagicMock(),
@@ -1848,7 +1847,6 @@ class TestCustomUISSO:
         mock_redirect_response = MagicMock()
         mock_redirect_response.status_code = 303
 
-        with patch("litellm.proxy.proxy_server.premium_user", True):
             with patch(
                 "litellm.proxy.proxy_server.user_custom_ui_sso_sign_in_handler",
                 mock_custom_handler,
@@ -1938,7 +1936,6 @@ class TestCustomUISSO:
         mock_redirect_response = MagicMock()
         mock_redirect_response.status_code = 303
 
-        with patch("litellm.proxy.proxy_server.premium_user", True):
             with patch(
                 "litellm.proxy.proxy_server.user_custom_ui_sso_sign_in_handler",
                 test_handler_instance,

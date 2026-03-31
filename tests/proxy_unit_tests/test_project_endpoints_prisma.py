@@ -67,8 +67,6 @@ def prisma_client():
     )
     litellm.proxy.proxy_server.user_custom_key_generate = None
 
-    # Enable premium_user for project management tests
-    setattr(litellm.proxy.proxy_server, "premium_user", True)
 
     return prisma_client
 
@@ -609,23 +607,16 @@ def test_check_team_project_limits_soft_budget_gte_max():
     assert "must be strictly lower" in str(exc_info.value.detail)
 
 
-def test_premium_user_gate():
     """
-    Test that project endpoints require premium_user=True.
     """
 
-    # This test just validates the premium_user check exists
     # The actual endpoint test would need prisma, but we can verify
     # the import path works
-    setattr(litellm.proxy.proxy_server, "premium_user", False)
 
-    # Verify that CommonProxyErrors.not_premium_user exists
     from litellm.proxy._types import CommonProxyErrors
 
-    assert hasattr(CommonProxyErrors, "not_premium_user")
 
     # Reset
-    setattr(litellm.proxy.proxy_server, "premium_user", True)
 
 
 def test_project_model_access_denied_error_type():

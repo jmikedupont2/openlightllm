@@ -1013,7 +1013,6 @@ async def test_generate_service_account_works_with_team_id():
     # Mock the database and router dependencies from proxy_server
     with patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma, patch(
         "litellm.proxy.proxy_server.llm_router"
-    ) as mock_router, patch("litellm.proxy.proxy_server.premium_user", False), patch(
         "litellm.proxy.management_endpoints.key_management_endpoints.generate_key_helper_fn"
     ) as mock_generate_key:
 
@@ -2455,7 +2454,6 @@ async def test_generate_key_with_object_permission():
         "litellm.proxy.proxy_server.prisma_client",
         mock_prisma_client,
     ), patch("litellm.proxy.proxy_server.llm_router", None), patch(
-        "litellm.proxy.proxy_server.premium_user",
         False,
     ), patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name",
@@ -5878,7 +5876,6 @@ async def test_key_with_budget_id_does_not_store_budget_duration():
     ), patch(
         "litellm.proxy.proxy_server.llm_router", None
     ), patch(
-        "litellm.proxy.proxy_server.premium_user", False
     ), patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(
@@ -5944,7 +5941,6 @@ async def test_key_does_not_override_explicit_budget_duration():
     ), patch(
         "litellm.proxy.proxy_server.llm_router", None
     ), patch(
-        "litellm.proxy.proxy_server.premium_user", False
     ), patch(
         "litellm.proxy.proxy_server.litellm_proxy_admin_name", "admin"
     ), patch(

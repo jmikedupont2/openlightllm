@@ -15,7 +15,7 @@ from litellm.proxy._types import (
     UpdateProjectRequest,
     UserAPIKeyAuth,
 )
-from litellm.proxy.utils import _premium_user_check
+# REMOVED: from litellm.proxy.utils import _premium_user_check
 
 if TYPE_CHECKING:
     from litellm.proxy._types import NewProjectRequest, UpdateProjectRequest
@@ -338,7 +338,6 @@ def _set_object_metadata_field(
         value: Value to set for the field
     """
     if field_name in LiteLLM_ManagementEndpoint_MetadataFields_Premium:
-        _premium_user_check(field_name)
 
     object_data.metadata = object_data.metadata or {}
     object_data.metadata[field_name] = value
@@ -435,7 +434,6 @@ def _update_metadata_field(updated_kv: dict, field_name: str) -> None:
         # proceed with the update so that users can intentionally clear a
         # previously-set field by sending an empty list/dict.
         if value is not None and value != [] and value != {}:
-            _premium_user_check()
 
     if field_name in updated_kv and updated_kv[field_name] is not None:
         # remove field from updated_kv

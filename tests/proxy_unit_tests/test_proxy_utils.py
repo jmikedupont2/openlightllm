@@ -936,14 +936,12 @@ def test_enforced_params_check(
                 request_body=request_body,
                 general_settings=general_settings,
                 user_api_key_dict=user_api_key_dict,
-                premium_user=True,
             )
     else:
         _enforced_params_check(
             request_body=request_body,
             general_settings=general_settings,
             user_api_key_dict=user_api_key_dict,
-            premium_user=True,
         )
 
 

@@ -568,7 +568,6 @@ class TestJWTOAuth2Coexistence:
         mock_request.query_params = {}
 
         with patch("litellm.proxy.proxy_server.general_settings", general_settings), \
-             patch("litellm.proxy.proxy_server.premium_user", True), \
              patch("litellm.proxy.proxy_server.master_key", "sk-master"), \
              patch("litellm.proxy.proxy_server.prisma_client", None), \
              patch("litellm.proxy.auth.user_api_key_auth.Oauth2Handler.check_oauth2_token", new_callable=AsyncMock, return_value=mock_oauth2_response) as mock_oauth2, \
@@ -625,7 +624,6 @@ class TestJWTOAuth2Coexistence:
         mock_request.query_params = {}
 
         with patch("litellm.proxy.proxy_server.general_settings", general_settings), \
-             patch("litellm.proxy.proxy_server.premium_user", True), \
              patch("litellm.proxy.proxy_server.master_key", "sk-master"), \
              patch("litellm.proxy.proxy_server.prisma_client", None), \
              patch("litellm.proxy.auth.user_api_key_auth.Oauth2Handler.check_oauth2_token", new_callable=AsyncMock) as mock_oauth2, \
@@ -672,7 +670,6 @@ class TestJWTOAuth2Coexistence:
         mock_request.query_params = {}
 
         with patch("litellm.proxy.proxy_server.general_settings", general_settings), \
-             patch("litellm.proxy.proxy_server.premium_user", True), \
              patch("litellm.proxy.proxy_server.master_key", "sk-master"), \
              patch("litellm.proxy.proxy_server.prisma_client", None), \
              patch("litellm.proxy.auth.user_api_key_auth.Oauth2Handler.check_oauth2_token", new_callable=AsyncMock, return_value=mock_oauth2_response) as mock_oauth2:

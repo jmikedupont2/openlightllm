@@ -55,13 +55,11 @@ import json
 
 
 @pytest.mark.asyncio
-async def test_create_audit_log_for_update_premium_user():
     """
     Basic unit test for create_audit_log_for_update
 
     Test that the audit log is created when a premium user updates a team
     """
-    with patch("litellm.proxy.proxy_server.premium_user", True), patch(
         "litellm.store_audit_logs", True
     ), patch("litellm.proxy.proxy_server.prisma_client") as mock_prisma:
 
@@ -119,7 +117,6 @@ async def test_create_audit_log_in_db(prisma_client):
 
     setattr(litellm.proxy.proxy_server, "prisma_client", prisma_client)
     setattr(litellm.proxy.proxy_server, "master_key", "sk-1234")
-    setattr(litellm.proxy.proxy_server, "premium_user", True)
     setattr(litellm, "store_audit_logs", True)
 
     await litellm.proxy.proxy_server.prisma_client.connect()

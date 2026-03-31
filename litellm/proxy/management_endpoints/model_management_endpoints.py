@@ -172,7 +172,6 @@ async def patch_model(
     from litellm.proxy.proxy_server import (
         litellm_proxy_admin_name,
         llm_router,
-        premium_user,
         prisma_client,
         store_model_in_db,
     )
@@ -216,7 +215,6 @@ async def patch_model(
             model_params=db_model,
             user_api_key_dict=user_api_key_dict,
             prisma_client=prisma_client,
-            premium_user=premium_user,
         )
 
         # Handle team model updates with proper alias management
@@ -372,13 +370,12 @@ async def _update_team_model_in_db(
     - Preserves team_public_model_name for external reference
     """
     # Validate team_id if present in patch_data
-    from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
     await ModelManagementAuthChecks.allow_team_model_action(
         model_params=patch_data,
         user_api_key_dict=user_api_key_dict,
         prisma_client=prisma_client,
-        premium_user=premium_user,
     )
 
     patch_team_id = patch_data.model_info.team_id if patch_data.model_info else None
@@ -566,12 +563,9 @@ class ModelManagementAuthChecks:
         team_id: str,
         user_api_key_dict: UserAPIKeyAuth,
         team_obj: Optional[LiteLLM_TeamTable] = None,
-        premium_user: bool = False,
     ) -> Literal[True]:
-        if premium_user is False:
             raise HTTPException(
                 status_code=403,
-                detail={"error": CommonProxyErrors.not_premium_user.value},
             )
         if (
             user_api_key_dict.user_role
@@ -596,14 +590,11 @@ class ModelManagementAuthChecks:
         model_params: Union[Deployment, updateDeployment],
         user_api_key_dict: UserAPIKeyAuth,
         prisma_client: PrismaClient,
-        premium_user: bool,
     ) -> Literal[True]:
         if model_params.model_info is None or model_params.model_info.team_id is None:
             return True
-        if model_params.model_info.team_id is not None and premium_user is not True:
             raise HTTPException(
                 status_code=403,
-                detail={"error": CommonProxyErrors.not_premium_user.value},
             )
 
         _existing_team_row = await prisma_client.db.litellm_teamtable.find_unique(
@@ -625,7 +616,6 @@ class ModelManagementAuthChecks:
             team_id=model_params.model_info.team_id,
             user_api_key_dict=user_api_key_dict,
             team_obj=existing_team_row,
-            premium_user=premium_user,
         )
         return True
 
@@ -634,7 +624,6 @@ class ModelManagementAuthChecks:
         model_params: Deployment,
         user_api_key_dict: UserAPIKeyAuth,
         prisma_client: PrismaClient,
-        premium_user: bool,
     ) -> Literal[True]:
         ## Check team model auth
         if (
@@ -659,7 +648,6 @@ class ModelManagementAuthChecks:
                 team_id=model_params.model_info.team_id,
                 user_api_key_dict=user_api_key_dict,
                 team_obj=team_obj,
-                premium_user=premium_user,
             )
         ## Check non-team model auth
         elif user_api_key_dict.user_role != LitellmUserRoles.PROXY_ADMIN:
@@ -700,7 +688,6 @@ async def delete_model(
 
         from litellm.proxy.proxy_server import (
             llm_router,
-            premium_user,
             prisma_client,
             store_model_in_db,
         )
@@ -727,7 +714,6 @@ async def delete_model(
             model_params=model_params,
             user_api_key_dict=user_api_key_dict,
             prisma_client=prisma_client,
-            premium_user=premium_user,
         )
 
         # delete team model alias
@@ -909,7 +895,6 @@ async def add_new_model(
     """
     from litellm.proxy.proxy_server import (
         general_settings,
-        premium_user,
         prisma_client,
         proxy_config,
         proxy_logging_obj,
@@ -930,7 +915,6 @@ async def add_new_model(
             model_params=model_params,
             user_api_key_dict=user_api_key_dict,
             prisma_client=prisma_client,
-            premium_user=premium_user,
         )
 
         model_response: Optional[LiteLLM_ProxyModelTable] = None
@@ -1048,7 +1032,6 @@ async def update_model(
     from litellm.proxy.proxy_server import (
         LITELLM_PROXY_ADMIN_NAME,
         llm_router,
-        premium_user,
         prisma_client,
         store_model_in_db,
     )
@@ -1096,7 +1079,6 @@ async def update_model(
             model_params=deployment,
             user_api_key_dict=user_api_key_dict,
             prisma_client=prisma_client,
-            premium_user=premium_user,
         )
 
         # update DB

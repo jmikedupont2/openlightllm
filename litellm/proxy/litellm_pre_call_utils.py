@@ -894,7 +894,7 @@ async def add_litellm_data_to_request(  # noqa: PLR0915
 
     """
 
-    from litellm.proxy.proxy_server import llm_router, premium_user
+# REMOVED: from litellm.proxy.proxy_server import llm_router, premium_user
     from litellm.types.proxy.litellm_pre_call_utils import RedactedDict, SecretFields
 
     _raw_headers: Dict[str, str] = RedactedDict(_safe_get_request_headers(request))
@@ -1171,7 +1171,6 @@ async def add_litellm_data_to_request(  # noqa: PLR0915
     if user_api_key_dict.allowed_model_region is not None:
         data["allowed_model_region"] = user_api_key_dict.allowed_model_region
     start_time = time.time()
-    ## [Enterprise Only]
     # Add User-IP Address
     requester_ip_address = ""
     if True:  # Always set the IP Address if available
@@ -1267,7 +1266,6 @@ async def add_litellm_data_to_request(  # noqa: PLR0915
         request_body=data,
         general_settings=general_settings,
         user_api_key_dict=user_api_key_dict,
-        premium_user=premium_user,
     )
 
     end_time = time.time()
@@ -1423,7 +1421,6 @@ def _enforced_params_check(
     request_body: dict,
     general_settings: Optional[dict],
     user_api_key_dict: UserAPIKeyAuth,
-    premium_user: bool,
 ) -> bool:
     """
     If enforced params are set, check if the request body contains the enforced params.
@@ -1433,9 +1430,7 @@ def _enforced_params_check(
     )
     if enforced_params is None:
         return True
-    if enforced_params and premium_user is not True:
         raise ValueError(
-            f"Enforced Params is an Enterprise feature. Enforced Params: {enforced_params}. {CommonProxyErrors.not_premium_user.value}"
         )
 
     for enforced_param in enforced_params:
@@ -1476,7 +1471,7 @@ def _add_guardrails_from_key_or_team_metadata(
         metadata_variable_name: The name of the metadata field in data
 
     """
-    from litellm.proxy.utils import _premium_user_check
+# REMOVED: from litellm.proxy.utils import _premium_user_check
 
     # Initialize guardrails set (avoiding duplicates)
     combined_guardrails = set()
@@ -1487,7 +1482,6 @@ def _add_guardrails_from_key_or_team_metadata(
             isinstance(key_metadata["guardrails"], list)
             and len(key_metadata["guardrails"]) > 0
         ):
-            _premium_user_check()
             combined_guardrails.update(key_metadata["guardrails"])
 
     # Add team-level guardrails (set automatically handles duplicates)
@@ -1496,7 +1490,6 @@ def _add_guardrails_from_key_or_team_metadata(
             isinstance(team_metadata["guardrails"], list)
             and len(team_metadata["guardrails"]) > 0
         ):
-            _premium_user_check()
             combined_guardrails.update(team_metadata["guardrails"])
 
     # Set combined guardrails in metadata as list
@@ -1527,7 +1520,7 @@ def _add_guardrails_from_policies_in_metadata(
     from litellm._logging import verbose_proxy_logger
     from litellm.proxy.policy_engine.policy_registry import get_policy_registry
     from litellm.proxy.policy_engine.policy_resolver import PolicyResolver
-    from litellm.proxy.utils import _premium_user_check
+# REMOVED: from litellm.proxy.utils import _premium_user_check
     from litellm.types.proxy.policy_engine import PolicyMatchContext
 
     # Collect policy names from key and team metadata
@@ -1539,7 +1532,6 @@ def _add_guardrails_from_policies_in_metadata(
             isinstance(key_metadata["policies"], list)
             and len(key_metadata["policies"]) > 0
         ):
-            _premium_user_check()
             policy_names.update(key_metadata["policies"])
 
     # Add team-level policies
@@ -1548,7 +1540,6 @@ def _add_guardrails_from_policies_in_metadata(
             isinstance(team_metadata["policies"], list)
             and len(team_metadata["policies"]) > 0
         ):
-            _premium_user_check()
             policy_names.update(team_metadata["policies"])
 
     if not policy_names:

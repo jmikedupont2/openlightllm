@@ -148,7 +148,6 @@ class TestModelManagementAuthChecks:
     async def test_can_user_make_team_model_call_admin_success(self):
         """Test that admin users can make team model calls"""
         result = ModelManagementAuthChecks.can_user_make_team_model_call(
-            team_id="test_team", user_api_key_dict=self.admin_user, premium_user=True
         )
         assert result is True
 
@@ -159,7 +158,6 @@ class TestModelManagementAuthChecks:
             ModelManagementAuthChecks.can_user_make_team_model_call(
                 team_id="test_team",
                 user_api_key_dict=self.admin_user,
-                premium_user=False,
             )
         assert "403" in str(exc_info.value)
 
@@ -178,7 +176,6 @@ class TestModelManagementAuthChecks:
             team_id="test_team",
             user_api_key_dict=self.team_admin_user,
             team_obj=team_obj,
-            premium_user=True,
         )
         assert result is True
 
@@ -196,7 +193,6 @@ class TestModelManagementAuthChecks:
             model_params=model_params,
             user_api_key_dict=self.admin_user,
             prisma_client=prisma_client,
-            premium_user=True,
         )
         assert result is True
 
@@ -215,7 +211,6 @@ class TestModelManagementAuthChecks:
                 model_params=model_params,
                 user_api_key_dict=self.admin_user,
                 prisma_client=prisma_client,
-                premium_user=False,
             )
         assert "403" in str(exc_info.value)
 
@@ -236,7 +231,6 @@ class TestModelManagementAuthChecks:
                 model_params=model_params,
                 user_api_key_dict=self.admin_user,
                 prisma_client=prisma_client,
-                premium_user=True,
             )
         assert "400" in str(exc_info.value)
 
@@ -256,7 +250,6 @@ class TestModelManagementAuthChecks:
             model_params=model_params,
             user_api_key_dict=self.admin_user,
             prisma_client=prisma_client,
-            premium_user=True,
         )
         assert result is True
 
@@ -277,7 +270,6 @@ class TestModelManagementAuthChecks:
                 model_params=model_params,
                 user_api_key_dict=self.normal_user,
                 prisma_client=prisma_client,
-                premium_user=True,
             )
         assert "403" in str(exc_info.value)
 
@@ -798,7 +790,6 @@ class TestTeamModelUpdate:
         prisma_client = MockPrismaClient(team_exists=True)
 
         with patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ), patch(
             "litellm.proxy.management_endpoints.model_management_endpoints.team_model_add"
@@ -1030,7 +1021,6 @@ class TestTeamModelUpdate:
         prisma_client = MockPrismaClient(team_exists=True, user_admin=False)
 
         with patch(
-            "litellm.proxy.proxy_server.premium_user",
             True,
         ):
             with pytest.raises(Exception) as exc_info:

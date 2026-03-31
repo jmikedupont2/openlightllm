@@ -57,15 +57,8 @@ class AWSKeyManagementService_V2:
             raise ValueError("Missing required environment variable - AWS_REGION_NAME")
 
         ## CHECK IF LICENSE IN ENV ## - premium feature
-        is_litellm_license_in_env: bool = False
 
-        if os.getenv("LITELLM_LICENSE", None) is not None:
-            is_litellm_license_in_env = True
-        elif os.getenv("LITELLM_SECRET_AWS_KMS_LITELLM_LICENSE", None) is not None:
-            is_litellm_license_in_env = True
-        if is_litellm_license_in_env is False:
             raise ValueError(
-                "AWSKeyManagementService V2 is an Enterprise Feature. Please add a valid LITELLM_LICENSE to your envionment."
             )
 
     def load_aws_kms(self, use_aws_kms: Optional[bool]):

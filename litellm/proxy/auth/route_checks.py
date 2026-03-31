@@ -261,12 +261,10 @@ class RouteChecks:
 
     @staticmethod
     def custom_admin_only_route_check(route: str):
-        from litellm.proxy.proxy_server import general_settings, premium_user
+# REMOVED: from litellm.proxy.proxy_server import general_settings, premium_user
 
         if "admin_only_routes" in general_settings:
-            if premium_user is not True:
                 verbose_proxy_logger.error(
-                    f"Trying to use 'admin_only_routes' this is an Enterprise only feature. {CommonProxyErrors.not_premium_user.value}"
                 )
                 return
             if route in general_settings["admin_only_routes"]:

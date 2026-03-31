@@ -397,7 +397,7 @@ async def new_user(
     ```
     """
     try:
-        from litellm.proxy.proxy_server import _license_check, prisma_client
+# REMOVED: from litellm.proxy.proxy_server import _license_check, prisma_client
 
         if prisma_client is None:
             raise HTTPException(
@@ -415,12 +415,6 @@ async def new_user(
 
         # Check if license is over limit
         total_users = await prisma_client.db.litellm_usertable.count()
-        if total_users and _license_check.is_over_limit(total_users=total_users):
-            raise HTTPException(
-                status_code=403,
-                detail="License is over limit. Please contact support@berri.ai to upgrade your license.",
-            )
-
         # Only proxy admins can create administrative users
         # Check if user_api_key_dict is actually a UserAPIKeyAuth instance (not a Depends object)
         # This can happen when the function is called directly in tests

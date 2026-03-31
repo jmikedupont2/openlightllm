@@ -25,7 +25,7 @@ else:
 
 class GCSBucketLogger(GCSBucketBase, AdditionalLoggingUtils):
     def __init__(self, bucket_name: Optional[str] = None) -> None:
-        from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
         super().__init__(bucket_name=bucket_name)
 
@@ -51,18 +51,14 @@ class GCSBucketLogger(GCSBucketBase, AdditionalLoggingUtils):
         asyncio.create_task(self.periodic_flush())
         AdditionalLoggingUtils.__init__(self)
 
-        if premium_user is not True:
             raise ValueError(
-                f"GCS Bucket logging is a premium feature. Please upgrade to use it. {CommonProxyErrors.not_premium_user.value}"
             )
 
     #### ASYNC ####
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
-        from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
-        if premium_user is not True:
             raise ValueError(
-                f"GCS Bucket logging is a premium feature. Please upgrade to use it. {CommonProxyErrors.not_premium_user.value}"
             )
         try:
             verbose_logger.debug(

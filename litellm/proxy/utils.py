@@ -312,7 +312,6 @@ class ProxyLogging:
     def __init__(
         self,
         user_api_key_cache: DualCache,
-        premium_user: bool = False,
     ):
         ## INITIALIZE  LITELLM CALLBACKS ##
         self.call_details: dict = {}
@@ -342,7 +341,6 @@ class ProxyLogging:
                 self.email_logging_instance = email_logger_class(
                     internal_usage_cache=self.internal_usage_cache.dual_cache,  # type: ignore[call-arg]
                 )
-        self.premium_user = premium_user
         self.service_logging_obj = ServiceLogging()
         self.db_spend_update_writer = DBSpendUpdateWriter()
         self.proxy_hook_mapping: Dict[str, CustomLogger] = {}
@@ -5123,18 +5121,14 @@ def handle_exception_on_proxy(e: Exception) -> ProxyException:
     )
 
 
-def _premium_user_check(feature: Optional[str] = None):
     """
     Raises an HTTPException if the user is not a premium user
     """
-    from litellm.proxy.proxy_server import premium_user
+# REMOVED: from litellm.proxy.proxy_server import premium_user
 
     if feature:
-        detail_msg = f"This feature is only available for LiteLLM Enterprise users: {feature}. {CommonProxyErrors.not_premium_user.value}"
     else:
-        detail_msg = f"This feature is only available for LiteLLM Enterprise users. {CommonProxyErrors.not_premium_user.value}"
 
-    if not premium_user:
         raise HTTPException(
             status_code=403,
             detail={"error": detail_msg},

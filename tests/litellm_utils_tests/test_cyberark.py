@@ -47,7 +47,6 @@ async def test_cyberark_write_and_read_secret():
     """
     Test writing a secret to CyberArk Conjur and reading it back using mocked HTTP requests.
     """
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         # Generate unique secret name and value
         secret_name = f"test-secret-{uuid.uuid4()}"
         secret_value = f"test-value-{uuid.uuid4()}"
@@ -109,7 +108,6 @@ async def test_cyberark_rotate_secret():
     2. Rotate to new value (like sk-12359)
     3. Verify reading the secret returns the NEW value
     """
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         # Simulate initial virtual key creation
         secret_alias = f"test-rotation-key-{uuid.uuid4()}"
         initial_key_value = f"sk-initial-{uuid.uuid4()}"
@@ -214,7 +212,6 @@ async def test_cyberark_rotate_secret_with_new_alias():
     3. Verify alias-v2 has the new value
     4. Verify alias-v1 still exists with old value (CyberArk doesn't delete)
     """
-    with patch("litellm.proxy.proxy_server.premium_user", True):
         # Simulate key rotation with alias change
         base_alias = f"test-alias-change-{uuid.uuid4()}"
         old_alias = f"{base_alias}-v1"
