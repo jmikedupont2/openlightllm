@@ -2419,7 +2419,7 @@ def test_azure_openai_ad_token():
 # test_azure_openai_ad_token()
 
 
-# test_completion_azure()
+
 def test_completion_azure2():
     # test if we can pass api_base, api_version and api_key in compleition()
     try:
@@ -2541,7 +2541,6 @@ def test_completion_azure_with_litellm_key():
         pytest.fail(f"Error occurred: {e}")
 
 
-# test_completion_azure()
 
 
 import asyncio
