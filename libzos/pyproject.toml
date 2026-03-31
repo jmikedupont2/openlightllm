@@ -1,0 +1,6 @@
+[project]
+name = "libzos"
+version = "0.1.0"
+description = "ZOS plugin interface — decouples open source from enterprise"
+license = {text = "MIT"}
+requires-python = ">=3.10"
