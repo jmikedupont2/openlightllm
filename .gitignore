@@ -101,4 +101,4 @@ STABILIZATION_TODO.md
 **/test-results
 **/playwright-report
 **/*.storageState.json
-**/coverage
+**/coverage__pycache__/
