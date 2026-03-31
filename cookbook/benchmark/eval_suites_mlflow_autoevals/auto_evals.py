@@ -2,11 +2,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import litellm
+
 from autoevals.llm import *
 
 ###################
-import litellm
-from litellm import completion, completion_cost, embedding
 
 # litellm completion call
 question = "which country has the highest population"

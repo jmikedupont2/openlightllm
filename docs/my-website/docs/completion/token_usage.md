@@ -1,7 +1,21 @@
 # Completion Token Usage & Cost
 By default LiteLLM returns token usage in all completion requests ([See here](https://litellm.readthedocs.io/en/latest/output/))
 
-However, we also expose some helper functions + **[NEW]** an API to calculate token usage across providers:
+LiteLLM returns `response_cost` in all calls. 
+
+```python
+from litellm import completion 
+
+response = litellm.completion(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "Hey, how's it going?"}],
+            mock_response="Hello world",
+        )
+
+print(response._hidden_params["response_cost"])
+```
+
+LiteLLM also exposes some helper functions:
 
 - `encode`: This encodes the text passed in, using the model-specific tokenizer. [**Jump to code**](#1-encode)
 
@@ -23,7 +37,7 @@ However, we also expose some helper functions + **[NEW]** an API to calculate to
 
 - `api.litellm.ai`: Live token + price count across [all supported models](https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json). [**Jump to code**](#10-apilitellmai)
 
-📣 This is a community maintained list. Contributions are welcome! ❤️
+📣 [This is a community maintained list](https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json). Contributions are welcome! ❤️
 
 ## Example Usage 
 
@@ -86,7 +100,7 @@ from litellm import cost_per_token
 
 prompt_tokens =  5
 completion_tokens = 10
-prompt_tokens_cost_usd_dollar, completion_tokens_cost_usd_dollar = cost_per_token(model="gpt-3.5-turbo", prompt_tokens=prompt_tokens, completion_tokens=completion_tokens))
+prompt_tokens_cost_usd_dollar, completion_tokens_cost_usd_dollar = cost_per_token(model="gpt-3.5-turbo", prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
 print(prompt_tokens_cost_usd_dollar, completion_tokens_cost_usd_dollar)
 ```
@@ -148,7 +162,7 @@ print(model_cost) # {'gpt-3.5-turbo': {'max_tokens': 4000, 'input_cost_per_token
 
 **Dictionary**
 ```python
-from litellm import register_model
+import litellm
 
 litellm.register_model({
         "gpt-4": {

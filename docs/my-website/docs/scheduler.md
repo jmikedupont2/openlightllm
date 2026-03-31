@@ -19,6 +19,11 @@ Prioritize LLM API requests in high-traffic.
 - Priority - The lower the number, the higher the priority: 
     * e.g. `priority=0` > `priority=2000`
 
+Supported Router endpoints:
+- `acompletion` (`/v1/chat/completions` on Proxy)
+- `atext_completion` (`/v1/completions` on Proxy)
+
+
 ## Quick Start 
 
 ```python
@@ -36,12 +41,12 @@ router = Router(
         },
     ],
     timeout=2, # timeout request if takes > 2s
-    routing_strategy="usage-based-routing-v2",
+    routing_strategy="simple-shuffle", # recommended for best performance
     polling_interval=0.03 # poll queue every 3ms if no healthy deployments
 )
 
 try:
-    _response = await router.schedule_acompletion( # 👈 ADDS TO QUEUE + POLLS + MAKES CALL
+    _response = await router.acompletion( # 👈 ADDS TO QUEUE + POLLS + MAKES CALL
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": "Hey!"}],
         priority=0, # 👈 LOWER IS BETTER
@@ -52,13 +57,13 @@ except Exception as e:
 
 ## LiteLLM Proxy
 
-To prioritize requests on LiteLLM Proxy call our beta openai-compatible `http://localhost:4000/queue` endpoint. 
+To prioritize requests on LiteLLM Proxy add `priority` to the request.
 
 <Tabs>
 <TabItem value="curl" label="curl">
 
 ```curl 
-curl -X POST 'http://localhost:4000/queue/chat/completions' \
+curl -X POST 'http://localhost:4000/chat/completions' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer sk-1234' \
 -D '{
@@ -128,7 +133,7 @@ router = Router(
 )
 
 try:
-    _response = await router.schedule_acompletion( # 👈 ADDS TO QUEUE + POLLS + MAKES CALL
+    _response = await router.acompletion( # 👈 ADDS TO QUEUE + POLLS + MAKES CALL
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": "Hey!"}],
         priority=0, # 👈 LOWER IS BETTER
@@ -146,6 +151,9 @@ model_list:
         model: gpt-3.5-turbo
         mock_response: "hello world!" 
         api_key: my-good-key
+
+litellm_settings:
+    request_timeout: 600 # 👈 Will keep retrying until timeout occurs
 
 router_settings:
     redis_host; os.environ/REDIS_HOST

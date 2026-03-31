@@ -1,12 +1,11 @@
 #### What this does ####
 #    On success + failure, log events to Supabase
 
-import dotenv
 import os
-import requests  # type: ignore
-import traceback
 import subprocess
 import sys
+import traceback
+
 import litellm
 
 
@@ -23,7 +22,12 @@ class Supabase:
         except ImportError:
             subprocess.check_call([sys.executable, "-m", "pip", "install", "supabase"])
             import supabase
-        self.supabase_client = supabase.create_client(
+
+        if self.supabase_url is None or self.supabase_key is None:
+            raise ValueError(
+                "LiteLLM Error, trying to use Supabase but url or key not passed. Create a table and set `litellm.supabase_url=<your-url>` and `litellm.supabase_key=<your-key>`"
+            )
+        self.supabase_client = supabase.create_client(  # type: ignore
             self.supabase_url, self.supabase_key
         )
 
@@ -47,7 +51,7 @@ class Supabase:
                 .execute()
             )
             print_verbose(f"data: {data}")
-        except:
+        except Exception:
             print_verbose(f"Supabase Logging Error - {traceback.format_exc()}")
 
     def log_event(
@@ -110,5 +114,5 @@ class Supabase:
                     .execute()
                 )
 
-        except:
+        except Exception:
             print_verbose(f"Supabase Logging Error - {traceback.format_exc()}")

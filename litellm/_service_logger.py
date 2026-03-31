@@ -1,18 +1,27 @@
-from datetime import datetime
+import asyncio
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, Optional, Union
+
 import litellm
-from litellm.proxy._types import UserAPIKeyAuth
-from .types.services import ServiceTypes, ServiceLoggerPayload
-from .integrations.prometheus_services import PrometheusServicesLogger
+from litellm._logging import verbose_logger
+
 from .integrations.custom_logger import CustomLogger
-from datetime import timedelta
-from typing import Union, Optional, TYPE_CHECKING, Any
+from .integrations.datadog.datadog import DataDogLogger
+from .integrations.opentelemetry import OpenTelemetry
+from .integrations.prometheus_services import PrometheusServicesLogger
+from .types.services import ServiceLoggerPayload, ServiceTypes
 
 if TYPE_CHECKING:
     from opentelemetry.trace import Span as _Span
 
-    Span = _Span
+    from litellm.proxy._types import UserAPIKeyAuth
+
+    Span = Union[_Span, Any]
+    OTELClass = OpenTelemetry
 else:
     Span = Any
+    OTELClass = Any
+    UserAPIKeyAuth = Any
 
 
 class ServiceLogging(CustomLogger):
@@ -30,13 +39,61 @@ class ServiceLogging(CustomLogger):
             self.prometheusServicesLogger = PrometheusServicesLogger()
 
     def service_success_hook(
-        self, service: ServiceTypes, duration: float, call_type: str
+        self,
+        service: ServiceTypes,
+        duration: float,
+        call_type: str,
+        parent_otel_span: Optional[Span] = None,
+        start_time: Optional[Union[datetime, float]] = None,
+        end_time: Optional[Union[float, datetime]] = None,
     ):
         """
-        [TODO] Not implemented for sync calls yet. V0 is focused on async monitoring (used by proxy).
+        Handles both sync and async monitoring by checking for existing event loop.
         """
+
         if self.mock_testing:
             self.mock_testing_sync_success_hook += 1
+
+        try:
+            # Try to get the current event loop
+            loop = asyncio.get_event_loop()
+            # Check if the loop is running
+            if loop.is_running():
+                # If we're in a running loop, create a task
+                loop.create_task(
+                    self.async_service_success_hook(
+                        service=service,
+                        duration=duration,
+                        call_type=call_type,
+                        parent_otel_span=parent_otel_span,
+                        start_time=start_time,
+                        end_time=end_time,
+                    )
+                )
+            else:
+                # Loop exists but not running, we can use run_until_complete
+                loop.run_until_complete(
+                    self.async_service_success_hook(
+                        service=service,
+                        duration=duration,
+                        call_type=call_type,
+                        parent_otel_span=parent_otel_span,
+                        start_time=start_time,
+                        end_time=end_time,
+                    )
+                )
+        except RuntimeError:
+            # No event loop exists, create a new one and run
+            asyncio.run(
+                self.async_service_success_hook(
+                    service=service,
+                    duration=duration,
+                    call_type=call_type,
+                    parent_otel_span=parent_otel_span,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+            )
 
     def service_failure_hook(
         self, service: ServiceTypes, duration: float, error: Exception, call_type: str
@@ -53,8 +110,9 @@ class ServiceLogging(CustomLogger):
         call_type: str,
         duration: float,
         parent_otel_span: Optional[Span] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        start_time: Optional[Union[datetime, float]] = None,
+        end_time: Optional[Union[datetime, float]] = None,
+        event_metadata: Optional[dict] = None,
     ):
         """
         - For counting if the redis, postgres call is successful
@@ -68,22 +126,85 @@ class ServiceLogging(CustomLogger):
             service=service,
             duration=duration,
             call_type=call_type,
+            event_metadata=event_metadata,
         )
+
         for callback in litellm.service_callback:
             if callback == "prometheus_system":
+                await self.init_prometheus_services_logger_if_none()
                 await self.prometheusServicesLogger.async_service_success_hook(
                     payload=payload
                 )
+            elif callback == "datadog" or isinstance(callback, DataDogLogger):
+                await self.init_datadog_logger_if_none()
+                await self.dd_logger.async_service_success_hook(
+                    payload=payload,
+                    parent_otel_span=parent_otel_span,
+                    start_time=start_time,
+                    end_time=end_time,
+                    event_metadata=event_metadata,
+                )
+            elif callback == "otel" or isinstance(callback, OpenTelemetry):
+                _otel_logger_to_use: Optional[OpenTelemetry] = None
+                if isinstance(callback, OpenTelemetry):
+                    _otel_logger_to_use = callback
+                else:
+                    from litellm.proxy.proxy_server import open_telemetry_logger
 
+                    if open_telemetry_logger is not None and isinstance(
+                        open_telemetry_logger, OpenTelemetry
+                    ):
+                        _otel_logger_to_use = open_telemetry_logger
+
+                if _otel_logger_to_use is not None and parent_otel_span is not None:
+                    await _otel_logger_to_use.async_service_success_hook(
+                        payload=payload,
+                        parent_otel_span=parent_otel_span,
+                        start_time=start_time,
+                        end_time=end_time,
+                        event_metadata=event_metadata,
+                    )
+
+    async def init_prometheus_services_logger_if_none(self):
+        """
+        initializes prometheusServicesLogger if it is None or no attribute exists on ServiceLogging Object
+
+        """
+        if not hasattr(self, "prometheusServicesLogger"):
+            self.prometheusServicesLogger = PrometheusServicesLogger()
+        elif self.prometheusServicesLogger is None:
+            self.prometheusServicesLogger = self.prometheusServicesLogger()
+        return
+
+    async def init_datadog_logger_if_none(self):
+        """
+        initializes dd_logger if it is None or no attribute exists on ServiceLogging Object
+
+        """
+        from litellm.integrations.datadog.datadog import DataDogLogger
+
+        if not hasattr(self, "dd_logger"):
+            self.dd_logger: DataDogLogger = DataDogLogger()
+
+        return
+
+    async def init_otel_logger_if_none(self):
+        """
+        initializes otel_logger if it is None or no attribute exists on ServiceLogging Object
+
+        """
         from litellm.proxy.proxy_server import open_telemetry_logger
 
-        if parent_otel_span is not None and open_telemetry_logger is not None:
-            await open_telemetry_logger.async_service_success_hook(
-                payload=payload,
-                parent_otel_span=parent_otel_span,
-                start_time=start_time,
-                end_time=end_time,
-            )
+        if not hasattr(self, "otel_logger"):
+            if open_telemetry_logger is not None and isinstance(
+                open_telemetry_logger, OpenTelemetry
+            ):
+                self.otel_logger: OpenTelemetry = open_telemetry_logger
+            else:
+                verbose_logger.warning(
+                    "ServiceLogger: open_telemetry_logger is None or not an instance of OpenTelemetry"
+                )
+        return
 
     async def async_service_failure_hook(
         self,
@@ -92,8 +213,9 @@ class ServiceLogging(CustomLogger):
         error: Union[str, Exception],
         call_type: str,
         parent_otel_span: Optional[Span] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        start_time: Optional[Union[datetime, float]] = None,
+        end_time: Optional[Union[float, datetime]] = None,
+        event_metadata: Optional[dict] = None,
     ):
         """
         - For counting if the redis, postgres call is unsuccessful
@@ -113,33 +235,65 @@ class ServiceLogging(CustomLogger):
             service=service,
             duration=duration,
             call_type=call_type,
+            event_metadata=event_metadata,
         )
+
         for callback in litellm.service_callback:
             if callback == "prometheus_system":
-                if self.prometheusServicesLogger is None:
-                    self.prometheusServicesLogger = self.prometheusServicesLogger()
+                await self.init_prometheus_services_logger_if_none()
                 await self.prometheusServicesLogger.async_service_failure_hook(
-                    payload=payload
+                    payload=payload,
+                    error=error,
                 )
+            elif callback == "datadog" or isinstance(callback, DataDogLogger):
+                await self.init_datadog_logger_if_none()
+                await self.dd_logger.async_service_failure_hook(
+                    payload=payload,
+                    error=error_message,
+                    parent_otel_span=parent_otel_span,
+                    start_time=start_time,
+                    end_time=end_time,
+                    event_metadata=event_metadata,
+                )
+            elif callback == "otel" or isinstance(callback, OpenTelemetry):
+                _otel_logger_to_use: Optional[OpenTelemetry] = None
+                if isinstance(callback, OpenTelemetry):
+                    _otel_logger_to_use = callback
+                else:
+                    from litellm.proxy.proxy_server import open_telemetry_logger
 
-        from litellm.proxy.proxy_server import open_telemetry_logger
+                    if open_telemetry_logger is not None and isinstance(
+                        open_telemetry_logger, OpenTelemetry
+                    ):
+                        _otel_logger_to_use = open_telemetry_logger
 
-        if parent_otel_span is not None and open_telemetry_logger is not None:
-            await open_telemetry_logger.async_service_failure_hook(
-                payload=payload,
-                parent_otel_span=parent_otel_span,
-                start_time=start_time,
-                end_time=end_time,
-            )
+                if not isinstance(error, str):
+                    error = str(error)
+
+                if _otel_logger_to_use is not None and parent_otel_span is not None:
+                    await _otel_logger_to_use.async_service_failure_hook(
+                        payload=payload,
+                        error=error,
+                        parent_otel_span=parent_otel_span,
+                        start_time=start_time,
+                        end_time=end_time,
+                        event_metadata=event_metadata,
+                    )
 
     async def async_post_call_failure_hook(
-        self, original_exception: Exception, user_api_key_dict: UserAPIKeyAuth
+        self,
+        request_data: dict,
+        original_exception: Exception,
+        user_api_key_dict: UserAPIKeyAuth,
+        traceback_str: Optional[str] = None,
     ):
         """
         Hook to track failed litellm-service calls
         """
         return await super().async_post_call_failure_hook(
-            original_exception, user_api_key_dict
+            request_data,
+            original_exception,
+            user_api_key_dict,
         )
 
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
@@ -158,10 +312,12 @@ class ServiceLogging(CustomLogger):
                         _duration, type(_duration)
                     )
                 )  # invalid _duration value
+            # Batch polling callbacks (check_batch_cost) don't include call_type in kwargs.
+            # Use .get() to avoid KeyError.
             await self.async_service_success_hook(
                 service=ServiceTypes.LITELLM,
                 duration=_duration,
-                call_type=kwargs["call_type"],
+                call_type=kwargs.get("call_type", "unknown"),
             )
         except Exception as e:
             raise e

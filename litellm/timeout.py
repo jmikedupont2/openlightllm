@@ -11,11 +11,11 @@ Module containing "timeout" decorator for sync and async callables.
 """
 
 import asyncio
-
 from concurrent import futures
-from inspect import iscoroutinefunction
 from functools import wraps
+from inspect import iscoroutinefunction
 from threading import Thread
+
 from litellm.exceptions import Timeout
 
 
@@ -97,7 +97,7 @@ class _LoopWrapper(Thread):
         try:
             self.loop.run_forever()
             self.loop.call_soon_threadsafe(self.loop.close)
-        except Exception as e:
+        except Exception:
             # Log exception here
             pass
         finally:

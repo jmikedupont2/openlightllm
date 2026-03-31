@@ -3,9 +3,10 @@ Functions for sending Email Alerts
 """
 
 import os
-from typing import Optional, List
-from litellm.proxy._types import WebhookEvent
+from typing import List, Optional
+
 from litellm._logging import verbose_logger, verbose_proxy_logger
+from litellm.proxy._types import WebhookEvent
 
 # we use this for the email header, please send a test email if you change this. verify it looks good on email
 LITELLM_LOGO_URL = "https://litellm-listing.s3.amazonaws.com/litellm_logo.png"
@@ -18,7 +19,7 @@ async def get_all_team_member_emails(team_id: Optional[str] = None) -> list:
     )
     if team_id is None:
         return []
-    from litellm.proxy.proxy_server import premium_user, prisma_client
+    from litellm.proxy.proxy_server import prisma_client
 
     if prisma_client is None:
         raise Exception("Not connected to DB!")
@@ -40,8 +41,10 @@ async def get_all_team_member_emails(team_id: Optional[str] = None) -> list:
     )
     _team_member_user_ids: List[str] = []
     for member in _team_members:
-        if member and isinstance(member, dict) and member.get("user_id") is not None:
-            _team_member_user_ids.append(member.get("user_id"))
+        if member and isinstance(member, dict):
+            _user_id = member.get("user_id")
+            if _user_id and isinstance(_user_id, str):
+                _team_member_user_ids.append(_user_id)
 
     sql_query = """
         SELECT user_email
@@ -69,8 +72,6 @@ async def send_team_budget_alert(webhook_event: WebhookEvent) -> bool:
     Returns -> True if sent, False if not.
     """
     from litellm.proxy.utils import send_email
-
-    from litellm.proxy.proxy_server import premium_user, prisma_client
 
     _team_id = webhook_event.team_id
     team_alias = webhook_event.team_alias
@@ -100,7 +101,7 @@ async def send_team_budget_alert(webhook_event: WebhookEvent) -> bool:
     email_html_content = "Alert from LiteLLM Server"
 
     if recipient_emails_str is None:
-        verbose_proxy_logger.error(
+        verbose_proxy_logger.warning(
             "Email Alerting: Trying to send email alert to no recipient, got recipient_emails=%s",
             recipient_emails_str,
         )

@@ -1,9 +1,10 @@
 #### What this tests ####
 
-from memory_profiler import profile, memory_usage
-import sys, os, time
+from memory_profiler import profile
+import sys
+import os
+import time
 import asyncio
-import pytest
 
 sys.path.insert(
     0, os.path.abspath("../..")
@@ -11,7 +12,7 @@ sys.path.insert(
 import litellm
 from litellm import Router
 from dotenv import load_dotenv
-import uuid
+from litellm._uuid import uuid
 
 load_dotenv()
 

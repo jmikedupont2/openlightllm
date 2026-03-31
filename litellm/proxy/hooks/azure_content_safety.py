@@ -1,11 +1,13 @@
-from litellm.integrations.custom_logger import CustomLogger
-from litellm.caching import DualCache
-from litellm.proxy._types import UserAPIKeyAuth
-import litellm
 import traceback
-from fastapi import HTTPException
-from litellm._logging import verbose_proxy_logger
 from typing import Optional
+
+from fastapi import HTTPException
+
+import litellm
+from litellm._logging import verbose_proxy_logger
+from litellm.caching.caching import DualCache
+from litellm.integrations.custom_logger import CustomLogger
+from litellm.proxy._types import UserAPIKeyAuth
 
 
 class _PROXY_AzureContentSafety(
@@ -16,12 +18,12 @@ class _PROXY_AzureContentSafety(
     def __init__(self, endpoint, api_key, thresholds=None):
         try:
             from azure.ai.contentsafety.aio import ContentSafetyClient
-            from azure.core.credentials import AzureKeyCredential
             from azure.ai.contentsafety.models import (
-                TextCategory,
                 AnalyzeTextOptions,
                 AnalyzeTextOutputType,
+                TextCategory,
             )
+            from azure.core.credentials import AzureKeyCredential
             from azure.core.exceptions import HttpResponseError
         except Exception as e:
             raise Exception(
@@ -85,7 +87,7 @@ class _PROXY_AzureContentSafety(
         # Analyze text
         try:
             response = await self.client.analyze_text(request)
-        except self.azure_http_error as e:
+        except self.azure_http_error:
             verbose_proxy_logger.debug(
                 "Error in Azure Content-Safety: %s", traceback.format_exc()
             )
@@ -133,6 +135,7 @@ class _PROXY_AzureContentSafety(
 
     async def async_post_call_success_hook(
         self,
+        data: dict,
         user_api_key_dict: UserAPIKeyAuth,
         response,
     ):

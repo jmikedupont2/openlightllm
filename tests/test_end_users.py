@@ -3,7 +3,8 @@
 import pytest
 import asyncio
 import aiohttp
-import uuid
+import time
+from litellm._uuid import uuid
 from openai import AsyncOpenAI
 from typing import Optional
 
@@ -159,7 +160,7 @@ async def test_end_user_new():
 
 
 @pytest.mark.asyncio
-async def test_end_user_specific_region():
+async def test_aaaend_user_specific_region():
     """
     - Specify region user can make calls in
     - Make a generic call
@@ -185,7 +186,7 @@ async def test_end_user_specific_region():
         key = key_gen["key"]
 
     for _ in range(3):
-        client = AsyncOpenAI(api_key=key, base_url="http://0.0.0.0:4000")
+        client = AsyncOpenAI(api_key=key, base_url="http://0.0.0.0:4000", max_retries=0)
 
         print("SENDING USER PARAM - {}".format(end_user_obj["user_id"]))
         result = await client.chat.completions.with_raw_response.create(
@@ -224,7 +225,7 @@ async def test_enduser_tpm_limits_non_master_key():
         key = key_gen["key"]
 
     # chat completion 1
-    client = AsyncOpenAI(api_key=key, base_url="http://0.0.0.0:4000")
+    client = AsyncOpenAI(api_key=key, base_url="http://0.0.0.0:4000", max_retries=0)
 
     # chat completion 2
     passed = 0
@@ -236,7 +237,7 @@ async def test_enduser_tpm_limits_non_master_key():
                 user=end_user_id,
             )
             passed += 1
-        except:
+        except Exception:
             pass
     print("Passed requests=", passed)
 
@@ -266,7 +267,9 @@ async def test_enduser_tpm_limits_with_master_key():
         )
 
     # chat completion 1
-    client = AsyncOpenAI(api_key="sk-1234", base_url="http://0.0.0.0:4000")
+    client = AsyncOpenAI(
+        api_key="sk-1234", base_url="http://0.0.0.0:4000", max_retries=0
+    )
 
     # chat completion 2
     passed = 0
@@ -278,7 +281,7 @@ async def test_enduser_tpm_limits_with_master_key():
                 user=end_user_id,
             )
             passed += 1
-        except:
+        except Exception:
             pass
     print("Passed requests=", passed)
 

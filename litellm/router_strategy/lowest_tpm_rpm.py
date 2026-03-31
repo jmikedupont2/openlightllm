@@ -1,32 +1,18 @@
 #### What this does ####
 #   identifies lowest tpm deployment
-from pydantic import BaseModel
-import dotenv
-import requests
-from typing import Optional, Union, List, Dict
-from datetime import datetime
 import traceback
+from datetime import datetime
+from typing import Dict, List, Optional, Union
+
 from litellm import token_counter
-from litellm.caching import DualCache
-from litellm.integrations.custom_logger import CustomLogger
 from litellm._logging import verbose_router_logger
+from litellm.caching.caching import DualCache
+from litellm.integrations.custom_logger import CustomLogger
+from litellm.types.utils import LiteLLMPydanticObjectBase
 from litellm.utils import print_verbose
 
 
-class LiteLLMBase(BaseModel):
-    """
-    Implements default functions, all pydantic objects should have.
-    """
-
-    def json(self, **kwargs):
-        try:
-            return self.model_dump()  # noqa
-        except:
-            # if using pydantic v1
-            return self.dict()
-
-
-class RoutingArgs(LiteLLMBase):
+class RoutingArgs(LiteLLMPydanticObjectBase):
     ttl: int = 1 * 60  # 1min (RPM/TPM expire key)
 
 
@@ -36,11 +22,8 @@ class LowestTPMLoggingHandler(CustomLogger):
     logged_failure: int = 0
     default_cache_time_seconds: int = 1 * 60 * 60  # 1 hour
 
-    def __init__(
-        self, router_cache: DualCache, model_list: list, routing_args: dict = {}
-    ):
+    def __init__(self, router_cache: DualCache, routing_args: dict = {}):
         self.router_cache = router_cache
-        self.model_list = model_list
         self.routing_args = RoutingArgs(**routing_args)
 
     def log_success_event(self, kwargs, response_obj, start_time, end_time):
@@ -48,6 +31,8 @@ class LowestTPMLoggingHandler(CustomLogger):
             """
             Update TPM/RPM usage on success
             """
+            if "litellm_params" not in kwargs or kwargs["litellm_params"] is None:
+                return
             if kwargs["litellm_params"].get("metadata") is None:
                 pass
             else:
@@ -106,6 +91,8 @@ class LowestTPMLoggingHandler(CustomLogger):
             """
             Update TPM/RPM usage on success
             """
+            if "litellm_params" not in kwargs or kwargs["litellm_params"] is None:
+                return
             if kwargs["litellm_params"].get("metadata") is None:
                 pass
             else:
@@ -113,12 +100,17 @@ class LowestTPMLoggingHandler(CustomLogger):
                     "model_group", None
                 )
 
-                id = kwargs["litellm_params"].get("model_info", {}).get("id", None)
+                model_info = kwargs["litellm_params"].get("model_info")
+                id = None
+                if model_info is not None and isinstance(model_info, dict):
+                    id = model_info.get("id", None)
                 if model_group is None or id is None:
                     return
                 elif isinstance(id, int):
                     id = str(id)
 
+                if "usage" not in response_obj:
+                    return
                 total_tokens = response_obj["usage"]["total_tokens"]
 
                 # ------------
@@ -134,18 +126,22 @@ class LowestTPMLoggingHandler(CustomLogger):
                 # update cache
 
                 ## TPM
-                request_count_dict = self.router_cache.get_cache(key=tpm_key) or {}
+                request_count_dict = (
+                    await self.router_cache.async_get_cache(key=tpm_key) or {}
+                )
                 request_count_dict[id] = request_count_dict.get(id, 0) + total_tokens
 
-                self.router_cache.set_cache(
+                await self.router_cache.async_set_cache(
                     key=tpm_key, value=request_count_dict, ttl=self.routing_args.ttl
                 )
 
                 ## RPM
-                request_count_dict = self.router_cache.get_cache(key=rpm_key) or {}
+                request_count_dict = (
+                    await self.router_cache.async_get_cache(key=rpm_key) or {}
+                )
                 request_count_dict[id] = request_count_dict.get(id, 0) + 1
 
-                self.router_cache.set_cache(
+                await self.router_cache.async_set_cache(
                     key=rpm_key, value=request_count_dict, ttl=self.routing_args.ttl
                 )
 
@@ -153,14 +149,14 @@ class LowestTPMLoggingHandler(CustomLogger):
                 if self.test_flag:
                     self.logged_success += 1
         except Exception as e:
-            verbose_router_logger.error(
+            verbose_router_logger.exception(
                 "litellm.router_strategy.lowest_tpm_rpm.py::async_log_success_event(): Exception occured - {}".format(
                     str(e)
                 )
             )
             verbose_router_logger.debug(traceback.format_exc())
 
-    def get_available_deployments(
+    def get_available_deployments(  # noqa: PLR0915
         self,
         model_group: str,
         healthy_deployments: list,
@@ -186,7 +182,7 @@ class LowestTPMLoggingHandler(CustomLogger):
         )
         try:
             input_tokens = token_counter(messages=messages, text=input)
-        except:
+        except Exception:
             input_tokens = 0
         verbose_router_logger.debug(f"input_tokens={input_tokens}")
         # -----------------------

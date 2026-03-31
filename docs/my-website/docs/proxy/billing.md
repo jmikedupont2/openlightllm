@@ -2,7 +2,7 @@ import Image from '@theme/IdealImage';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 💵 Billing
+# Billing
 
 Bill internal teams, external customers for their usage
 
@@ -23,7 +23,7 @@ Bill internal teams for their usage
 Set 'lago' as a callback on your proxy config.yaml
 
 ```yaml
-model_name:
+model_list:
   - model_name: fake-openai-endpoint
     litellm_params:
       model: openai/fake
@@ -101,7 +101,7 @@ client = openai.OpenAI(
 )
 
 # request sent to model set on litellm proxy, `litellm --model`
-response = client.chat.completions.create(model="gpt-3.5-turbo", messages = [
+response = client.chat.completions.create(model="gpt-4o", messages = [
     {
         "role": "user",
         "content": "this is a test request, write a short poem"
@@ -127,7 +127,7 @@ os.environ["OPENAI_API_KEY"] = "sk-tXL0wt5-lOOVK9sfY2UacA" # 👈 Team's Key
 
 chat = ChatOpenAI(
     openai_api_base="http://0.0.0.0:4000",
-    model = "gpt-3.5-turbo",
+    model = "gpt-4o",
     temperature=0.1,
 )
 
@@ -198,7 +198,7 @@ For:
   curl --location 'http://0.0.0.0:4000/chat/completions' \
   --header 'Content-Type: application/json' \
   --data ' {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4o",
         "messages": [
           {
             "role": "user",
@@ -220,7 +220,7 @@ For:
   )
 
   # request sent to model set on litellm proxy, `litellm --model`
-  response = client.chat.completions.create(model="gpt-3.5-turbo", messages = [
+  response = client.chat.completions.create(model="gpt-4o", messages = [
       {
           "role": "user",
           "content": "this is a test request, write a short poem"
@@ -247,7 +247,7 @@ For:
 
   chat = ChatOpenAI(
       openai_api_base="http://0.0.0.0:4000",
-      model = "gpt-3.5-turbo",
+      model = "gpt-4o",
       temperature=0.1,
       extra_body={
           "user": "my_customer_id"  # 👈 whatever your customer id is
@@ -306,7 +306,7 @@ client = openai.OpenAI(
 )
 
 # request sent to model set on litellm proxy, `litellm --model`
-response = client.chat.completions.create(model="gpt-3.5-turbo", messages = [
+response = client.chat.completions.create(model="gpt-4o", messages = [
     {
         "role": "user",
         "content": "this is a test request, write a short poem"

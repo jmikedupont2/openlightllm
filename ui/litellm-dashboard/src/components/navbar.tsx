@@ -1,133 +1,165 @@
-"use client";
-
+import { useHealthReadiness } from "@/app/(dashboard)/hooks/healthReadiness/useHealthReadiness";
+import { useDisableBouncingIcon } from "@/app/(dashboard)/hooks/useDisableBouncingIcon";
+import { getProxyBaseUrl } from "@/components/networking";
+import { useTheme } from "@/contexts/ThemeContext";
+import { clearTokenCookies } from "@/utils/cookieUtils";
+import { clearStoredReturnUrl } from "@/utils/returnUrlUtils";
+import { fetchProxySettings } from "@/utils/proxyUtils";
+import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { Button, Switch, Tag } from "antd";
 import Link from "next/link";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import type { MenuProps } from "antd";
-import { Dropdown, Space } from "antd";
-import { useSearchParams } from "next/navigation";
-import {
-  Button,
-  Text,
-  Metric,
-  Title,
-  TextInput,
-  Grid,
-  Col,
-  Card,
-} from "@tremor/react";
+import { BlogDropdown } from "./Navbar/BlogDropdown/BlogDropdown";
+import { CommunityEngagementButtons } from "./Navbar/CommunityEngagementButtons/CommunityEngagementButtons";
+import UserDropdown from "./Navbar/UserDropdown/UserDropdown";
+import WorkerDropdown from "./Navbar/WorkerDropdown/WorkerDropdown";
 
-// Define the props type
 interface NavbarProps {
   userID: string | null;
-  userRole: string | null;
   userEmail: string | null;
-  showSSOBanner: boolean;
+  userRole: string | null;
   premiumUser: boolean;
-  setProxySettings: React.Dispatch<React.SetStateAction<any>>;
   proxySettings: any;
+  setProxySettings: React.Dispatch<React.SetStateAction<any>>;
+  accessToken: string | null;
+  isPublicPage: boolean;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
+
 const Navbar: React.FC<NavbarProps> = ({
   userID,
-  userRole,
   userEmail,
-  showSSOBanner,
+  userRole,
   premiumUser,
-  setProxySettings,
   proxySettings,
+  setProxySettings,
+  accessToken,
+  isPublicPage = false,
+  sidebarCollapsed = false,
+  onToggleSidebar,
+  isDarkMode,
+  toggleDarkMode,
 }) => {
-  console.log("User ID:", userID);
-  console.log("userEmail:", userEmail);
-  console.log("showSSOBanner:", showSSOBanner);
-  console.log("premiumUser:", premiumUser);
+  const baseUrl = getProxyBaseUrl();
+  const [logoutUrl, setLogoutUrl] = useState("");
+  const { logoUrl } = useTheme();
+  const { data: healthData } = useHealthReadiness();
+  const version = healthData?.litellm_version;
+  const disableBouncingIcon = useDisableBouncingIcon();
 
-  // const userColors = require('./ui_colors.json') || {};
-  const isLocal = process.env.NODE_ENV === "development";
-  const proxyBaseUrl = isLocal ? "http://localhost:4000" : null;
-  const imageUrl = isLocal ? "http://localhost:4000/get_image" : "/get_image";
-  let logoutUrl = "";
+  // Simple logo URL: use custom logo if available, otherwise default
+  const imageUrl = logoUrl || `${baseUrl}/get_image`;
 
-  console.log("PROXY_settings=", proxySettings);
+  useEffect(() => {
+    const initializeProxySettings = async () => {
+      if (accessToken) {
+        const settings = await fetchProxySettings(accessToken);
+        console.log("response from fetchProxySettings", settings);
+        if (settings) {
+          setProxySettings(settings);
+        }
+      }
+    };
 
-  if (proxySettings) {
-    if (proxySettings.PROXY_LOGOUT_URL && proxySettings.PROXY_LOGOUT_URL !== undefined) {
-      logoutUrl = proxySettings.PROXY_LOGOUT_URL;
-    }
-  }
+    initializeProxySettings();
+  }, [accessToken]);
 
-  console.log("logoutUrl=", logoutUrl);
+  useEffect(() => {
+    setLogoutUrl(proxySettings?.PROXY_LOGOUT_URL || "");
+  }, [proxySettings]);
 
+  const handleLogout = () => {
+    clearTokenCookies();
+    localStorage.removeItem("litellm_selected_worker_id");
+    localStorage.removeItem("litellm_worker_url");
+    window.location.href = logoutUrl;
+  };
 
-
-  const items: MenuProps["items"] = [
-    {
-      key: "1",
-      label: (
-        <>
-          <p>Role: {userRole}</p>
-          <p>ID: {userID}</p>
-          <p>Premium User: {String(premiumUser)}</p>
-        </>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <a href={logoutUrl}>
-          <p>Logout</p>
-        </a>
-      ),
-    }
-  ];
+  const handleWorkerSwitch = (workerId: string) => {
+    clearTokenCookies();
+    clearStoredReturnUrl();
+    localStorage.removeItem("litellm_selected_worker_id");
+    localStorage.removeItem("litellm_worker_url");
+    window.location.href = `/ui/login?worker=${encodeURIComponent(workerId)}`;
+  };
 
   return (
-    <nav className="left-0 right-0 top-0 flex justify-between items-center h-12 mb-4">
-      <div className="text-left my-2 absolute top-0 left-0">
-        <div className="flex flex-col items-center">
-          <Link href="/">
-            <button className="text-gray-800 rounded text-center">
-              <img
-                src={imageUrl}
-                width={160}
-                height={160}
-                alt="LiteLLM Brand"
-                className="mr-2"
-              />
-            </button>
-          </Link>
-        </div>
-      </div>
-      <div className="text-right mx-4 my-2 absolute top-0 right-0 flex items-center justify-end space-x-2">
-        {showSSOBanner ? (
-          <div
-            style={{
-              // border: '1px solid #391085',
-              padding: "6px",
-              borderRadius: "8px", // Added border-radius property
-            }}
-          >
-            <a
-              href="https://calendly.com/d/4mp-gd3-k5k/litellm-1-1-onboarding-chat"
-              target="_blank"
-              style={{
-                fontSize: "14px",
-                textDecoration: "underline",
-              }}
-            >
-            </a>
-          </div>
-        ) : null}
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="w-full">
+        <div className="flex items-center h-14 px-4">
+          <div className="flex items-center flex-shrink-0">
+            {onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className="flex items-center justify-center w-10 h-10 mr-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <span className="text-lg">{sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}</span>
+              </button>
+            )}
 
-        <div
-          style={{
-            border: "1px solid #391085",
-            padding: "6px",
-            borderRadius: "8px", // Added border-radius property
-          }}
-        >
-          <Dropdown menu={{ items }}>
-            <Space>{userEmail}</Space>
-          </Dropdown>
+            <div className="flex items-center gap-2">
+              <Link href={baseUrl ? baseUrl : "/"} className="flex items-center">
+                <div className="relative">
+                  <div className="h-10 max-w-48 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={imageUrl}
+                      alt="LiteLLM Brand"
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                    />
+                  </div>
+                </div>
+              </Link>
+              {version && (
+                <div className="relative">
+                  {!disableBouncingIcon && (
+                    <span
+                      className="absolute -top-1 -left-2 text-lg animate-bounce"
+                      style={{ animationDuration: "2s" }}
+                      title="Thanks for using LiteLLM!"
+                    >
+                      🌑
+                    </span>
+                  )}
+                  <Tag className="relative text-xs font-medium cursor-pointer z-10">
+                    <a
+                      href="https://docs.litellm.ai/release_notes"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      v{version}
+                    </a>
+                  </Tag>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Right side nav items */}
+          <div className="flex items-center space-x-5 ml-auto">
+            <WorkerDropdown onWorkerSwitch={handleWorkerSwitch} />
+            <CommunityEngagementButtons />
+            {/* Dark mode is currently a work in progress. To test, you can change 'false' to 'true' below.
+            Do not set this to true by default until all components are confirmed to support dark mode styles. */}
+            {false && (
+              <Switch
+                data-testid="dark-mode-toggle"
+                checked={isDarkMode}
+                onChange={toggleDarkMode}
+                checkedChildren={<MoonOutlined />}
+                unCheckedChildren={<SunOutlined />}
+              />
+            )}
+            <Button type="text" href="https://docs.litellm.ai/docs/" target="_blank" rel="noopener noreferrer">
+              Docs
+            </Button>
+            <BlogDropdown />
+
+            {!isPublicPage && <UserDropdown onLogout={handleLogout} />}
+          </div>
         </div>
       </div>
     </nav>

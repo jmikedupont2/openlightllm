@@ -1,8 +1,46 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+// @ts-ignore
+const lightCodeTheme = require('prism-react-renderer/themes/vsLight');
+// @ts-ignore
+const darkCodeTheme = require('prism-react-renderer/themes/nightOwl');
+
+const inkeepConfig = {
+  baseSettings: {
+    apiKey: "0cb9c9916ec71bfe0e53c9d7f83ff046daee3fa9ef318f6a",
+    organizationDisplayName: 'liteLLM',
+    primaryBrandColor: '#4965f5',
+    theme: {
+      styles: [
+        {
+          key: "custom-theme",
+          type: "style",
+          value: `
+            .ikp-chat-button__button {
+              margin-right: 80px !important;
+            }
+          `,
+        },
+      ],
+      syntaxHighlighter: {
+        lightTheme: lightCodeTheme,
+        darkTheme: darkCodeTheme,
+      },
+    },
+  },
+  searchSettings: {
+    searchBarPlaceholder: 'Search docs...',
+  },
+  aiChatSettings: {
+    quickQuestions: [
+      'How do I use the proxy?',
+      'How do I cache responses?',
+      'How do I stream responses?',
+    ],
+    aiAssistantAvatar: '/img/favicon.ico',
+  },
+};
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -11,7 +49,7 @@ const config = {
   favicon: '/img/favicon.ico', 
 
   // Set the production url of your site here
-  url: 'https://litellm.vercel.app/',
+  url: 'https://docs.litellm.ai/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -26,8 +64,18 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
   plugins: [
+    [
+      '@inkeep/cxkit-docusaurus',
+      {
+        SearchBar: {
+          ...inkeepConfig,
+        },
+        ChatButton: {
+          ...inkeepConfig,
+        },
+      },
+    ],
     [
       '@docusaurus/plugin-ideal-image',
       {
@@ -38,9 +86,107 @@ const config = {
         disableInDev: false,
       },
     ],
-    [ require.resolve('docusaurus-lunr-search'), {
-      languages: ['en'] // language codes
-    }],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'release-notes',
+        path: './release_notes',
+        routeBasePath: 'release_notes',
+        sidebarPath: require.resolve('./sidebars-release-notes.js'),
+        async sidebarItemsGenerator({defaultSidebarItemsGenerator, docs, ...args}) {
+          const items = await defaultSidebarItemsGenerator({docs, ...args});
+
+          // Build map of doc id -> year from frontmatter date
+          const docYearMap = {};
+          for (const doc of docs) {
+            const date = doc.frontMatter && doc.frontMatter.date;
+            if (date) {
+              const year = new Date(date).getFullYear();
+              docYearMap[doc.id] = year;
+            }
+          }
+
+          function parseVersion(str) {
+            const match = (str || '').match(/v?(\d+)\.(\d+)\.(\d+)/);
+            if (!match) return [0, 0, 0];
+            return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+          }
+          function compareVersionsDesc(a, b) {
+            const [aMaj, aMin, aPatch] = parseVersion(a.label || a.id || '');
+            const [bMaj, bMin, bPatch] = parseVersion(b.label || b.id || '');
+            if (bMaj !== aMaj) return bMaj - aMaj;
+            if (bMin !== aMin) return bMin - aMin;
+            return bPatch - aPatch;
+          }
+
+          // Flatten and transform doc items (filter index, shorten labels)
+          function flattenDocs(list) {
+            const result = [];
+            for (const item of list) {
+              if (item.type === 'doc' && item.id === 'index') continue;
+              if (item.type === 'doc') {
+                const label = item.id.replace(/\/index$/, '');
+                result.push({...item, label});
+              } else if (item.type === 'category') {
+                if (item.link && item.link.type === 'doc' && item.link.id !== 'index') {
+                  const id = item.link.id;
+                  const label = id.replace(/\/index$/, '');
+                  result.push({type: 'doc', id, label});
+                } else {
+                  result.push(...flattenDocs(item.items));
+                }
+              }
+            }
+            return result;
+          }
+
+          const docItems = flattenDocs(items);
+
+          // Group by year
+          const byYear = {};
+          for (const item of docItems) {
+            const year = docYearMap[item.id] || 'Other';
+            if (!byYear[year]) byYear[year] = [];
+            byYear[year].push(item);
+          }
+
+          // Sort each year's items by version descending
+          for (const year of Object.keys(byYear)) {
+            byYear[year].sort(compareVersionsDesc);
+          }
+
+          // Build categories sorted by year descending
+          const years = Object.keys(byYear).sort((a, b) => {
+            // Object.keys() returns strings; avoid numeric subtraction type errors.
+            const na = Number.parseInt(a, 10);
+            const nb = Number.parseInt(b, 10);
+            return nb - na;
+          });
+          return years.map(year => ({
+            type: 'category',
+            label: String(year),
+            collapsed: year !== String(years[0]),
+            items: byYear[year],
+          }));
+        },
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-blog',
+      {
+        id: 'blog',
+        path: './blog',
+        routeBasePath: 'blog',
+        blogTitle: 'Blog',
+        blogSidebarTitle: 'All Posts',
+        blogSidebarCount: 'ALL',
+        postsPerPage: 10,
+        showReadingTime: false,
+        sortPosts: 'descending',
+        include: ['**/index.{md,mdx}'],
+      },
+    ],
+
     () => ({
       name: 'cripchat',
       injectHtmlTags() {
@@ -54,6 +200,20 @@ const config = {
         };
       },
     }),
+    // Ensure gtag exists before the GA script loads.
+    () => ({
+      name: 'gtag-shim',
+      injectHtmlTags() {
+        return {
+          headTags: [
+            {
+              tagName: 'script',
+              innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}if(!window.gtag){window.gtag=gtag;}`,
+            },
+          ],
+        };
+      },
+    }),
   ],
 
   presets: [
@@ -61,20 +221,28 @@ const config = {
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
-        gtag: {
-          trackingID: 'G-K7K215ZVNC',
-          anonymizeIP: true,
-        },
+        gtag:
+          process.env.NODE_ENV === 'production'
+            ? {
+                trackingID: 'G-K7K215ZVNC',
+                anonymizeIP: true,
+              }
+            : undefined,
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
         },
-        blog: false, // Optional: disable the blog plugin
+        blog: false, // Disable the default blog plugin from preset-classic
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
       }),
     ],
   ],
+
+  themes: ['@docusaurus/theme-mermaid'],
+  markdown: {
+    mermaid: true,
+  },
 
   scripts: [
     {
@@ -100,28 +268,38 @@ const config = {
             label: 'Docs',
           },
           {
-            sidebarId: 'tutorialSidebar',
+            type: 'docSidebar',
+            sidebarId: 'learnSidebar',
             position: 'left',
-            label: '🚀 Hosted',
-            to: "docs/hosted"
+            label: 'Learn',
           },
+          {
+            type: 'docSidebar',
+            sidebarId: 'integrationsSidebar',
+            position: 'left',
+            label: 'Integrations',
+          },
+          {
+            position: 'left',
+            label: 'Enterprise',
+            to: "docs/enterprise"
+          },
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/BerriAI/litellm',
-            label: 'GitHub',
             position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
           },
           {
-            href: 'https://discord.com/invite/wuPM9dRgDw',
-            label: 'Discord',
+            href: 'https://www.litellm.ai/support',
             position: 'right',
+            className: 'header-discord-link',
+            'aria-label': 'Discord / Slack community',
           },
           {
-            type: 'html',
+            type: 'search',
             position: 'right',
-            value:
-              `<a href=# class=navbar__link data-fr-widget>
-                I'm Confused
-              </a>`
           },
         ],
       },
@@ -161,6 +339,11 @@ const config = {
           },
         ],
         copyright: `Copyright © ${new Date().getFullYear()} liteLLM`,
+      },
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: false,
+        respectPrefersColorScheme: true,
       },
       prism: {
         theme: lightCodeTheme,

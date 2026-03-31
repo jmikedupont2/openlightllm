@@ -1,45 +1,28 @@
 # Base image for building
-ARG LITELLM_BUILD_IMAGE=python:3.11.8-slim
+ARG LITELLM_BUILD_IMAGE=cgr.dev/chainguard/wolfi-base
 
 # Runtime image
-ARG LITELLM_RUNTIME_IMAGE=python:3.11.8-slim
+ARG LITELLM_RUNTIME_IMAGE=cgr.dev/chainguard/wolfi-base
+
 # Builder stage
-FROM $LITELLM_BUILD_IMAGE as builder
+FROM $LITELLM_BUILD_IMAGE AS builder
 
 # Set the working directory to /app
 WORKDIR /app
 
+USER root
+
 # Install build dependencies
-RUN apt-get clean && apt-get update && \
-    apt-get install -y gcc python3-dev
-RUN pip install --upgrade pip && \
-    pip install build
-RUN        apt-get install -y curl
+RUN apk add --no-cache bash gcc py3-pip python3 python3-dev openssl openssl-dev
+
+RUN python -m pip install build
 
 # Replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-# Set debconf to run non-interactively
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
-# Install base dependencies
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates \
-        curl \
-        git \
-        libssl-dev \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
-
-
-
-WORKDIR /app/
-
-COPY pyproject.toml pyproject.toml
-COPY README.md README.md
-COPY requirements.txt requirements.txt
+# Build Admin UI
+# Convert Windows line endings to Unix and make executable
+RUN sed -i 's/\r$//' docker/build_admin_ui.sh && chmod +x docker/build_admin_ui.sh && ./docker/build_admin_ui.sh
 
 # Build the package
 # There should be only one wheel file now, assume the build only creates one
@@ -50,27 +33,49 @@ RUN ls -1 dist/*.whl | head -1
 # install dependencies as wheels
 RUN pip wheel --no-cache-dir --wheel-dir=/wheels/ -r requirements.txt
 
-# install semantic-cache [Experimental]- we need this here and not in requirements.txt because redisvl pins to pydantic 1.0 
-RUN pip install redisvl==0.0.7 --no-deps
-
 # ensure pyjwt is used, not jwt
 RUN pip uninstall jwt -y
 RUN pip uninstall PyJWT -y
-RUN pip install PyJWT --no-cache-dir
-
-# build the package at the end
-
-RUN mkdir litellm
-RUN touch litellm/__init__.py
-COPY litellm/py.typed litellm/py.typed 
-
-
-
-RUN python -m build
-RUN pip install dist/*.whl
+RUN pip install PyJWT==2.12.0 --no-cache-dir
 
 # Runtime stage
-FROM $LITELLM_RUNTIME_IMAGE as runtime
+FROM $LITELLM_RUNTIME_IMAGE AS runtime
+
+# Ensure runtime stage runs as root
+USER root
+
+# Install runtime dependencies (libsndfile needed for audio processing on ARM64)
+RUN apk add --no-cache bash openssl tzdata nodejs npm python3 py3-pip libsndfile && \
+    npm install -g npm@latest tar@7.5.11 glob@11.1.0 @isaacs/brace-expansion@5.0.1 minimatch@10.2.4 diff@8.0.3 && \
+    # SECURITY FIX: npm bundles tar, glob, and brace-expansion at multiple nested
+    # levels inside its dependency tree. `npm install -g <pkg>` only creates a
+    # SEPARATE global package, it does NOT replace npm's internal copies.
+    # We must find and replace EVERY copy inside npm's directory.
+    GLOBAL="$(npm root -g)" && \
+    find "$GLOBAL/npm" -type d -name "tar" -path "*/node_modules/tar" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/tar" "$d"; \
+    done && \
+    find "$GLOBAL/npm" -type d -name "glob" -path "*/node_modules/glob" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/glob" "$d"; \
+    done && \
+    find "$GLOBAL/npm" -type d -name "brace-expansion" -path "*/node_modules/@isaacs/brace-expansion" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/@isaacs/brace-expansion" "$d"; \
+    done && \
+    find "$GLOBAL/npm" -type d -name "minimatch" -path "*/node_modules/minimatch" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/minimatch" "$d"; \
+    done && \
+    find "$GLOBAL/npm" -type d -name "diff" -path "*/node_modules/diff" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/diff" "$d"; \
+    done && \
+    # SECURITY FIX: patch npm's own package.json metadata so scanners see the
+    # actual installed versions instead of the stale declared dependencies.
+    find /usr/local/lib /usr/lib -path "*/node_modules/npm/package.json" -exec \
+        sed -i 's/"tar": "\^7\.5\.[0-9]*"/"tar": "^7.5.10"/g; s/"minimatch": "\^10\.[0-9.]*"/"minimatch": "^10.2.4"/g' {} + 2>/dev/null && \
+    npm cache clean --force && \
+    # Remove the apk-tracked npm so its stale SBOM metadata (tar 7.5.9) is
+    # no longer visible to image scanners.  The globally installed npm@latest
+    # at /usr/local/lib/node_modules/npm/ remains fully functional.
+    { apk del --no-cache npm 2>/dev/null || true; }
 
 WORKDIR /app
 # Copy the current directory contents into the container at /app
@@ -90,24 +95,52 @@ RUN apt-get install -y git
 RUN rm /wheels/multiaddr-*.whl #conflicts
 RUN pip install  /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl && rm -rf /wheels
 
-# now we can add the application code and install it
-COPY pyproject.toml pyproject.toml
-COPY README.md README.md
-COPY requirements.txt requirements.txt
-COPY litellm/py.typed litellm/py.typed 
-COPY litellm  litellm
-COPY enterprise  enterprise
+# Replace the nodejs-wheel-binaries bundled node with the system node (fixes CVE-2025-55130)
+RUN NODEJS_WHEEL_NODE=$(find /usr/lib -path "*/nodejs_wheel/bin/node" 2>/dev/null) && \
+    if [ -n "$NODEJS_WHEEL_NODE" ]; then cp /usr/bin/node "$NODEJS_WHEEL_NODE"; fi
 
-RUN pip install -e .
-# Generate prisma client
-RUN prisma generate
-COPY entrypoint.sh  entrypoint.sh
-RUN chmod +x entrypoint.sh
+# Remove test files and keys from dependencies
+RUN find /usr/lib -type f -path "*/tornado/test/*" -delete && \
+    find /usr/lib -type d -path "*/tornado/test" -delete
+
+# SECURITY FIX: nodejs-wheel-binaries (pip package used by Prisma) bundles a complete
+# npm with old vulnerable deps at /usr/lib/python3.*/site-packages/nodejs_wheel/.
+# Patch every copy of tar, glob, and brace-expansion inside that tree.
+RUN GLOBAL="$(npm root -g)" && \
+    [ -n "$GLOBAL" ] || { echo "ERROR: npm root -g returned empty; aborting"; exit 1; } && \
+    find /usr/lib -type d -name "tar" -path "*/node_modules/tar" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/tar" "$d"; \
+    done && \
+    find /usr/lib -type d -name "glob" -path "*/node_modules/glob" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/glob" "$d"; \
+    done && \
+    find /usr/lib -type d -name "brace-expansion" -path "*/node_modules/@isaacs/brace-expansion" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/@isaacs/brace-expansion" "$d"; \
+    done && \
+    find /usr/lib -type d -name "minimatch" -path "*/node_modules/minimatch" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/minimatch" "$d"; \
+    done && \
+    find /usr/lib -type d -name "diff" -path "*/node_modules/diff" | while read d; do \
+        rm -rf "$d" && cp -rL "$GLOBAL/diff" "$d"; \
+    done
+
+# Install semantic_router and aurelio-sdk using script
+# Convert Windows line endings to Unix and make executable
+RUN sed -i 's/\r$//' docker/install_auto_router.sh && chmod +x docker/install_auto_router.sh && ./docker/install_auto_router.sh
+
+# Generate prisma client using the correct schema
+RUN prisma generate --schema=./litellm/proxy/schema.prisma
+# Convert Windows line endings to Unix for entrypoint scripts
+RUN sed -i 's/\r$//' docker/entrypoint.sh && chmod +x docker/entrypoint.sh
+RUN sed -i 's/\r$//' docker/prod_entrypoint.sh && chmod +x docker/prod_entrypoint.sh
 
 EXPOSE 4000/tcp
 
-ENTRYPOINT ["litellm"]
+RUN apk add --no-cache supervisor
+COPY docker/supervisord.conf /etc/supervisord.conf
 
-# Append "--detailed_debug" to the end of CMD to view detailed debug logs 
+ENTRYPOINT ["docker/prod_entrypoint.sh"]
+
+# Append "--detailed_debug" to the end of CMD to view detailed debug logs
 CMD ["--port", "4000"]
 

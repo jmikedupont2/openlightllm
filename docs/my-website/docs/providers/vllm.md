@@ -5,21 +5,29 @@ import TabItem from '@theme/TabItem';
 
 LiteLLM supports all models on VLLM.
 
+| Property | Details |
+|-------|-------|
+| Description | vLLM is a fast and easy-to-use library for LLM inference and serving. [Docs](https://docs.vllm.ai/en/latest/index.html) |
+| Provider Route on LiteLLM | `hosted_vllm/` (for OpenAI compatible server), `vllm/` ([DEPRECATED] for vLLM sdk usage) |
+| Provider Doc | [vLLM ↗](https://docs.vllm.ai/en/latest/index.html) |
+| Supported Endpoints | `/chat/completions`, `/embeddings`, `/completions`, `/rerank`, `/audio/transcriptions` |
+
+
 # Quick Start
 
-## Usage - litellm.completion (calling vLLM endpoint)
+## Usage - litellm.completion (calling OpenAI compatible endpoint)
 vLLM Provides an OpenAI compatible endpoints - here's how to call it with LiteLLM 
 
 In order to use litellm to call a hosted vllm server add the following to your completion call
 
-* `model="openai/<your-vllm-model-name>"` 
+* `model="hosted_vllm/<your-vllm-model-name>"` 
 * `api_base = "your-hosted-vllm-server"`
 
 ```python
 import litellm 
 
 response = litellm.completion(
-            model="openai/facebook/opt-125m", # pass the vllm model name
+            model="hosted_vllm/facebook/opt-125m", # pass the vllm model name
             messages=messages,
             api_base="https://hosted-vllm-api.co",
             temperature=0.2,
@@ -29,7 +37,7 @@ print(response)
 ```
 
 
-## Usage -  LiteLLM Proxy Server (calling vLLM endpoint)
+## Usage -  LiteLLM Proxy Server (calling OpenAI compatible endpoint)
 
 Here's how to call an OpenAI-Compatible Endpoint with the LiteLLM Proxy Server
 
@@ -39,7 +47,7 @@ Here's how to call an OpenAI-Compatible Endpoint with the LiteLLM Proxy Server
   model_list:
     - model_name: my-model
       litellm_params:
-        model: openai/facebook/opt-125m  # add openai/ prefix to route as OpenAI provider
+        model: hosted_vllm/facebook/opt-125m  # add hosted_vllm/ prefix to route as OpenAI provider
         api_base: https://hosted-vllm-api.co      # add api base for OpenAI compatible provider
   ```
 
@@ -96,8 +104,420 @@ Here's how to call an OpenAI-Compatible Endpoint with the LiteLLM Proxy Server
 
   </Tabs>
 
+  ## Reasoning Effort
 
-## Extras - for `vllm pip package`
+  <Tabs>
+  <TabItem value="sdk" label="SDK">
+
+  ```python
+  from litellm import completion
+
+  response = completion(
+      model="hosted_vllm/gpt-oss-120b",
+      messages=[{"role": "user", "content": "whats 2 + 2"}],
+      reasoning_effort="high",
+      api_base="https://hosted-vllm-api.co",
+  )
+  print(response)
+  ```
+  </TabItem>
+  <TabItem value="proxy" label="PROXY">
+
+  1. Setup config.yaml
+
+  ```yaml
+  model_list:
+    - model_name: gpt-oss-120b
+      litellm_params:
+        model: hosted_vllm/gpt-oss-120b
+        api_base: https://hosted-vllm-api.co
+  ```
+
+  2. Start the proxy
+
+  ```bash
+  litellm --config /path/to/config.yaml
+  ```
+
+  3. Test it!
+
+  ```bash
+  curl http://0.0.0.0:4000/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{"model": "gpt-oss-120b", "messages": [{"role": "user", "content": "whats 2 + 2"}], "reasoning_effort": "high"}'
+  ```
+
+  </TabItem>
+  </Tabs>
+
+
+## Embeddings
+
+<Tabs>
+<TabItem value="sdk" label="SDK">
+
+```python
+from litellm import embedding   
+import os
+
+os.environ["HOSTED_VLLM_API_BASE"] = "http://localhost:8000"
+
+
+embedding = embedding(model="hosted_vllm/facebook/opt-125m", input=["Hello world"])
+
+print(embedding)
+```
+
+</TabItem>
+<TabItem value="proxy" label="PROXY">
+
+1. Setup config.yaml
+
+```yaml
+model_list:
+    - model_name: my-model
+      litellm_params:
+        model: hosted_vllm/facebook/opt-125m  # add hosted_vllm/ prefix to route as OpenAI provider
+        api_base: https://hosted-vllm-api.co      # add api base for OpenAI compatible provider
+```
+
+2. Start the proxy 
+
+```bash
+$ litellm --config /path/to/config.yaml
+
+# RUNNING on http://0.0.0.0:4000
+```
+
+3. Test it! 
+
+```bash
+curl -L -X POST 'http://0.0.0.0:4000/embeddings' \
+-H 'Authorization: Bearer sk-1234' \
+-H 'Content-Type: application/json' \
+-d '{"input": ["hello world"], "model": "my-model"}'
+```
+
+[See OpenAI SDK/Langchain/etc. examples](../proxy/user_keys.md#embeddings)
+
+</TabItem>
+</Tabs>
+
+## Rerank
+
+<Tabs>
+<TabItem value="sdk" label="SDK">
+
+```python
+from litellm import rerank
+import os
+
+os.environ["HOSTED_VLLM_API_BASE"] = "http://localhost:8000"
+os.environ["HOSTED_VLLM_API_KEY"] = ""  # [optional], if your VLLM server requires an API key
+
+query = "What is the capital of the United States?"
+documents = [
+    "Carson City is the capital city of the American state of Nevada.",
+    "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
+    "Washington, D.C. is the capital of the United States.",
+    "Capital punishment has existed in the United States since before it was a country.",
+]
+
+response = rerank(
+    model="hosted_vllm/your-rerank-model",
+    query=query,
+    documents=documents,
+    top_n=3,
+)
+print(response)
+```
+
+### Async Usage
+
+```python
+from litellm import arerank
+import os, asyncio
+
+os.environ["HOSTED_VLLM_API_BASE"] = "http://localhost:8000"
+os.environ["HOSTED_VLLM_API_KEY"] = ""  # [optional], if your VLLM server requires an API key
+
+async def test_async_rerank(): 
+    query = "What is the capital of the United States?"
+    documents = [
+        "Carson City is the capital city of the American state of Nevada.",
+        "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
+        "Washington, D.C. is the capital of the United States.",
+        "Capital punishment has existed in the United States since before it was a country.",
+    ]
+
+    response = await arerank(
+        model="hosted_vllm/your-rerank-model",
+        query=query,
+        documents=documents,
+        top_n=3,
+    )
+    print(response)
+
+asyncio.run(test_async_rerank())
+```
+
+</TabItem>
+<TabItem value="proxy" label="PROXY">
+
+1. Setup config.yaml
+
+```yaml
+model_list:
+    - model_name: my-rerank-model
+      litellm_params:
+        model: hosted_vllm/your-rerank-model  # add hosted_vllm/ prefix to route as VLLM provider
+        api_base: http://localhost:8000      # add api base for your VLLM server
+        # api_key: your-api-key             # [optional] if your VLLM server requires authentication
+```
+
+2. Start the proxy 
+
+```bash
+$ litellm --config /path/to/config.yaml
+
+# RUNNING on http://0.0.0.0:4000
+```
+
+3. Test it! 
+
+```bash
+curl -L -X POST 'http://0.0.0.0:4000/rerank' \
+-H 'Authorization: Bearer sk-1234' \
+-H 'Content-Type: application/json' \
+-d '{
+    "model": "my-rerank-model",
+    "query": "What is the capital of the United States?",
+    "documents": [
+        "Carson City is the capital city of the American state of Nevada.",
+        "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean. Its capital is Saipan.",
+        "Washington, D.C. is the capital of the United States.",
+        "Capital punishment has existed in the United States since before it was a country."
+    ],
+    "top_n": 3
+}'
+```
+
+[See OpenAI SDK/Langchain/etc. examples](../rerank.md#litellm-proxy-usage)
+
+</TabItem>
+</Tabs>
+
+## Send Video URL to VLLM
+
+Example Implementation from VLLM [here](https://github.com/vllm-project/vllm/pull/10020)
+
+<Tabs>
+<TabItem value="files_message" label="(Unified) Files Message">
+
+Use this to send a video url to VLLM + Gemini in the same format, using OpenAI's `files` message type.
+
+There are two ways to send a video url to VLLM:
+
+1. Pass the video url directly
+
+```
+{"type": "file", "file": {"file_id": video_url}},
+```
+
+2. Pass the video data as base64
+
+```
+{"type": "file", "file": {"file_data": f"data:video/mp4;base64,{video_data_base64}"}}
+```
+
+<Tabs>
+<TabItem value="sdk" label="SDK">
+
+```python
+from litellm import completion
+
+messages=[
+    {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "Summarize the following video"
+            },
+            {
+                "type": "file",
+                "file": {
+                    "file_id": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                }
+            }
+        ]
+    }
+]
+
+# call vllm 
+os.environ["HOSTED_VLLM_API_BASE"] = "https://hosted-vllm-api.co"
+os.environ["HOSTED_VLLM_API_KEY"] = "" # [optional], if your VLLM server requires an API key
+response = completion(
+    model="hosted_vllm/qwen", # pass the vllm model name
+    messages=messages,
+)
+
+# call gemini 
+os.environ["GEMINI_API_KEY"] = "your-gemini-api-key"
+response = completion(
+    model="gemini/gemini-1.5-flash", # pass the gemini model name
+    messages=messages,
+)
+
+print(response)
+```
+
+</TabItem>
+<TabItem value="proxy" label="PROXY">
+
+1. Setup config.yaml
+
+```yaml
+model_list:
+    - model_name: my-model
+      litellm_params:
+        model: hosted_vllm/qwen  # add hosted_vllm/ prefix to route as OpenAI provider
+        api_base: https://hosted-vllm-api.co      # add api base for OpenAI compatible provider
+    - model_name: my-gemini-model
+      litellm_params:
+        model: gemini/gemini-1.5-flash  # add gemini/ prefix to route as Google AI Studio provider
+        api_key: os.environ/GEMINI_API_KEY
+```
+
+2. Start the proxy 
+
+```bash
+$ litellm --config /path/to/config.yaml
+
+# RUNNING on http://0.0.0.0:4000
+```
+
+3. Test it! 
+
+```bash
+curl -X POST http://0.0.0.0:4000/chat/completions \
+-H "Authorization: Bearer sk-1234" \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "my-model",
+    "messages": [
+        {"role": "user", "content": 
+            [
+                {"type": "text", "text": "Summarize the following video"},
+                {"type": "file", "file": {"file_id": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}}
+            ]
+        }
+    ]
+}'
+```
+
+</TabItem>
+</Tabs>
+
+
+</TabItem>
+<TabItem value="video_url" label="(VLLM-specific) Video Message">
+
+Use this to send a video url to VLLM in it's native message format (`video_url`).
+
+There are two ways to send a video url to VLLM:
+
+1. Pass the video url directly
+
+```
+{"type": "video_url", "video_url": {"url": video_url}},
+```
+
+2. Pass the video data as base64
+
+```
+{"type": "video_url", "video_url": {"url": f"data:video/mp4;base64,{video_data_base64}"}}
+```
+
+<Tabs>
+<TabItem value="sdk" label="SDK">
+
+```python
+from litellm import completion
+
+response = completion(
+            model="hosted_vllm/qwen", # pass the vllm model name
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Summarize the following video"
+                        },
+                        {
+                            "type": "video_url",
+                            "video_url": {
+                                "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                            }
+                        }
+                    ]
+                }
+            ],
+            api_base="https://hosted-vllm-api.co")
+
+print(response)
+```
+
+</TabItem>
+<TabItem value="proxy" label="PROXY">
+
+1. Setup config.yaml
+
+```yaml
+model_list:
+    - model_name: my-model
+      litellm_params:
+        model: hosted_vllm/qwen  # add hosted_vllm/ prefix to route as OpenAI provider
+        api_base: https://hosted-vllm-api.co      # add api base for OpenAI compatible provider
+```
+
+2. Start the proxy 
+
+```bash
+$ litellm --config /path/to/config.yaml
+
+# RUNNING on http://0.0.0.0:4000
+```
+
+3. Test it! 
+
+```bash
+curl -X POST http://0.0.0.0:4000/chat/completions \
+-H "Authorization: Bearer sk-1234" \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "my-model",
+    "messages": [
+        {"role": "user", "content": 
+            [
+                {"type": "text", "text": "Summarize the following video"},
+                {"type": "video_url", "video_url": {"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}}
+            ]
+        }
+    ]
+}'
+```
+
+</TabItem>
+</Tabs>
+
+
+</TabItem>
+</Tabs>
+
+
+## (Deprecated) for `vllm pip package` 
 ### Using - `litellm.completion`
 
 ```

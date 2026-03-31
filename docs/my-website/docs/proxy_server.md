@@ -1,7 +1,7 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# [OLD PROXY 👉 [**NEW** proxy here](./simple_proxy)] Local OpenAI Proxy Server
+# [OLD PROXY 👉 [NEW proxy here](./simple_proxy)] Local LiteLLM Proxy Server
 
 A fast, and lightweight OpenAI-compatible server to call 100+ LLM APIs. 
 
@@ -337,7 +337,7 @@ export OPENAI_API_KEY="sk-1234"
 ```
 
 ```shell 
-export OPENAI_API_BASE="http://0.0.0.0:8000"
+export OPENAI_BASE_URL="http://0.0.0.0:8000"
 ```
 ```shell
 python3 run.py --task "a script that says hello world" --name "hello world"
@@ -572,7 +572,7 @@ export OPENAI_API_KEY="sk-1234"
 ```
 
 ```shell 
-export OPENAI_API_BASE="http://0.0.0.0:8000"
+export OPENAI_BASE_URL="http://0.0.0.0:8000"
 ```
 ```shell
 python3 run.py --task "a script that says hello world" --name "hello world"
@@ -813,5 +813,4 @@ Thread Stats   Avg      Stdev     Max   +/- Stdev
 
 - [Schedule Demo 👋](https://calendly.com/d/4mp-gd3-k5k/berriai-1-1-onboarding-litellm-hosted-version)
 - [Community Discord 💭](https://discord.gg/wuPM9dRgDw)
-- Our numbers 📞 +1 (770) 8783-106 / ‭+1 (412) 618-6238‬
 - Our emails ✉️ ishaan@berri.ai / krrish@berri.ai

@@ -1,20 +1,18 @@
 import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-# 🚨 Alerting / Webhooks
+# Alerting / Webhooks
 
 Get alerts for:
 
-- Hanging LLM api calls
-- Slow LLM api calls
-- Failed LLM api calls
-- Budget Tracking per key/user
-- Spend Reports - Weekly & Monthly spend per Team, Tag
-- Failed db read/writes
-- Model outage alerting
-- Daily Reports:
-    - **LLM** Top 5 slowest deployments
-    - **LLM** Top 5 deployments with most failed requests
-- **Spend** Weekly & Monthly spend per Team, Tag
+| Category | Alert Type |
+|----------|------------|
+| **LLM Performance** | Hanging API calls, Slow API calls, Failed API calls, Model outage alerting |
+| **Budget & Spend** | Budget tracking per key/user, Soft budget alerts, Weekly & Monthly spend reports per Team/Tag |
+| **System Health** | Failed database read/writes |
+| **Daily Reports** | Top 5 slowest LLM deployments, Top 5 LLM deployments with most failed requests, Weekly & Monthly spend per Team/Tag |
+
 
 
 Works across: 
@@ -45,6 +43,20 @@ export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/<>/<>/<>"
 general_settings: 
     alerting: ["slack"]
     alerting_threshold: 300 # sends alerts if requests hang for 5min+ and responses take 5min+ 
+    spend_report_frequency: "1d" # [Optional] set as 1d, 2d, 30d .... Specify how often you want a Spend Report to be sent
+    
+    # [OPTIONAL ALERTING ARGS]
+    alerting_args:
+        daily_report_frequency: 43200  # 12 hours in seconds
+        report_check_interval: 3600    # 1 hour in seconds
+        budget_alert_ttl: 86400        # 24 hours in seconds
+        outage_alert_ttl: 60           # 1 minute in seconds
+        region_outage_alert_ttl: 60    # 1 minute in seconds
+        minor_outage_alert_threshold: 5 
+        major_outage_alert_threshold: 10
+        max_outage_alert_list_size: 1000
+        log_to_console: false
+    
 ```
 
 Start proxy 
@@ -61,7 +73,9 @@ curl -X GET 'http://0.0.0.0:4000/health/services?service=slack' \
 -H 'Authorization: Bearer sk-1234'
 ```
 
-## Advanced - Redacting Messages from Alerts
+## Advanced
+
+### Redacting Messages from Alerts
 
 By default alerts show the `messages/input` passed to the LLM. If you want to redact this from slack alerting set the following setting on your config
 
@@ -75,8 +89,53 @@ litellm_settings:
   redact_messages_in_exceptions: True
 ```
 
+### Soft Budget Alerts for Virtual Keys
 
-## Advanced - Add Metadata to alerts 
+Use this to send an alert when a key/team is close to it's budget running out
+
+Step 1. Create a virtual key with a soft budget
+
+Set the `soft_budget` to 0.001
+
+```shell
+curl -X 'POST' \
+  'http://localhost:4000/key/generate' \
+  -H 'accept: application/json' \
+  -H 'x-goog-api-key: sk-1234' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "key_alias": "prod-app1",
+  "team_id": "113c1a22-e347-4506-bfb2-b320230ea414",
+  "soft_budget": 0.001
+}'
+```
+
+Step 2. Send a request to the proxy with the virtual key
+
+```shell
+curl http://0.0.0.0:4000/chat/completions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer sk-Nb5eCf427iewOlbxXIH4Ow" \
+-d '{
+  "model": "openai/gpt-4",
+  "messages": [
+    {
+      "role": "user",
+      "content": "this is a test request, write a short poem"
+    }
+  ]
+}'
+
+```
+
+Step 3. Check slack for Expected Alert
+
+<Image img={require('../../img/soft_budget_alert.png')}/>
+
+
+
+
+### Add Metadata to alerts 
 
 Add alerting metadata to proxy calls for debugging. 
 
@@ -89,7 +148,7 @@ client = openai.OpenAI(
 
 # request sent to model set on litellm proxy, `litellm --model`
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4o",
     messages = [], 
     extra_body={
         "metadata": {
@@ -105,36 +164,127 @@ response = client.chat.completions.create(
 
 <Image img={require('../../img/alerting_metadata.png')}/>
 
-## Advanced - Opting into specific alert types
+### Select specific alert types
 
-Set `alert_types` if you want to Opt into only specific alert types
+Set `alert_types` if you want to Opt into only specific alert types. When alert_types is not set, all Default Alert Types are enabled.
+
+👉 [**See all alert types here**](#all-possible-alert-types)
 
 ```shell
 general_settings:
   alerting: ["slack"]
-  alert_types: ["spend_reports"] 
-```
-
-All Possible Alert Types
-
-```python
-AlertType = Literal[
+  alert_types: [
     "llm_exceptions",
     "llm_too_slow",
     "llm_requests_hanging",
     "budget_alerts",
+    "spend_reports",
     "db_exceptions",
     "daily_reports",
-    "spend_reports",
     "cooldown_deployment",
     "new_model_added",
-    "outage_alerts",
-]
+  ] 
+```
 
+### Map slack channels to alert type
+
+Use this if you want to set specific channels per alert type
+
+**This allows you to do the following**
+```
+llm_exceptions -> go to slack channel #llm-exceptions
+spend_reports -> go to slack channel #llm-spend-reports
+```
+
+Set `alert_to_webhook_url` on your config.yaml
+
+<Tabs>
+
+<TabItem label="1 channel per alert" value="1">
+
+```yaml
+model_list:
+  - model_name: gpt-4
+    litellm_params:
+      model: openai/fake
+      api_key: fake-key
+      api_base: https://exampleopenaiendpoint-production.up.railway.app/
+
+general_settings: 
+  master_key: sk-1234
+  alerting: ["slack"]
+  alerting_threshold: 0.0001 # (Seconds) set an artificially low threshold for testing alerting
+  alert_to_webhook_url: {
+    "llm_exceptions": "example-slack-webhook-url",
+    "llm_too_slow": "example-slack-webhook-url",
+    "llm_requests_hanging": "example-slack-webhook-url",
+    "budget_alerts": "example-slack-webhook-url",
+    "db_exceptions": "example-slack-webhook-url",
+    "daily_reports": "example-slack-webhook-url",
+    "spend_reports": "example-slack-webhook-url",
+    "cooldown_deployment": "example-slack-webhook-url",
+    "new_model_added": "example-slack-webhook-url",
+    "outage_alerts": "example-slack-webhook-url",
+  }
+
+litellm_settings:
+  success_callback: ["langfuse"]
+```
+</TabItem>
+
+<TabItem label="multiple channels per alert" value="2">
+
+Provide multiple slack channels for a given alert type
+
+```yaml
+model_list:
+  - model_name: gpt-4
+    litellm_params:
+      model: openai/fake
+      api_key: fake-key
+      api_base: https://exampleopenaiendpoint-production.up.railway.app/
+
+general_settings: 
+  master_key: sk-1234
+  alerting: ["slack"]
+  alerting_threshold: 0.0001 # (Seconds) set an artificially low threshold for testing alerting
+  alert_to_webhook_url: {
+    "llm_exceptions": ["os.environ/SLACK_WEBHOOK_URL", "os.environ/SLACK_WEBHOOK_URL_2"],
+    "llm_too_slow": ["https://webhook.site/7843a980-a494-4967-80fb-d502dbc16886", "https://webhook.site/28cfb179-f4fb-4408-8129-729ff55cf213"],
+    "llm_requests_hanging": ["os.environ/SLACK_WEBHOOK_URL_5", "os.environ/SLACK_WEBHOOK_URL_6"],
+    "budget_alerts": ["os.environ/SLACK_WEBHOOK_URL_7", "os.environ/SLACK_WEBHOOK_URL_8"],
+    "db_exceptions": ["os.environ/SLACK_WEBHOOK_URL_9", "os.environ/SLACK_WEBHOOK_URL_10"],
+    "daily_reports": ["os.environ/SLACK_WEBHOOK_URL_11", "os.environ/SLACK_WEBHOOK_URL_12"],
+    "spend_reports": ["os.environ/SLACK_WEBHOOK_URL_13", "os.environ/SLACK_WEBHOOK_URL_14"],
+    "cooldown_deployment": ["os.environ/SLACK_WEBHOOK_URL_15", "os.environ/SLACK_WEBHOOK_URL_16"],
+    "new_model_added": ["os.environ/SLACK_WEBHOOK_URL_17", "os.environ/SLACK_WEBHOOK_URL_18"],
+    "outage_alerts": ["os.environ/SLACK_WEBHOOK_URL_19", "os.environ/SLACK_WEBHOOK_URL_20"],
+  }
+
+litellm_settings:
+  success_callback: ["langfuse"]
+```
+
+</TabItem>
+
+</Tabs>
+
+Test it - send a valid llm request - expect to see a `llm_too_slow` alert in it's own slack channel
+
+```shell
+curl -i http://localhost:4000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-1234" \
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "user", "content": "Hello, Claude gm!"}
+    ]
+}'
 ```
 
 
-## Advanced - Using MS Teams Webhooks
+### MS Teams Webhooks
 
 MS Teams provides a slack compatible webhook url that you can use for alerting
 
@@ -176,7 +326,7 @@ curl --location 'http://0.0.0.0:4000/health/services?service=slack' \
 
 <Image img={require('../../img/ms_teams_alerting.png')}/>
 
-## Advanced - Using Discord Webhooks
+### Discord Webhooks
 
 Discord provides a slack compatible webhook url that you can use for alerting
 
@@ -208,7 +358,7 @@ environment_variables:
 ```
 
 
-## Advanced - [BETA] Webhooks for Budget Alerts
+##  [BETA] Webhooks for Budget Alerts
 
 **Note**: This is a beta feature, so the spec might change.
 
@@ -249,7 +399,7 @@ curl -X GET --location 'http://0.0.0.0:4000/health/services?service=webhook' \
 {
   "spend": 1, # the spend for the 'event_group'
   "max_budget": 0, # the 'max_budget' set for the 'event_group'
-  "token": "88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",
+  "token": "example-api-key-123",
   "user_id": "default_user_id",
   "team_id": null,
   "user_email": null,
@@ -262,7 +412,7 @@ curl -X GET --location 'http://0.0.0.0:4000/health/services?service=webhook' \
 }
 ```
 
-## **API Spec for Webhook Event**
+### API Spec for Webhook Event
 
 - `spend` *float*: The current spend amount for the 'event_group'.
 - `max_budget` *float or null*: The maximum allowed budget for the 'event_group'. null if not set. 
@@ -275,7 +425,7 @@ curl -X GET --location 'http://0.0.0.0:4000/health/services?service=webhook' \
 - `projected_exceeded_date` *str or null*: The date when the budget is projected to be exceeded, returned when 'soft_budget' is set for key (optional).
 - `projected_spend` *float or null*: The projected spend amount, returned when 'soft_budget' is set for key (optional).
 - `event` *Literal["budget_crossed", "threshold_crossed", "projected_limit_exceeded"]*: The type of event that triggered the webhook. Possible values are:
-    * "spend_tracked": Emitted whenver spend is tracked for a customer id. 
+    * "spend_tracked": Emitted whenever spend is tracked for a customer id. 
     * "budget_crossed": Indicates that the spend has exceeded the max budget.
     * "threshold_crossed": Indicates that spend has crossed a threshold (currently sent when 85% and 95% of budget is reached).
     * "projected_limit_exceeded": For "key" only - Indicates that the projected spend is expected to exceed the soft budget threshold.
@@ -288,7 +438,60 @@ curl -X GET --location 'http://0.0.0.0:4000/health/services?service=webhook' \
 
 - `event_message` *str*: A human-readable description of the event.
 
-## Advanced - Region-outage alerting (✨ Enterprise feature)
+### Digest Mode (Reducing Alert Noise)
+
+By default, LiteLLM sends a separate Slack message for **every** alert event. For high-frequency alert types like `llm_requests_hanging` or `llm_too_slow`, this can produce hundreds of duplicate messages per day.
+
+**Digest mode** aggregates duplicate alerts within a configurable time window and emits a single summary message with the total count and time range.
+
+#### Configuration
+
+Use `alert_type_config` in `general_settings` to enable digest mode per alert type:
+
+```yaml
+general_settings:
+  alerting: ["slack"]
+  alert_type_config:
+    llm_requests_hanging:
+      digest: true
+      digest_interval: 86400  # 24 hours (default)
+    llm_too_slow:
+      digest: true
+      digest_interval: 3600   # 1 hour
+    llm_exceptions:
+      digest: true
+      # uses default interval (86400 seconds / 24 hours)
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `digest` | bool | `false` | Enable digest mode for this alert type |
+| `digest_interval` | int | `86400` (24h) | Time window in seconds. Alerts are aggregated within this interval. |
+
+#### How It Works
+
+1. When an alert fires for a digest-enabled type, it is **grouped** by `(alert_type, request_model, api_base)` instead of being sent immediately
+2. A counter tracks how many times the alert fires within the interval
+3. When the interval expires, a **single summary message** is sent:
+
+```
+Alert type: `llm_requests_hanging` (Digest)
+Level: `Medium`
+Start: `2026-02-19 03:27:39`
+End: `2026-02-20 03:27:39`
+Count: `847`
+
+Message: `Requests are hanging - 600s+ request time`
+Request Model: `gemini-2.5-flash`
+API Base: `None`
+```
+
+#### Limitations
+
+- **Per-instance**: Digest state is held in memory per proxy instance. If you run multiple instances (e.g., Cloud Run with autoscaling), each instance maintains its own digest and emits its own summary.
+- **Not durable**: If an instance is terminated before the digest interval expires, the aggregated alerts for that instance are lost.
+
+## Region-outage alerting (✨ Enterprise feature)
 
 :::info
 [Get a free 2-week license](https://forms.gle/P518LXsAZ7PhXpDn8)
@@ -315,3 +518,64 @@ general_settings:
         minor_outage_alert_threshold: 5 # number of errors to trigger a minor alert
         major_outage_alert_threshold: 10 # number of errors to trigger a major alert
 ```
+
+## **All Possible Alert Types**
+
+👉 [**Here is how you can set specific alert types**](#opting-into-specific-alert-types)
+
+LLM-related Alerts
+
+| Alert Type | Description | Default On |
+|------------|-------------|---------|
+| `llm_exceptions` | Alerts for LLM API exceptions | ✅ |
+| `llm_too_slow` | Notifications for LLM responses slower than the set threshold | ✅ |
+| `llm_requests_hanging` | Alerts for LLM requests that are not completing | ✅ |
+| `cooldown_deployment` | Alerts when a deployment is put into cooldown | ✅ |
+| `new_model_added` | Notifications when a new model is added to litellm proxy through /model/new| ✅ |
+| `outage_alerts` | Alerts when a specific LLM deployment is facing an outage | ✅ |
+| `region_outage_alerts` | Alerts when a specific LLM region is facing an outage. Example us-east-1 | ✅ |
+
+Budget and Spend Alerts
+
+| Alert Type | Description | Default On|
+|------------|-------------|---------|
+| `budget_alerts` | Notifications related to budget limits or thresholds | ✅ |
+| `spend_reports` | Periodic reports on spending across teams or tags | ✅ |
+| `failed_tracking_spend` | Alerts when spend tracking fails | ✅ |
+| `daily_reports` | Daily Spend reports | ✅ |
+| `fallback_reports` | Weekly Reports on LLM fallback occurrences | ✅ |
+
+Database Alerts
+
+| Alert Type | Description | Default On |
+|------------|-------------|---------|
+| `db_exceptions` | Notifications for database-related exceptions | ✅ |
+
+Management Endpoint Alerts - Virtual Key, Team, Internal User
+
+| Alert Type | Description | Default On |
+|------------|-------------|---------|
+| `new_virtual_key_created` | Notifications when a new virtual key is created | ❌ |
+| `virtual_key_updated` | Alerts when a virtual key is modified | ❌ |
+| `virtual_key_deleted` | Notifications when a virtual key is removed | ❌ |
+| `new_team_created` | Alerts for the creation of a new team | ❌ |
+| `team_updated` | Notifications when team details are modified | ❌ |
+| `team_deleted` | Alerts when a team is deleted | ❌ |
+| `new_internal_user_created` | Notifications for new internal user accounts | ❌ |
+| `internal_user_updated` | Alerts when an internal user's details are changed | ❌ |
+| `internal_user_deleted` | Notifications when an internal user account is removed | ❌ |
+
+
+## `alerting_args` Specification
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `daily_report_frequency` | 43200 (12 hours) | Frequency of receiving deployment latency/failure reports in seconds |
+| `report_check_interval` | 3600 (1 hour) | How often to check if a report should be sent (background process) in seconds |
+| `budget_alert_ttl` | 86400 (24 hours) | Cache TTL for budget alerts to prevent spam when budget is crossed |
+| `outage_alert_ttl` | 60 (1 minute) | Time window for collecting model outage errors in seconds |
+| `region_outage_alert_ttl` | 60 (1 minute) | Time window for collecting region-based outage errors in seconds |
+| `minor_outage_alert_threshold` | 5 | Number of errors that trigger a minor outage alert (400 errors not counted) |
+| `major_outage_alert_threshold` | 10 | Number of errors that trigger a major outage alert (400 errors not counted) |
+| `max_outage_alert_list_size` | 1000 | Maximum number of errors to store in cache per model/region |
+| `log_to_console` | false | If true, prints alerting payload to console as a `.warning` log. |

@@ -81,6 +81,9 @@ Benchmark Results for 'When will BerriAI IPO?':
 |                 | plans or strategies.                                                             |                           |            |
 +-----------------+----------------------------------------------------------------------------------+---------------------------+------------+
 ```
+## Support
+**🤝 Schedule a 1-on-1 Session:** Book a [1-on-1 session](https://enterprise.litellm.ai/demo) with Krrish and Ishaan, the founders, to discuss any issues, provide feedback, or explore how we can improve LiteLLM for you.
+
 
 <!-- 
 ## Pre-requisites:
@@ -114,7 +117,7 @@ response = completion("command-nightly", messages)
 """
 
 
-# qustions/logs you want to run the LLM on
+# questions/logs you want to run the LLM on
 questions = [
     "what is litellm?",
     "why should I use LiteLLM",

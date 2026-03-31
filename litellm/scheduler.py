@@ -1,20 +1,19 @@
-import heapq
-from pydantic import BaseModel
-from typing import Optional
 import enum
-from litellm.caching import DualCache, RedisCache
+import heapq
+from typing import Optional
+
+from pydantic import BaseModel
+
 from litellm import print_verbose
+from litellm.caching.caching import DualCache, RedisCache
+from litellm.constants import DEFAULT_IN_MEMORY_TTL, DEFAULT_POLLING_INTERVAL
 
 
 class SchedulerCacheKeys(enum.Enum):
     queue = "scheduler:queue"
-    default_in_memory_ttl = 5  # cache queue in-memory for 5s when redis cache available
-
-
-class DefaultPriorities(enum.Enum):
-    High = 0
-    Medium = 128
-    Low = 255
+    default_in_memory_ttl = (
+        DEFAULT_IN_MEMORY_TTL  # cache queue in-memory for 5s when redis cache available
+    )
 
 
 class FlowItem(BaseModel):
@@ -42,7 +41,9 @@ class Scheduler:
         self.cache = DualCache(
             redis_cache=redis_cache, default_in_memory_ttl=default_in_memory_ttl
         )
-        self.polling_interval = polling_interval or 0.03  # default to 3ms
+        self.polling_interval = (
+            polling_interval or DEFAULT_POLLING_INTERVAL
+        )  # default to 3ms
 
     async def add_request(self, request: FlowItem):
         # We use the priority directly, as lower values indicate higher priority
@@ -83,12 +84,26 @@ class Scheduler:
             if queue[0][1] == id:
                 # Remove the item from the queue
                 heapq.heappop(queue)
+                await self.save_queue(queue=queue, model_name=model_name)
                 print_verbose(f"Popped id: {id}")
                 return True
             else:
                 return False
 
         return True
+
+    async def remove_request(self, request_id: str, model_name: str) -> None:
+        """
+        Remove a specific request from the priority queue for a model.
+        Used when a request times out while waiting in the queue.
+        """
+        queue = await self.get_queue(model_name=model_name)
+        filtered_queue = [item for item in queue if item[1] != request_id]
+        heapq.heapify(filtered_queue)  # restore heap invariant after filtering
+        await self.save_queue(queue=filtered_queue, model_name=model_name)
+        print_verbose(
+            f"Removed request_id: {request_id} from queue for model: {model_name}"
+        )
 
     async def peek(self, id: str, model_name: str, health_deployments: list) -> bool:
         """Return if the id is at the top of the queue. Don't pop the value from heap."""

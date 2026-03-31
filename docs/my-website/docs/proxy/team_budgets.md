@@ -2,9 +2,36 @@ import Image from '@theme/IdealImage';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 💰 Setting Team Budgets
+# Setting Team Budgets
 
+
+# Pre-Requisites
+
+- You must set up a Postgres database (e.g. Supabase, Neon, etc.)
+
+
+## Default Budget for Auto-Generated JWT Teams
+
+When using JWT authentication with `team_id_upsert: true`, you can automatically assign a default budget to any newly created team.
+
+This is configured in `default_team_settings` in your `config.yaml`.
+
+**Example:**
+```yaml
+# in your config.yaml
+
+litellm_jwtauth:
+  team_id_upsert: true
+  team_id_jwt_field: "team_id"
+  # ... other jwt settings
+
+litellm_settings:
+  default_team_settings: 
+    - team_id: "default-settings"
+      max_budget: 100.0
+```
 Track spend, set budgets for your Internal Team
+
 
 ## Setting Monthly Team Budgets
 
@@ -56,7 +83,7 @@ Possible values for `budget_duration`
 | `budget_duration="1m"` | every 1 min |
 | `budget_duration="1h"` | every 1 hour |
 | `budget_duration="1d"` | every 1 day |
-| `budget_duration="1mo"` | every 1 month |
+| `budget_duration="30d"` | every 1 month |
 
 
 ### 2. Create a key for the `team`
@@ -151,4 +178,6 @@ Expect to see this metric on prometheus to track the Remaining Budget for the te
 litellm_remaining_team_budget_metric{team_alias="QA Prod Bot",team_id="de35b29e-6ca8-4f47-b804-2b79d07aa99a"} 9.699999999999992e-06
 ```
 
+## See Also
 
+- [Per-model TPM/RPM for teams](./users.md#per-team-model) - Set rate limits per model for all keys in a team

@@ -2,18 +2,34 @@
 
 LiteLLM maps exceptions across all providers to their OpenAI counterparts.
 
-| Status Code | Error Type               |
-|-------------|--------------------------|
-| 400         | BadRequestError          |
-| 401         | AuthenticationError      |
-| 403         | PermissionDeniedError    |
-| 404         | NotFoundError            |
-| 422         | UnprocessableEntityError |
-| 429         | RateLimitError           |
-| >=500       | InternalServerError      |
-| N/A         | ContextWindowExceededError|
-| 400         | ContentPolicyViolationError|
-| 500         | APIConnectionError       |
+All exceptions can be imported from `litellm` - e.g. `from litellm import BadRequestError`
+
+## LiteLLM Exceptions
+
+| Status Code | Error Type               | Inherits from | Description |
+|-------------|--------------------------|---------------|-------------|
+| 400         | BadRequestError          | openai.BadRequestError |
+| 400 | UnsupportedParamsError | litellm.BadRequestError | Raised when unsupported params are passed |
+| 400         | ContextWindowExceededError| litellm.BadRequestError | Special error type for context window exceeded error messages - enables context window fallbacks |
+| 400         | ContentPolicyViolationError| litellm.BadRequestError | Special error type for content policy violation error messages - enables content policy fallbacks |
+| 400         | ImageFetchError | litellm.BadRequestError | Raised when there are errors fetching or processing images |
+| 400 | InvalidRequestError | openai.BadRequestError | Deprecated error, use BadRequestError instead |
+| 401         | AuthenticationError      | openai.AuthenticationError |
+| 403         | PermissionDeniedError    | openai.PermissionDeniedError |
+| 404         | NotFoundError            | openai.NotFoundError | raise when invalid models passed, example gpt-8 |
+| 408 | Timeout | openai.APITimeoutError | Raised when a timeout occurs |
+| 422         | UnprocessableEntityError | openai.UnprocessableEntityError |
+| 429         | RateLimitError           | openai.RateLimitError |
+| 500         | APIConnectionError       | openai.APIConnectionError | If any unmapped error is returned, we return this error |
+| 500         | APIError | openai.APIError | Generic 500-status code error | 
+| 503 | ServiceUnavailableError | openai.APIStatusError | If provider returns a service unavailable error, this error is raised |
+| >=500       | InternalServerError      | openai.InternalServerError | If any unmapped 500-status code error is returned, this error is raised |
+| N/A         | APIResponseValidationError | openai.APIResponseValidationError | If Rules are used, and request/response fails a rule, this error is raised |
+| N/A | BudgetExceededError | Exception | Raised for proxy, when budget is exceeded |
+| N/A | JSONSchemaValidationError | litellm.APIResponseValidationError | Raised when response does not match expected json schema - used if `response_schema` param passed in with `enforce_validation=True` |
+| N/A | MockException | Exception | Internal exception, raised by mock_completion class. Do not use directly | 
+| N/A | OpenAIError | openai.OpenAIError | Deprecated internal exception, inherits from openai.OpenAIError. |
+
 
 
 Base case we return APIConnectionError
@@ -95,6 +111,85 @@ except openai.APITimeoutError as e:
     should_retry = litellm._should_retry(e.status_code)
     print(f"should_retry: {should_retry}")
 ```
+
+## Advanced
+
+### Accessing Provider-Specific Error Details
+
+LiteLLM exceptions include a `provider_specific_fields` attribute that contains additional error information specific to each provider. This is particularly useful for Azure OpenAI, which provides detailed content filtering information.
+
+#### Azure OpenAI - Content Policy Violation Inner Error Access
+
+When Azure OpenAI returns content policy violations, you can access the detailed content filtering results through the `innererror` field:
+
+```python
+import litellm
+from litellm.exceptions import ContentPolicyViolationError
+
+try:
+    response = litellm.completion(
+        model="azure/gpt-4",
+        messages=[
+            {
+                "role": "user", 
+                "content": "Some content that might violate policies"
+            }
+        ]
+    )
+except ContentPolicyViolationError as e:
+    # Access Azure-specific error details
+    if e.provider_specific_fields and "innererror" in e.provider_specific_fields:
+        innererror = e.provider_specific_fields["innererror"]
+        
+        # Access content filter results
+        content_filter_result = innererror.get("content_filter_result", {})
+        
+        print(f"Content filter code: {innererror.get('code')}")
+        print(f"Hate filtered: {content_filter_result.get('hate', {}).get('filtered')}")
+        print(f"Violence severity: {content_filter_result.get('violence', {}).get('severity')}")
+        print(f"Sexual content filtered: {content_filter_result.get('sexual', {}).get('filtered')}")
+```
+
+**Example Response Structure:**
+
+When calling the LiteLLM proxy, content policy violations will return detailed filtering information:
+
+```json
+{
+  "error": {
+    "message": "litellm.ContentPolicyViolationError: AzureException - The response was filtered due to the prompt triggering Azure OpenAI's content management policy...",
+    "type": null,
+    "param": null,
+    "code": "400",
+    "provider_specific_fields": {
+      "innererror": {
+        "code": "ResponsibleAIPolicyViolation",
+        "content_filter_result": {
+          "hate": {
+            "filtered": true,
+            "severity": "high"
+          },
+          "jailbreak": {
+            "filtered": false,
+            "detected": false
+          },
+          "self_harm": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "sexual": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "violence": {
+            "filtered": true,
+            "severity": "medium"
+          }
+        }
+      }
+    }
+  }
+}
 
 ## Details 
 
